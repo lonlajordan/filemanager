@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="Manage your files efficiently and easily with GIE File Manager">
+        <meta name="author" content="GIE-GCB">
+        <meta name="robots" content="noindex, nofollow">
+        <meta name="googlebot" content="noindex">
+        <title>GIE File Manager</title>
+        <link rel="icon" type="image/x-ico" th:href="@{/images/logo.ico}">
+        <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+        <link th:href="@{/css/styles.css}" rel="stylesheet">
+    </head>
+    <body class="fm-login-page">
+        <div id="wrapper" class="container-fluid">
+            <section class="h-100">
+                <div class="container h-100">
+                    <div class="row justify-content-md-center h-100">
+                        <div class="card-wrapper">
+                            <div class="card fat">
+                                <div class="card-body">
+                                    <form class="form-signin" th:action="@{/}" method="post">
+                                        <div class="form-group">
+                                            <div class="brand">
+                                                <img th:src="@{/images/logo_gie.jpg}" alt="Logo GIE GCB">
+                                            </div>
+                                            <div class="text-center">
+                                                <h1 class="card-title">GIE File Manager</h1>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div class="form-group">
+                                            <label for="fm_usr">Nom d'utilisateur</label>
+                                            <input type="text" class="form-control" id="fm_usr" name="username" th:value="${username}" autocomplete="off" required autofocus>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="fm_pwd">Mot de passe</label>
+                                            <input type="password" class="form-control" id="fm_pwd" name="password" th:value="${password}" autocomplete="off" required>
+                                        </div>
+
+                                        <div class="form-group" th:if="${error}">
+                                            <p class="message error" th:text="${message}"></p>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <button type="submit" class="btn btn-success btn-block mt-4" role="button">
+                                                Se connecter
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="footer text-center">
+                                &mdash;&mdash; &copy; <a href="https://www.commercialbank-cm.com" target="_blank" class="text-muted" data-version="2.5">GIE GCB</a> &mdash;&mdash;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <script th:src="@{/js/jquery.min.js}"></script>
+        <script th:src="@{/js/bootstrap.min.js}"></script>
+    </body>
+</html>

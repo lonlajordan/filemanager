@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="Manage your files efficiently and easily with GIE File Manager">
+        <meta name="author" content="GIE-GCB">
+        <meta name="robots" content="noindex, nofollow">
+        <meta name="googlebot" content="noindex">
+        <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
+        <title>GIE File Manager</title>
+        <link rel="icon" type="image/x-ico" th:href="@{/images/logo.ico}">
+        <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+        <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet">
+        <link th:href="@{/css/styles.css}" rel="stylesheet">
+    </head>
+    <body class="navbar-sticky-top">
+        <div id="wrapper" class="container-fluid overflow-auto">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white main-nav sticky-top row">
+                <a class="navbar-brand" th:href="@{'/home'}"> File Manager </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <div class="col-xs-6 col-sm-5">
+                        <a th:href="@{/home}"><i class="fa fa-home" aria-hidden="true"></i></a>
+                        <th:block th:each="directory: ${directories}">
+                            <i class="bread-crumb"> / </i><a th:href="@{'/home?p=' + ${directory.absolutePath}}" th:text="${directory.file?.name}"></a>
+                        </th:block>
+                    </div>
+                    <div class="col-xs-6 col-sm-7 text-right">
+                        <ul class="navbar-nav mr-auto float-right">
+                            <li class="nav-item mr-3 d-none">
+                                <form id="uploadForm" method="post" th:action="@{/upload/files}" enctype="multipart/form-data">
+                                    <input name="files" id="files" onchange="sendBankFiles()" type="file" multiple="">
+                                    <input name="bank" id="bank" type="text">
+                                </form>
+                            </li>
+                            <li class="nav-item mr-3" style="margin-top:4px;">
+                                <a href="javascript:document.getElementById('files').click();" onclick="document.getElementById('bank').value='CBC'" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-file-archive-o"></i> CBC </a>
+                            </li>
+                            <li class="nav-item mr-5" style="margin-top:4px;">
+                                <a href="javascript:document.getElementById('files').click();" onclick="document.getElementById('bank').value='CBT'" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-file-archive-o"></i> CBT </a>
+                            </li>
+                            <li class="nav-item mr-2">
+                                <div class="input-group input-group-sm mr-1" style="margin-top:4px;">
+                                    <input class="form-control" placeholder="Recherche" aria-label="Recherche" id="search-addon">
+                                </div>
+                            </li>
+                            <li class="nav-item avatar dropdown">
+                                <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-5" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-user"></i>&nbsp;<span th:text="${session?.user?.username}"></span></a>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink-5">
+                                    <a title="Déconnexion" class="dropdown-item nav-link" th:href="@{/logout}"><i class="fa fa-sign-out" aria-hidden="true"></i> Déconnexion</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <form onsubmit="submitForm(event)" th:action="@{'/download/files'}" name="selectionForm" method="post" class="pt-3">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-sm bg-white dataTable" id="main-table" role="grid">
+                        <thead class="thead-white">
+                        <tr role="row">
+                            <th style="width: 10px;" class="custom-checkbox-header sorting_asc">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="js-select-all-items" onclick="selectItems(this)">
+                                    <label class="custom-control-label" for="js-select-all-items"></label>
+                                </div>
+                            </th>
+                            <th class="sorting" tabindex="0" aria-controls="main-table">Nom</th>
+                            <th class="sorting" tabindex="0" aria-controls="main-table">Taille</th>
+                            <th class="sorting" tabindex="0" aria-controls="main-table">Modifié le</th>
+                            <th class="sorting_disabled">Permissions</th>
+                            <th class="sorting_disabled">Propriétaire</th>
+                            <th class="sorting_disabled">Action</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${!isHome}">
+                            <td class="nosort"></td>
+                            <td class="border-0">
+                                <a th:href="@{'/home?p=' + ${parent}}"><i class="fa fa-chevron-circle-left go-back"></i> ..</a>
+                            </td>
+                            <td class="border-0"></td>
+                            <td class="border-0"></td>
+                            <td class="border-0"></td>
+                            <td class="border-0"></td>
+                            <td class="border-0"></td>
+                        </tr>
+                        <tr th:each="item,iter: ${items}">
+                            <td class="custom-checkbox-td">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" th:id="${'item-' + iter.count}" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" name="paths" th:value="${item.absolutePath}" onclick="return selectItem(this)">
+                                    <label class="custom-control-label" th:for="${'item-' + iter.count }"></label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="filename">
+                                    <th:block th:if="${!item.file.directory}">
+                                        <i class="fa" th:classappend="${item.icon}"></i> <span th:text="${item.file.name}"></span>
+                                    </th:block>
+                                    <a th:if="${item.file.directory}" th:href="@{'/home?p=' + ${item.absolutePath}}">
+                                        <i class="fa" th:classappend="${item.icon}"></i> <span th:text="${item.file.name}"></span>
+                                    </a>
+                                </div>
+                            </td>
+                            <td th:text="${item.fileSize}"></td>
+                            <td th:text="${#calendars.format(item.lastModifiedDate, 'dd-MM-yyyy  HH:mm')}"></td>
+                            <td th:text="${item.permissions}"></td>
+                            <td th:text="${item.owner}"></td>
+                            <td class="inline-actions">
+                                <a th:if="${item.file.directory}" title="Télécharger" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/folder')"><i class="fa fa-download"></i></a>
+                                <a th:if="${!item.file.directory}" title="Télécharger" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/file')"><i class="fa fa-download"></i></a>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td class="gray" rowspan="1" colspan="1"></td>
+                            <td class="gray" colspan="6" rowspan="1"> Fichiers : <span class="badge badge-light" th:text="${files}"></span> Dossiers : <span class="badge badge-light" th:text="${folders}"></span> Espace libre : <span class="badge badge-light" th:text="${freeSpace}"></span> Espace Total : <span class="badge badge-light" th:text="${totalSpace}"></span> </td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-9">
+                        <ul class="list-inline footer-action">
+                            <li class="list-inline-item">
+                                <input type="submit" class="d-none" id="a-zip">
+                                <a href="javascript:document.getElementById('a-zip').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-file-archive-o"></i> Compresser les fichiers </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-3 d-none d-sm-block"><a href="https://www.groupecommercialbank.com" target="_blank" class="float-right text-muted">GIE File Manager 2.5</a></div>
+                </div>
+            </form>
+        </div>
+        <script th:src="@{/js/jquery.min.js}"></script>
+        <script th:src="@{/js/bootstrap.min.js}"></script>
+        <script th:src="@{/js/jquery.dataTables.min.js}"></script>
+        <script th:src="@{/js/loadingoverlay.min.js}"></script>
+        <script th:src="@{/js/file.manager.js}"></script>
+    </body>
+</html>
