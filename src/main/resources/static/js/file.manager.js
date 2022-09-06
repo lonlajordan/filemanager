@@ -26,6 +26,29 @@ function submitForm(event) {
     downloadFile(form.serialize(), '/download/files');
 }
 
+function deleteFile(event, isDirectory){
+    if(!confirm("Voulez-vous vraiment supprimer ce " + (isDirectory ? "dossier" :  "fichier") + " ?")){
+        event.preventDefault();
+    }
+}
+
+function renameFile(event, oldName, id) {
+    let newName = prompt("Nouveau nom", oldName);
+    if(newName){
+        let selector = "#" + id;
+        let href = $(selector).attr('href');
+        let index = href.lastIndexOf('&name');
+        if(index < 0){
+            href += "&name=" + newName;
+        }else{
+            href = href.substring(0, index) + "&name=" + newName;
+        }
+        $(selector).attr("href", href);
+    }else{
+        event.preventDefault();
+    }
+}
+
 function downloadFile(path, url) {
     $("#wrapper").LoadingOverlay('show', options);
     let xhr = new XMLHttpRequest();

@@ -36,7 +36,9 @@ public class FileItem {
         FileOwnerAttributeView view = Files.getFileAttributeView(path, FileOwnerAttributeView.class);
         UserPrincipal user = view.getOwner();
         this.owner = user.getName();
-        this.permissions = FileUtils.toOctalFileMode(file) + "";
+        try {
+            this.permissions = FileUtils.toOctalFileMode(Files.getPosixFilePermissions(file.toPath())) + "";
+        }catch (Exception ignored){}
     }
 
     public FileItem() {

@@ -1,6 +1,7 @@
 package com.filemanager.controllers;
 
 import com.filemanager.models.FileItem;
+import com.filemanager.models.Notification;
 import com.filemanager.models.User;
 import com.filemanager.security.SecurityConfig;
 import com.filemanager.services.FileUtils;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.io.File;
@@ -26,14 +28,8 @@ import java.util.Collections;
 
 @Controller
 public class HomeController {
-    @Value("${admin.working.directory}")
-    private String ADMIN_WORKING_DIRECTORY;
-    @Value("${gie.working.directory}")
-    private String GIE_WORKING_DIRECTORY;
-    @Value("${cbc.working.directory}")
-    private String CBC_WORKING_DIRECTORY;
-    @Value("${cbt.working.directory}")
-    private String CBT_WORKING_DIRECTORY;
+    @Value("${root.working.directory}")
+    private String ROOT_WORKING_DIRECTORY;
 
     private final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
@@ -55,7 +51,7 @@ public class HomeController {
                     files++;
                 }
             } catch (IOException e) {
-                //logger.error("Error while reading [" + file.getAbsolutePath() + "] properties", e);
+                logger.error("Error while reading [" + file.getAbsolutePath() + "] properties", e);
             }
         }
         model.addAttribute("items", items);
@@ -95,13 +91,17 @@ public class HomeController {
     }
 
     @GetMapping(path = "/rename")
-    public String renameFile(@RequestParam String path, @RequestParam String name){
+    public String renameFile(@RequestParam String path, @RequestParam String name, RedirectAttributes attributes){
         try {
             Path sourcePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
+            String p = sourcePath.getParent().toAbsolutePath().toString();
             Path targetPath = Paths.get(sourcePath.getParent().toString(), name);
             Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            attributes.addAttribute("p", p);
+            attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("renaming file error", e);
+            attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
         }
         return "redirect:home";
     }
@@ -122,18 +122,16 @@ public class HomeController {
     public String getWorkingDirectory(HttpSession session){
         String directory = (String) session.getAttribute("directory");
         if(directory == null){
-            directory = this.GIE_WORKING_DIRECTORY;
+            directory = this.ROOT_WORKING_DIRECTORY;
             User user = (User) session.getAttribute("user");
             if(user != null){
                 String username = StringUtils.defaultString(user.getUsername());
-                if(username.equals(SecurityConfig.ADMIN_USERNAME)){
-                    directory = this.ADMIN_WORKING_DIRECTORY;
-                }else if(username.equals(SecurityConfig.GIE_USERNAME)){
-                    directory = this.GIE_WORKING_DIRECTORY;
+                if(username.equals(SecurityConfig.GIE_USERNAME)){
+                    directory += File.separator + "giegcb";
                 }else if(username.equals(SecurityConfig.CBC_USERNAME)){
-                    directory = this.CBC_WORKING_DIRECTORY;
+                    directory += File.separator + "cbc";
                 }else if(username.equals(SecurityConfig.CBT_USERNAME)){
-                    directory = this.CBT_WORKING_DIRECTORY;
+                    directory += File.separator + "cbt";
                 }
             }
             session.setAttribute("directory", directory);

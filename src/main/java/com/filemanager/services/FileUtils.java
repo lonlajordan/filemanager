@@ -1,6 +1,5 @@
 package com.filemanager.services;
 
-import java.io.File;
 import java.nio.file.attribute.PosixFilePermission;
 import java.text.DecimalFormat;
 import java.util.Set;
@@ -55,48 +54,6 @@ public class FileUtils {
         return result;
     }
 
-    /**
-     * Converts a set of {@link PosixFilePermission} to chmod-style octal file mode.
-     */
-    public static int toOctalFileMode(File file) {
-        int result = 0;
-        if(file.canRead()) result |= OWNER_READ_FILEMODE;
-        if(file.canWrite()) result |= OWNER_WRITE_FILEMODE;
-        if(file.canExecute()) result |= OWNER_EXEC_FILEMODE;
-        /*for (PosixFilePermission permissionBit : permissions) {
-            switch (permissionBit) {
-                case OWNER_READ:
-                    result |= OWNER_READ_FILEMODE;
-                    break;
-                case OWNER_WRITE:
-                    result |= OWNER_WRITE_FILEMODE;
-                    break;
-                case OWNER_EXECUTE:
-                    result |= OWNER_EXEC_FILEMODE;
-                    break;
-                case GROUP_READ:
-                    result |= GROUP_READ_FILEMODE;
-                    break;
-                case GROUP_WRITE:
-                    result |= GROUP_WRITE_FILEMODE;
-                    break;
-                case GROUP_EXECUTE:
-                    result |= GROUP_EXEC_FILEMODE;
-                    break;
-                case OTHERS_READ:
-                    result |= OTHERS_READ_FILEMODE;
-                    break;
-                case OTHERS_WRITE:
-                    result |= OTHERS_WRITE_FILEMODE;
-                    break;
-                case OTHERS_EXECUTE:
-                    result |= OTHERS_EXEC_FILEMODE;
-                    break;
-            }
-        }*/
-        return result;
-    }
-
     public static String readableFileSize(long size) {
         if(size <= 0) return "0";
         final String[] units = new String[] { "o", "Ko", "Mo", "Go", "To" };
@@ -105,7 +62,7 @@ public class FileUtils {
     }
     
     public static String icon(String extension){
-        String icon = "";
+        String icon;
         switch (extension) {
             case "ico":
             case "gif":

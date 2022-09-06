@@ -28,14 +28,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/upload")
 public class UploadController {
 
-    @Value("${admin.working.directory}")
-    private String ADMIN_WORKING_DIRECTORY;
-    @Value("${gie.working.directory}")
-    private String GIE_WORKING_DIRECTORY;
-    @Value("${cbc.working.directory}")
-    private String CBC_WORKING_DIRECTORY;
-    @Value("${cbt.working.directory}")
-    private String CBT_WORKING_DIRECTORY;
+    @Value("${root.working.directory}")
+    private String ROOT_WORKING_DIRECTORY;
 
     private final Logger logger = LoggerFactory.getLogger(UploadController.class);
 
@@ -92,16 +86,16 @@ public class UploadController {
         operator = StringUtils.defaultString(operator, "GIMAC");
         List<String> dayList = new ArrayList<>(days);
         Collections.sort(dayList);
-        String root = CBC_WORKING_DIRECTORY;
+        String root = ROOT_WORKING_DIRECTORY + File.separator + "cbc";
         if("CBC".equalsIgnoreCase(bank)){
-            root = CBC_WORKING_DIRECTORY;
+            root = ROOT_WORKING_DIRECTORY + File.separator + "cbc";
         }else if("CBT".equalsIgnoreCase(bank)){
-            root = CBT_WORKING_DIRECTORY;
+            root = ROOT_WORKING_DIRECTORY + File.separator + "cbt";
         }
         LocalDate date = Instant.ofEpochSecond(lastTimer).atZone(ZoneId.systemDefault()).toLocalDate();
         Path path = Paths.get(root, operator, date.getYear() + "", months.get(date.getMonthValue() - 1), String.join("-", dayList));
         if("APPLICATION".equalsIgnoreCase(operator)){
-            root = GIE_WORKING_DIRECTORY;
+            root = ROOT_WORKING_DIRECTORY + File.separator + "giegcb";
             path = Paths.get(root, bank, operator, date.getYear() + "", months.get(date.getMonthValue() - 1), String.join("-", dayList));
         }
         File folder = new File(path.toUri());
