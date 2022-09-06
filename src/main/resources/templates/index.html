@@ -36,11 +36,19 @@
                                     <input name="bank" id="bank" type="text">
                                 </form>
                             </li>
-                            <li class="nav-item mr-3" style="margin-top:4px;">
-                                <a href="javascript:document.getElementById('files').click();" onclick="document.getElementById('bank').value='CBC'" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-file-archive-o"></i> CBC </a>
+                            <th:block th:if="${session?.user?.hasRole('ROLE_GIE')}">
+                                <li class="nav-item mr-3" style="margin-top:4px;">
+                                    <a href="javascript:document.getElementById('files').click();" onclick="document.getElementById('bank').value='CBC'" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-file-archive-o"></i> CBC </a>
+                                </li>
+                                <li class="nav-item mr-5" style="margin-top:4px;">
+                                    <a href="javascript:document.getElementById('files').click();" onclick="document.getElementById('bank').value='CBT'" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-file-archive-o"></i> CBT </a>
+                                </li>
+                            </th:block>
+                            <li th:if="${session?.user?.hasRole('ROLE_CBC') || session?.user?.hasRole('ROLE_CBT')}" class="nav-item mr-5" style="margin-top:4px;">
+                                <a href="javascript:document.getElementById('files').click();" th:data-bank="${session?.user?.hasRole('ROLE_CBC') ? 'CBC' : 'CBT'}" onclick="document.getElementById('bank').value=this.getAttribute('data-bank')" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-file-archive-o"></i> Application </a>
                             </li>
-                            <li class="nav-item mr-5" style="margin-top:4px;">
-                                <a href="javascript:document.getElementById('files').click();" onclick="document.getElementById('bank').value='CBT'" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-file-archive-o"></i> CBT </a>
+                            <li th:if="${session?.user?.hasRole('ROLE_ADMIN')}" class="nav-item mr-5" style="margin-top:4px;">
+                                <a href="javascript:document.getElementById('files').click();" onclick="document.getElementById('bank').value='ADMIN'" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-upload"></i> Envoyer </a>
                             </li>
                             <li class="nav-item mr-2">
                                 <div class="input-group input-group-sm mr-1" style="margin-top:4px;">
@@ -111,6 +119,11 @@
                             <td class="inline-actions">
                                 <a th:if="${item.file.directory}" title="Télécharger" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/folder')"><i class="fa fa-download"></i></a>
                                 <a th:if="${!item.file.directory}" title="Télécharger" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/file')"><i class="fa fa-download"></i></a>
+                                <th:block>
+                                    <a title="Renommer" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/file')"><i class="fa fa-edit"></i></a>
+                                    <a title="Copier vers..." th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/file')"><i class="fa fa-copy"></i></a>
+                                    <a title="Supprimer" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/file')"><i class="fa fa-trash-o"></i></a>
+                                </th:block>
                             </td>
                         </tr>
                         </tbody>
@@ -125,6 +138,24 @@
                 <div class="row">
                     <div class="col-xs-12 col-sm-9">
                         <ul class="list-inline footer-action">
+                            <li class="list-inline-item">
+                                <input type="submit" class="d-none" id="a-delete">
+                                <a href="javascript:document.getElementById('a-delete').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-trash-o"></i> Supprimer</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a href="javascript:reverseSelection();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-th-list"></i> Inverser la sélection</a>
+                            </li>
+                            <th:block th:if="${session?.user?.hasRole('ROLE_ADMIN')}">
+                                <li class="list-inline-item">
+                                    <a href="javascript:document.getElementById('a-zip').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-copy"></i> Copier </a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <a href="javascript:document.getElementById('a-zip').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-cut"></i> Couper </a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <a href="javascript:document.getElementById('a-zip').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-paste"></i> Coller </a>
+                                </li>
+                            </th:block>
                             <li class="list-inline-item">
                                 <input type="submit" class="d-none" id="a-zip">
                                 <a href="javascript:document.getElementById('a-zip').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-file-archive-o"></i> Compresser les fichiers </a>

@@ -5,16 +5,15 @@ let options = {
 }
 
 function selectItems(checkBox){
-    $("#main-table tbody tr input[type=checkbox]").each(function () {
-        if(this.getAttribute('data-item-type') !== 'folder') this.checked = checkBox.checked;
-    })
+    $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = checkBox.checked; })
+}
+
+function reverseSelection(){
+    $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = !this.checked; })
 }
 
 function selectItem(checkBox){
-    if(checkBox.getAttribute('data-item-type') === 'folder') return false;
-    /*$("#main-table tbody tr input[type=checkbox]").each(function () {
-        this.checked = checkBox.checked;
-    })*/
+    if(!checkBox.checked) $("#js-select-all-items").prop( "checked", false);
 }
 
 function submitForm(event) {

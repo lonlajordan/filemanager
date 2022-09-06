@@ -28,8 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -119,26 +118,26 @@ public class SecurityConfig {
         public Authentication authenticate(Authentication authentication) throws AuthenticationException {
             String username = StringUtils.defaultString(authentication.getName());
             String password = (String) authentication.getCredentials();
-            Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            String role;
             if(username.equals(ADMIN_USERNAME)){
                 if(!new BCryptPasswordEncoder().matches(password, ADMIN_PASSWORD)) throw new BadCredentialsException("incorrect.password");
-                authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                role = "ROLE_ADMIN";
             }else if(username.equals(GIE_USERNAME)){
                 if(!new BCryptPasswordEncoder().matches(password, GIE_PASSWORD)) throw new BadCredentialsException("incorrect.password");
-                authorities.add(new SimpleGrantedAuthority("ROLE_GIE"));
+                role = "ROLE_GIE";
             }else if(username.equals(CBC_USERNAME)){
                 if(!new BCryptPasswordEncoder().matches(password, CBC_PASSWORD)) throw new BadCredentialsException("incorrect.password");
-                authorities.add(new SimpleGrantedAuthority("ROLE_CBC"));
+                role = "ROLE_CBC";
             }else if(username.equals(CBT_USERNAME)){
                 if(!new BCryptPasswordEncoder().matches(password, CBT_PASSWORD)) throw new BadCredentialsException("incorrect.password");
-                authorities.add(new SimpleGrantedAuthority("ROLE_CBT"));
+                role = "ROLE_CBT";
             }else{
                 throw new BadCredentialsException("incorrect.username");
             }
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
             HttpSession session = attributes.getRequest().getSession(true);
-            session.setAttribute("user", new User(username, password));
-            return new UsernamePasswordAuthenticationToken(username, password, authorities);
+            session.setAttribute("user", new User(username, password, role));
+            return new UsernamePasswordAuthenticationToken(username, password, Collections.singletonList(new SimpleGrantedAuthority(role)));
         }
 
         @Override
