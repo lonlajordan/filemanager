@@ -129,3 +129,7 @@ ul#search-wrapper li:nth-child(odd){ background: #f9f9f9cc;}
 #main-table th, td {
     border-bottom-width: 1px !important;
 }
+
+td.dataTables_empty {
+    text-align: center;
+}

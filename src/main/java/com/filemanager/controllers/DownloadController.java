@@ -29,7 +29,7 @@ import java.util.zip.ZipOutputStream;
 @RequestMapping("/download")
 public class DownloadController {
 
-    private final Logger logger = LoggerFactory.getLogger(DownloadController.class);
+    private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
 
     @GetMapping("file")
     public void downloadFile(@RequestParam String path, HttpServletResponse response) {
@@ -49,6 +49,7 @@ public class DownloadController {
                 response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }
         } catch (Exception e) {
+            logger.error("file download error", e);
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
     }
@@ -67,6 +68,7 @@ public class DownloadController {
             response.setHeader("Content-Disposition", "attachment; filename=" + folder.getName() + ".zip");
             return ResponseEntity.ok(streamResponseBody);
         } catch (Exception e) {
+            logger.error("directory download error", e);
             return ResponseEntity.badRequest().body(null);
         }
     }
@@ -102,14 +104,14 @@ public class DownloadController {
                         zipOut.write(bytes, 0, bytes.length);
                         zipOut.closeEntry();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        logger.error("zip entry error", e);
                     }
                     return FileVisitResult.CONTINUE;
                 }
             });
             zipOut.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("file compression error", e);
         }
     }
 
@@ -117,7 +119,9 @@ public class DownloadController {
         if(paths.isEmpty()){
             try {
                 zipOut.close();
-            } catch (IOException ignored) { }
+            } catch (IOException e) {
+                logger.error("ZipOutputStream closing error", e);
+            }
             return;
         }
         final Path sourceDir = paths.get(0).getParent();
@@ -134,14 +138,14 @@ public class DownloadController {
                             zipOut.closeEntry();
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        logger.error("zip entry error", e);
                     }
                     return FileVisitResult.CONTINUE;
                 }
             });
             zipOut.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("multiple files compression error", e);
         }
     }
 }

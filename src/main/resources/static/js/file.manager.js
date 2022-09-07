@@ -27,7 +27,7 @@ function submitForm(event) {
     let copy = $(event.submitter).hasClass('copy');
     let cut = $(event.submitter).hasClass('cut');
     if(deletion){
-        if(!confirm("Voulez-vous vraiment supprimer " + (n > 1 ? "cet élément" :  "ces " + n + " éléments") + " ?")){
+        if(!confirm("Voulez-vous vraiment supprimer " + (n < 2 ? "cet élément" :  "ces " + n + " éléments") + " ?")){
             return false;
         }
         form.attr('action', ctx + '/delete/files');

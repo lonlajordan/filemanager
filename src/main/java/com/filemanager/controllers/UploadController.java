@@ -1,5 +1,6 @@
 package com.filemanager.controllers;
 
+import com.filemanager.models.Notification;
 import com.filemanager.services.EmailHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,12 +36,24 @@ public class UploadController {
     @Value("${root.working.directory}")
     private String ROOT_WORKING_DIRECTORY;
 
+    @Value("${sys.alert.mail}")
+    private String SYS_ALERT_MAIL;
+
+    @Value("${cbc.alert.mail}")
+    private String CBC_ALERT_MAIL;
+
+    @Value("${cbt.alert.mail}")
+    private String CBT_ALERT_MAIL;
+
+    @Value("${gie.alert.mail}")
+    private String GIE_ALERT_MAIL;
+
     private final Logger logger = LoggerFactory.getLogger(UploadController.class);
 
     @PostMapping(value = "files")
     public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam String bank, @RequestParam String destination, RedirectAttributes attributes){
-        int length = 0, index = 0;
-        long timer = 0, lastTimer = 0;
+        int length, index;
+        long timer, lastTimer = 0;
         String name, operator = "", day = "", month, year = "";
         Set<String> days = new HashSet<>();
         List<String> months = Arrays.asList("JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE");
@@ -113,6 +126,7 @@ public class UploadController {
         File folder = new File(path.toUri());
         if (!folder.exists() && !folder.mkdirs()) throw new SecurityException("Erreur lors de la création du dossier de sauvegarde des fichiers.");
         List<String> fileNames = new ArrayList<>();
+        int count = 0;
         for(MultipartFile file: files){
             name = StringUtils.defaultString(file.getOriginalFilename());
             fileNames.add(name);
@@ -122,64 +136,67 @@ public class UploadController {
                     BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
                     stream.write(file.getBytes());
                     stream.close();
+                    count++;
                 } catch (Exception e) {
                     logger.error("error", e);
                 }
             }
         }
-        String from = "alert_monet@groupecommercialbank.com";
-        String cc = "jlonla@groupecommercialbank.com";
-        String to = "jlonla@groupecommercialbank.com";
+        if(count == files.length){
+            String plural = count == 1 ? "" : "s";
+            attributes.addFlashAttribute("notification", new Notification("success", count + " fichier" + plural + " envoyé" + plural + "."));
+        }else{
+            count = files.length - count;
+            String plural = count == 1 ? "" : "s";
+            attributes.addFlashAttribute("notification", new Notification("error", count + " fichier" + plural + " non envoyé" + plural + "."));
+        }
+        String from = SYS_ALERT_MAIL;
+        String cc = "";
+        String to = "";
         String subject = "";
-        StringBuilder body = new StringBuilder("");
+        String body = "";
         if("GIMAC".equalsIgnoreCase(operator)){
+            to = "CBC".equalsIgnoreCase(bank) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
+            cc = GIE_ALERT_MAIL;
             subject = "Rapports GIMAC disponibles";
-            body = new StringBuilder(
-                        "-----------------------------------------------------------------------------------------<br><br>" +
-                        "Bonjour,<br><br>" +
-                        "Les rapports GIMAC du " + String.join("-", dayList) + " " + months.get(date.getMonthValue() - 1) + " " + year + " sont actuellement disponibles.<br><br>" +
-                        "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
-                        "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
-                        "-----------------------------------------------------------------------------------------"
-                    );
+            body = "-----------------------------------------------------------------------------------------<br><br>" +
+                   "Bonjour,<br><br>" +
+                   "Les rapports GIMAC du " + String.join("-", dayList) + " " + months.get(date.getMonthValue() - 1) + " " + year + " sont actuellement disponibles.<br><br>" +
+                   "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
+                   "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
+                   "-----------------------------------------------------------------------------------------";
         }else if("VISA".equalsIgnoreCase(operator)){
+            to = "CBC".equalsIgnoreCase(bank) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
+            cc = GIE_ALERT_MAIL;
             subject = "Rapports VISA disponibles";
-            body = new StringBuilder(
-                        "-----------------------------------------------------------------------------------------<br><br>" +
-                        "Bonjour,<br><br>" +
-                        "Les fichiers VIS du " + String.join("-", dayList) + " " + months.get(date.getMonthValue() - 1) + " " + year + " sont actuellement disponibles.<br><br>" +
-                        "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
-                        "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
-                        "-----------------------------------------------------------------------------------------"
-                    );
+            body = "-----------------------------------------------------------------------------------------<br><br>" +
+                   "Bonjour,<br><br>" +
+                   "Les fichiers VIS du " + String.join("-", dayList) + " " + months.get(date.getMonthValue() - 1) + " " + year + " sont actuellement disponibles.<br><br>" +
+                   "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
+                   "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
+                   "-----------------------------------------------------------------------------------------";
         }else if("APPLICATION".equalsIgnoreCase(operator)){
+            to = GIE_ALERT_MAIL;
+            cc = "CBC".equalsIgnoreCase(bank) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
             subject = "Intégration des fichiers applications";
-            body = new StringBuilder(
-                    "-----------------------------------------------------------------------------------------<br><br>" +
-                    "Bonjour,<br><br>"
-            );
+            body = "-----------------------------------------------------------------------------------------<br><br>" +
+                   "Bonjour,<br><br>";
             if(fileNames.size() == 1){
-                body = body.append(
-                        "Nous vous prions d’intégrer le fichier application <b>" + fileNames.get(0) + "</b> <br><br><u>Emplacement :</u><b> " + bank + "/" + operator + "/" + date.getYear() + "/" + months.get(date.getMonthValue() - 1) + "/" + day + "</b><br><br>"
-                );
+                body += "Nous vous prions d’intégrer le fichier application <b>" + fileNames.get(0) + "</b> <br><br><u>Emplacement :</u><b> " + bank + "/" + operator + "/" + date.getYear() + "/" + months.get(date.getMonthValue() - 1) + "/" + day + "</b><br><br>";
             }else {
-                body = body.append(
-                        "Nous vous prions d’intégrer les fichiers applications : <br><br>" +
+                body += "Nous vous prions d’intégrer les fichiers applications : <br><br>" +
                         "<ul>" +
                         fileNames.stream().map(n -> "<li><b>" + n + "</b></li>").collect(Collectors.joining("\n")) +
                         "</ul>" +
-                        "<u>Emplacement :</u><b> " + bank + "/" + operator + "/" + date.getYear() + "/" + months.get(date.getMonthValue() - 1) + "/" + day + "</b><br><br>"
-                );
+                        "<u>Emplacement :</u><b> " + bank + "/" + operator + "/" + date.getYear() + "/" + months.get(date.getMonthValue() - 1) + "/" + day + "</b><br><br>";
             }
-            body = body.append(
-                    "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
+            body += "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
                     "<i>L'Equipe Support Monétique " + bank + "</i><br><br>" +
-                    "-----------------------------------------------------------------------------------------"
-            );
+                    "-----------------------------------------------------------------------------------------";
         }
         if(StringUtils.isNotEmpty(operator)){
             try {
-                EmailHelper.sendMail(from, to, cc, subject, body.toString());
+                EmailHelper.sendMail(from, to, cc, subject, body);
             } catch (MessagingException e) {
                 logger.error("notifcation mail not sent", e);
             }

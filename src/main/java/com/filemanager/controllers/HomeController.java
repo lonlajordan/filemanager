@@ -81,14 +81,14 @@ public class HomeController {
             FileStore store = Files.getFileStore(root);
             model.addAttribute("freeSpace", FileUtils.readableFileSize(store.getUsableSpace()));
             model.addAttribute("totalSpace", FileUtils.readableFileSize(store.getTotalSpace()));
-        } catch (IOException ignored) {
-
+        } catch (IOException e) {
+            logger.error("partition properties reading error", e);
         }
         if(!isHome) {
             try {
                 model.addAttribute("parent", URLEncoder.encode(folder.getParentFile().getAbsolutePath(), String.valueOf(StandardCharsets.UTF_8)));
-            } catch (UnsupportedEncodingException ignored) {
-
+            } catch (UnsupportedEncodingException e) {
+                logger.error("parent directory reading error", e);
             }
             ArrayList<FileItem> directories = new ArrayList<>();
             File directory = folder;
@@ -97,7 +97,9 @@ public class HomeController {
                 fileItem.setFile(directory);
                 try {
                     fileItem.setAbsolutePath(URLEncoder.encode(directory.getAbsolutePath(), String.valueOf(StandardCharsets.UTF_8)));
-                } catch (UnsupportedEncodingException ignored) { }
+                } catch (UnsupportedEncodingException e) {
+                    logger.error("full path reading error", e);
+                }
                 directories.add(fileItem);
                 directory = directory.getParentFile();
             }while (!directory.getAbsolutePath().equalsIgnoreCase(home.getAbsolutePath()));
@@ -146,8 +148,10 @@ public class HomeController {
                 Path filePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
                 FileSystemUtils.deleteRecursively(filePath);
                 if(StringUtils.isEmpty(p)) p = filePath.getParent().toAbsolutePath().toString();
+                attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
             } catch (IOException e) {
                 logger.error("file deletion error", e);
+                attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
             }
         }
         attributes.addAttribute("p", p);
@@ -207,12 +211,14 @@ public class HomeController {
                                 }
                             }
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            logger.error("file copy/move error", e);
+                            if(!attributes.getFlashAttributes().containsKey("notification")) attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
                         }
                     }
                 });
             }
         }
+        if(!attributes.getFlashAttributes().containsKey("notification")) attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
         session.removeAttribute("action");
         session.removeAttribute("paths");
         return "redirect:/home";
