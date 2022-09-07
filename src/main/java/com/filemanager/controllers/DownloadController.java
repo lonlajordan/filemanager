@@ -13,14 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -73,31 +74,14 @@ public class DownloadController {
     @GetMapping(path = "files")
     public ResponseEntity<StreamingResponseBody> downloadFilesAsZip(@RequestParam String[] paths, HttpServletResponse response) {
         StreamingResponseBody streamResponseBody = out -> {
-
             final ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
-            ZipEntry zipEntry;
-            InputStream inputStream = null;
-
-            try {
-                for (String path : paths) {
-                    Path filePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
-                    File file = filePath.toFile();
-                    zipEntry = new ZipEntry(filePath.toString());
-                    inputStream = new FileInputStream(file);
-                    zipOutputStream.putNextEntry(zipEntry);
-                    byte[] bytes = Files.readAllBytes(file.toPath());
-                    zipOutputStream.write(bytes, 0, bytes.length);
-                    zipOutputStream.closeEntry();
-                }
-            } catch (IOException e) {
-                logger.error("Exception while reading and streaming data", e);
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-                zipOutputStream.close();
-            }
-
+            List<Path> pathList = Stream.of(paths).map(path -> {
+                try {
+                    return Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
+                } catch (UnsupportedEncodingException ignored) { }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            zipFiles(pathList, zipOutputStream);
         };
 
         response.setHeader("Content-Transfer-Encoding", "binary");
@@ -117,6 +101,38 @@ public class DownloadController {
                         byte[] bytes = Files.readAllBytes(file);
                         zipOut.write(bytes, 0, bytes.length);
                         zipOut.closeEntry();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            zipOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void zipFiles(List<Path> paths, ZipOutputStream zipOut) {
+        if(paths.isEmpty()){
+            try {
+                zipOut.close();
+            } catch (IOException ignored) { }
+            return;
+        }
+        final Path sourceDir = paths.get(0).getParent();
+        try {
+            Files.walkFileTree(sourceDir, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
+                    try {
+                        if(!file.getParent().equals(sourceDir) || paths.contains(file)){
+                            Path targetFile = sourceDir.relativize(file);
+                            zipOut.putNextEntry(new ZipEntry(targetFile.toString()));
+                            byte[] bytes = Files.readAllBytes(file);
+                            zipOut.write(bytes, 0, bytes.length);
+                            zipOut.closeEntry();
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

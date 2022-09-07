@@ -119,6 +119,8 @@ function downloadFile(path, url) {
         }else {
             alert('fichier introuvable');
         }
+        $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = false; });
+        $("#js-select-all-items").prop( "checked", false);
         $('#wrapper').LoadingOverlay('hide', options);
         $('#wrapper').scrollTop(0);
     };
