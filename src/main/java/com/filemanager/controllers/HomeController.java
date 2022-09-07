@@ -25,8 +25,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
@@ -40,17 +40,29 @@ public class HomeController {
         File home = new File(getWorkingDirectory(session));
         File folder = new File(p.isEmpty() ? home.getAbsolutePath() : p);
         boolean isHome = home.getAbsolutePath().equalsIgnoreCase(folder.getAbsolutePath());
+        String action = (String) session.getAttribute("action");
+        List<String> paths = (List<String>) session.getAttribute("paths");
+        List<Path> pathList = (paths != null && !paths.isEmpty()) ? paths.stream().map(path -> {
+            try {
+                return Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
+            } catch (UnsupportedEncodingException ignored) { }
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList()) : new ArrayList<>();
         ArrayList<FileItem> items = new ArrayList<>();
         int files = 0;
         int folders = 0;
         for(File file: folder.listFiles()){
             if(file.isHidden()) continue;
             try {
-                items.add(new FileItem(file));
-                if(file.isDirectory()){
-                    folders++;
-                }else{
-                    files++;
+                if(action == null){
+                    items.add(new FileItem(file));
+                    if(file.isDirectory()){
+                        folders++;
+                    }else{
+                        files++;
+                    }
+                }else if (file.isDirectory() && !pathList.contains(file.toPath())){
+                    items.add(new FileItem(file));
                 }
             } catch (IOException e) {
                 logger.error("Error while reading [" + file.getAbsolutePath() + "] properties", e);
@@ -139,6 +151,70 @@ public class HomeController {
             }
         }
         attributes.addAttribute("p", p);
+        return "redirect:/home";
+    }
+
+    @RequestMapping(path = "/move/files")
+    public String moveFiles(@RequestParam String[] paths, @RequestParam String action, HttpSession session, RedirectAttributes attributes){
+        String p = "";
+        session.setAttribute("action", action);
+        session.setAttribute("paths", Arrays.asList(paths));
+        for(String path: paths){
+            try {
+                p = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize().getParent().toAbsolutePath().toString();
+                break;
+            } catch (IOException e) {
+                logger.error("error while getting file parent path", e);
+            }
+        }
+        attributes.addAttribute("p", p);
+        return "redirect:/home";
+    }
+
+    @RequestMapping(path = "/paste/files")
+    public String pasteFiles(@RequestParam String destination, @RequestParam String action, HttpSession session, RedirectAttributes attributes){
+        Path p = null;
+        try {
+            p = Paths.get(URLDecoder.decode(destination, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
+            attributes.addAttribute("p", p.toAbsolutePath().toString());
+        } catch (UnsupportedEncodingException ignored) { }
+        if("paste".equalsIgnoreCase(action) && p != null){
+            List<String> paths = (List<String>) session.getAttribute("paths");
+            String method = (String) session.getAttribute("action");
+            if(method != null && paths != null && !paths.isEmpty()){
+                List<Path> pathList = paths.stream().map(path -> {
+                    try {
+                        return Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
+                    } catch (UnsupportedEncodingException ignored) { }
+                    return null;
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+                final Path finalDestination = p;
+                pathList.forEach(path -> {
+                    File file = path.toFile();
+                    if(file.exists() && !file.isHidden()){
+                        try {
+                            if(method.equalsIgnoreCase("copy")){
+                                if(file.isDirectory()){
+                                    org.apache.commons.io.FileUtils.copyDirectoryToDirectory(file, finalDestination.toFile());
+                                }else{
+                                    org.apache.commons.io.FileUtils.copyFileToDirectory(file, finalDestination.toFile());
+                                }
+                            }else{
+                                if(file.isDirectory()){
+                                    org.apache.commons.io.FileUtils.moveDirectoryToDirectory(file, finalDestination.toFile(), false);
+                                }else{
+                                    org.apache.commons.io.FileUtils.moveFileToDirectory(file, finalDestination.toFile(), false);
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }
+        session.removeAttribute("action");
+        session.removeAttribute("paths");
         return "redirect:/home";
     }
 

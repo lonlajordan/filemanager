@@ -17,14 +17,24 @@ function selectItem(checkBox){
 }
 
 function submitForm(event) {
-    if($("#main-table tbody tr input[type=checkbox]:checked").length === 0){
+    let n = $("#main-table tbody tr input[type=checkbox]:checked").length;
+    if(n === 0){
         alert('Sélectionnez au moins un dossier/fichier');
         return false;
     }
     let form = $(event.target);
     let deletion = $(event.submitter).hasClass('delete');
+    let copy = $(event.submitter).hasClass('copy');
+    let cut = $(event.submitter).hasClass('cut');
     if(deletion){
+        if(!confirm("Voulez-vous vraiment supprimer " + (n > 1 ? "cet élément" :  "ces " + n + " éléments") + " ?")){
+            return false;
+        }
         form.attr('action', ctx + '/delete/files');
+    }else if(copy){
+        form.attr('action', ctx + '/move/files?action=copy');
+    }else if(cut){
+        form.attr('action', ctx + '/move/files?action=cut');
     }else{
         event.preventDefault();
         downloadFile(form.serialize(), '/download/files');

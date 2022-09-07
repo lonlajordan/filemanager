@@ -49,14 +49,19 @@
                                 <a href="javascript:document.getElementById('files').click();" th:data-bank="${session?.user?.hasRole('ROLE_CBC') ? 'CBC' : 'CBT'}" onclick="document.getElementById('bank').value=this.getAttribute('data-bank')" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-upload"></i> Fichiers Application </a>
                             </li>
                             <th:block th:if="${session?.user?.hasRole('ROLE_ADMIN')}">
-                                <li class="nav-item mr-3" style="margin-top:4px;">
-                                    <a id="create-folder" th:href="@{'/create?path=' + ${currentDirectory}}" onclick="return createFolder(event)" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-folder-open-o"></i> Nouveau dossier</a>
+                                <li th:if="${session?.action == null}" class="nav-item mr-3" style="margin-top:4px;">
+                                    <a id="create-folder" th:href="@{'/create?path=' + ${currentDirectory}}" onclick="return createFolder(event)" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-folder-open-o"></i> Nouveau </a>
                                 </li>
-                                <li class="nav-item mr-5" style="margin-top:4px;">
+                                <li th:if="${session?.action == null}" class="nav-item mr-5" style="margin-top:4px;">
                                     <a href="javascript:document.getElementById('files').click();" onclick="document.getElementById('bank').value='ADMIN'" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-upload"></i> Envoyer </a>
                                 </li>
+                                <li th:if="${session?.action}" class="nav-item mr-3" style="margin-top:4px;">
+                                    <a th:href="@{'/paste/files?action=paste&destination=' + ${currentDirectory}}" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-paste"></i> Coller </a>
+                                </li>
+                                <li th:if="${session?.action}" class="nav-item mr-5" style="margin-top:4px;">
+                                    <a th:href="@{'/paste/files?action=cancel&destination=' + ${currentDirectory}}" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-close"></i> Annuler </a>
+                                </li>
                             </th:block>
-
                             <li class="nav-item mr-2">
                                 <div class="input-group input-group-sm mr-1" style="margin-top:4px;">
                                     <input class="form-control" placeholder="Recherche" aria-label="Recherche" id="search-addon">
@@ -78,92 +83,93 @@
                 <form onsubmit="return submitForm(event)" th:action="@{'/download/files'}" id="selection-form" name="selectionForm" method="post">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover table-sm bg-white dataTable" id="main-table" role="grid">
-                            <thead class="thead-white">
-                            <tr role="row">
-                                <th style="width: 10px;" class="custom-checkbox-header sorting_asc">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="js-select-all-items" onclick="selectItems(this)">
-                                        <label class="custom-control-label" for="js-select-all-items"></label>
-                                    </div>
-                                </th>
-                                <th class="sorting" tabindex="0" aria-controls="main-table">Nom</th>
-                                <th class="sorting" tabindex="0" aria-controls="main-table">Taille</th>
-                                <th class="sorting" tabindex="0" aria-controls="main-table">Modifié le</th>
-                                <th class="sorting_disabled">Permissions</th>
-                                <th class="sorting_disabled">Propriétaire</th>
-                                <th class="sorting_disabled">Action</th></tr>
+                            <thead>
+                                <tr role="row">
+                                    <th th:if="${session?.action == null}" style="width: 10px;" class="custom-checkbox-header sorting_asc">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="js-select-all-items" onclick="selectItems(this)">
+                                            <label class="custom-control-label" for="js-select-all-items"></label>
+                                        </div>
+                                    </th>
+                                    <th class="sorting" tabindex="0" aria-controls="main-table">Nom</th>
+                                    <th class="sorting" tabindex="0" aria-controls="main-table">Taille</th>
+                                    <th class="sorting" tabindex="0" aria-controls="main-table">Modifié le</th>
+                                    <th>Permissions</th>
+                                    <th>Propriétaire</th>
+                                    <th th:if="${session?.action == null}">Actions</th>
+                                </tr>
+                            </thead>
+                            <thead th:if="${!isHome}">
+                                <tr>
+                                    <td th:if="${session?.action == null}"></td>
+                                    <td class="border-0">
+                                        <a th:href="@{'/home?p=' + ${parent}}"><i class="fa fa-chevron-circle-left go-back"></i> ..</a>
+                                    </td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0"></td>
+                                    <td class="border-0" th:if="${session?.action == null}"></td>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr th:if="${!isHome}">
-                                <td class="nosort"></td>
-                                <td class="border-0">
-                                    <a th:href="@{'/home?p=' + ${parent}}"><i class="fa fa-chevron-circle-left go-back"></i> ..</a>
-                                </td>
-                                <td class="border-0"></td>
-                                <td class="border-0"></td>
-                                <td class="border-0"></td>
-                                <td class="border-0"></td>
-                                <td class="border-0"></td>
-                            </tr>
-                            <tr th:each="item,iter: ${items}">
-                                <td class="custom-checkbox-td">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" th:id="${'item-' + iter.count}" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" name="paths" th:value="${item.absolutePath}" onclick="return selectItem(this)">
-                                        <label class="custom-control-label" th:for="${'item-' + iter.count }"></label>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="filename">
-                                        <th:block th:if="${!item.file.directory}">
-                                            <i class="fa" th:classappend="${item.icon}"></i> <span th:text="${item.file.name}"></span>
+                                <tr th:each="item,iter: ${items}">
+                                    <td class="custom-checkbox-td" th:if="${session?.action == null}">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" th:id="${'item-' + iter.count}" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" name="paths" th:value="${item.absolutePath}" onclick="return selectItem(this)">
+                                            <label class="custom-control-label" th:for="${'item-' + iter.count }"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="filename">
+                                            <th:block th:if="${!item.file.directory}">
+                                                <i class="fa" th:classappend="${item.icon}"></i> <span th:text="${item.file.name}"></span>
+                                            </th:block>
+                                            <a th:if="${item.file.directory}" th:href="@{'/home?p=' + ${item.absolutePath}}">
+                                                <i class="fa" th:classappend="${item.icon}"></i> <span th:text="${item.file.name}"></span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td th:text="${item.fileSize}"></td>
+                                    <td th:text="${#calendars.format(item.lastModifiedDate, 'dd-MM-yyyy  HH:mm')}"></td>
+                                    <td th:text="${item.permissions}"></td>
+                                    <td th:text="${item.owner}"></td>
+                                    <td class="inline-actions" th:if="${session?.action == null}">
+                                        <a th:if="${item.file.directory}" title="Télécharger" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/folder')"><i class="fa fa-download"></i></a>
+                                        <a th:if="${!item.file.directory}" title="Télécharger" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/file')"><i class="fa fa-download"></i></a>
+                                        <th:block th:if="${session?.user?.hasRole('ROLE_ADMIN')}">
+                                            <a title="Renommer" th:id="${'item-copy-' + iter.count}" th:href="@{'/rename?path=' + ${item.absolutePath}}" th:data-file-name="${item.file.name}" onclick="return renameFile(event, this.getAttribute('data-file-name'), this.id)"><i class="fa fa-edit"></i></a>
+                                            <a title="Supprimer" th:data-file-type="${item.file.directory}" th:href="@{'/delete/files?paths=' + ${item.absolutePath}}" onclick="return deleteFile(event, this.getAttribute('data-file-type'))"><i class="fa fa-trash-o"></i></a>
                                         </th:block>
-                                        <a th:if="${item.file.directory}" th:href="@{'/home?p=' + ${item.absolutePath}}">
-                                            <i class="fa" th:classappend="${item.icon}"></i> <span th:text="${item.file.name}"></span>
-                                        </a>
-                                    </div>
-                                </td>
-                                <td th:text="${item.fileSize}"></td>
-                                <td th:text="${#calendars.format(item.lastModifiedDate, 'dd-MM-yyyy  HH:mm')}"></td>
-                                <td th:text="${item.permissions}"></td>
-                                <td th:text="${item.owner}"></td>
-                                <td class="inline-actions">
-                                    <a th:if="${item.file.directory}" title="Télécharger" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/folder')"><i class="fa fa-download"></i></a>
-                                    <a th:if="${!item.file.directory}" title="Télécharger" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/file')"><i class="fa fa-download"></i></a>
-                                    <th:block th:if="${session?.user?.hasRole('ROLE_ADMIN')}">
-                                        <a title="Copier vers..." th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile(this.getAttribute('data-file-path'), '/download/file')"><i class="fa fa-copy"></i></a>
-                                        <a title="Renommer" th:id="${'item-copy-' + iter.count}" th:href="@{'/rename?path=' + ${item.absolutePath}}" th:data-file-name="${item.file.name}" onclick="return renameFile(event, this.getAttribute('data-file-name'), this.id)"><i class="fa fa-edit"></i></a>
-                                        <a title="Supprimer" th:data-file-type="${item.file.directory}" th:href="@{'/delete/files?paths=' + ${item.absolutePath}}" onclick="return deleteFile(event, this.getAttribute('data-file-type'))"><i class="fa fa-trash-o"></i></a>
-                                    </th:block>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
                             </tbody>
-                            <tfoot>
-                            <tr>
-                                <td class="gray" rowspan="1" colspan="1"></td>
-                                <td class="gray" colspan="6" rowspan="1"> Fichiers : <span class="badge badge-light" th:text="${files}"></span> Dossiers : <span class="badge badge-light" th:text="${folders}"></span> Espace libre : <span class="badge badge-light" th:text="${freeSpace}"></span> Espace Total : <span class="badge badge-light" th:text="${totalSpace}"></span> </td>
-                            </tr>
+                            <tfoot th:if="${session?.action == null}">
+                                <tr>
+                                    <td class="gray" rowspan="1" colspan="1"></td>
+                                    <td class="gray" colspan="6" rowspan="1"> Fichiers : <span class="badge badge-light" th:text="${files}"></span> Dossiers : <span class="badge badge-light" th:text="${folders}"></span> Espace libre : <span class="badge badge-light" th:text="${freeSpace}"></span> Espace Total : <span class="badge badge-light" th:text="${totalSpace}"></span> </td>
+                                </tr>
                             </tfoot>
                         </table>
                     </div>
                     <div class="row">
                         <div class="col-xs-12 col-sm-9">
-                            <ul class="list-inline footer-action">
-                                <li class="list-inline-item">
-                                    <input type="submit" class="d-none delete" id="a-delete">
-                                    <a href="javascript:document.getElementById('a-delete').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-trash-o"></i> Supprimer</a>
-                                </li>
+                            <ul class="list-inline footer-action" th:if="${session?.action == null}">
                                 <li class="list-inline-item">
                                     <a href="javascript:reverseSelection();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-list"></i> Inverser la sélection</a>
                                 </li>
                                 <th:block th:if="${session?.user?.hasRole('ROLE_ADMIN')}">
                                     <li class="list-inline-item">
-                                        <a href="javascript:document.getElementById('a-zip').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-copy"></i> Copier </a>
+                                        <input type="submit" class="d-none delete" id="a-delete">
+                                        <a href="javascript:document.getElementById('a-delete').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-trash-o"></i> Supprimer</a>
                                     </li>
                                     <li class="list-inline-item">
-                                        <a href="javascript:document.getElementById('a-zip').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-cut"></i> Couper </a>
+                                        <input type="submit" class="d-none copy" id="a-copy">
+                                        <a href="javascript:document.getElementById('a-copy').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-copy"></i> Copier </a>
                                     </li>
                                     <li class="list-inline-item">
-                                        <a href="javascript:document.getElementById('a-zip').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-paste"></i> Coller </a>
+                                        <input type="submit" class="d-none cut" id="a-cut">
+                                        <a href="javascript:document.getElementById('a-cut').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-cut"></i> Couper </a>
                                     </li>
                                 </th:block>
                                 <li class="list-inline-item">

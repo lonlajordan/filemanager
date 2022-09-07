@@ -125,3 +125,7 @@ ul#search-wrapper li:nth-child(odd){ background: #f9f9f9cc;}
     max-height: 100vh;
     scroll-behavior: smooth;
 }
+
+#main-table th, td {
+    border-bottom-width: 1px !important;
+}
