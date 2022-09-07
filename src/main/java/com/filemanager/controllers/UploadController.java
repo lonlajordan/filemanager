@@ -10,11 +10,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.mail.MessagingException;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -34,13 +38,14 @@ public class UploadController {
     private final Logger logger = LoggerFactory.getLogger(UploadController.class);
 
     @PostMapping(value = "files")
-    public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam String bank){
+    public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam String bank, @RequestParam String destination, RedirectAttributes attributes){
         int length = 0, index = 0;
         long timer = 0, lastTimer = 0;
         String name, operator = "", day = "", month, year = "";
         Set<String> days = new HashSet<>();
         List<String> months = Arrays.asList("JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE");
         for(MultipartFile file: files){
+            if(bank.equals("ADMIN")) break;
             name = StringUtils.defaultString(file.getOriginalFilename()).toUpperCase();
             index = name.lastIndexOf(".");
             if(index > 0 && name.substring(index).matches(".*[a-zA-Z].*")) name = name.substring(0, index);
@@ -97,6 +102,13 @@ public class UploadController {
         if("APPLICATION".equalsIgnoreCase(operator)){
             root = ROOT_WORKING_DIRECTORY + File.separator + "giegcb";
             path = Paths.get(root, bank, operator, date.getYear() + "", months.get(date.getMonthValue() - 1), String.join("-", dayList));
+        }else if("ADMIN".equalsIgnoreCase(bank)){
+            try {
+                path = Paths.get(URLDecoder.decode(destination, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
+                attributes.addAttribute("p", path.toAbsolutePath().toString());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
         File folder = new File(path.toUri());
         if (!folder.exists() && !folder.mkdirs()) throw new SecurityException("Erreur lors de la création du dossier de sauvegarde des fichiers.");
@@ -165,10 +177,12 @@ public class UploadController {
                     "-----------------------------------------------------------------------------------------"
             );
         }
-        try {
-            EmailHelper.sendMail(from, to, cc, subject, body.toString());
-        } catch (MessagingException e) {
-            logger.error("notifcation mail not sent", e);
+        if(StringUtils.isNotEmpty(operator)){
+            try {
+                EmailHelper.sendMail(from, to, cc, subject, body.toString());
+            } catch (MessagingException e) {
+                logger.error("notifcation mail not sent", e);
+            }
         }
         return "redirect:/home";
     }

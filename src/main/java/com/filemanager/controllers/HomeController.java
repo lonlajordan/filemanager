@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -54,6 +56,9 @@ public class HomeController {
                 logger.error("Error while reading [" + file.getAbsolutePath() + "] properties", e);
             }
         }
+        try {
+            model.addAttribute("currentDirectory", URLEncoder.encode(folder.getAbsolutePath(), String.valueOf(StandardCharsets.UTF_8)));
+        } catch (UnsupportedEncodingException ignored) { }
         model.addAttribute("items", items);
         model.addAttribute("isHome", isHome);
         model.addAttribute("files", files);
@@ -95,7 +100,7 @@ public class HomeController {
         try {
             Path sourcePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
             String p = sourcePath.getParent().toAbsolutePath().toString();
-            Path targetPath = Paths.get(sourcePath.getParent().toString(), name);
+            Path targetPath = sourcePath.getParent().resolve(name);
             Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
             attributes.addAttribute("p", p);
             attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
@@ -103,20 +108,38 @@ public class HomeController {
             logger.error("renaming file error", e);
             attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
         }
-        return "redirect:home";
+        return "redirect:/home";
     }
 
-    @GetMapping(path = "/delete")
-    public String deleteFiles(@RequestParam String[] paths){
+    @GetMapping(path = "/create")
+    public String createFolder(@RequestParam String path, @RequestParam String name, RedirectAttributes attributes){
+        try {
+            Path parent = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
+            File folder = parent.resolve(name).toFile();
+            if(!folder.exists()) folder.mkdirs();
+            attributes.addAttribute("p", parent.toAbsolutePath().toString());
+            attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
+        } catch (IOException e) {
+            logger.error("creating folder error", e);
+            attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
+        }
+        return "redirect:/home";
+    }
+
+    @RequestMapping(path = "/delete/files")
+    public String deleteFiles(@RequestParam String[] paths, RedirectAttributes attributes){
+        String p = "";
         for(String path: paths){
             try {
                 Path filePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
-                Files.deleteIfExists(filePath);
+                FileSystemUtils.deleteRecursively(filePath);
+                if(StringUtils.isEmpty(p)) p = filePath.getParent().toAbsolutePath().toString();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("file deletion error", e);
             }
         }
-        return "redirect:home";
+        attributes.addAttribute("p", p);
+        return "redirect:/home";
     }
 
     public String getWorkingDirectory(HttpSession session){

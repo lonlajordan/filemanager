@@ -17,13 +17,18 @@ function selectItem(checkBox){
 }
 
 function submitForm(event) {
-    event.preventDefault();
     if($("#main-table tbody tr input[type=checkbox]:checked").length === 0){
-        alert('Sélectionnez au moins un fichier');
-        return;
+        alert('Sélectionnez au moins un dossier/fichier');
+        return false;
     }
     let form = $(event.target);
-    downloadFile(form.serialize(), '/download/files');
+    let deletion = $(event.submitter).hasClass('delete');
+    if(deletion){
+        form.attr('action', ctx + '/delete/files');
+    }else{
+        event.preventDefault();
+        downloadFile(form.serialize(), '/download/files');
+    }
 }
 
 function deleteFile(event, isDirectory){
@@ -44,6 +49,22 @@ function renameFile(event, oldName, id) {
             href = href.substring(0, index) + "&name=" + newName;
         }
         $(selector).attr("href", href);
+    }else{
+        event.preventDefault();
+    }
+}
+
+function createFolder(event) {
+    let folderName = prompt("Nom du dossier", "Nouveau dossier");
+    if(folderName){
+        let href = $("#create-folder").attr('href');
+        let index = href.lastIndexOf('&name');
+        if(index < 0){
+            href += "&name=" + folderName;
+        }else{
+            href = href.substring(0, index) + "&name=" + folderName;
+        }
+        $("#create-folder").attr("href", href);
     }else{
         event.preventDefault();
     }
