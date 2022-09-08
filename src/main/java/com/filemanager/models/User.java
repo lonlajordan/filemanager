@@ -1,8 +1,19 @@
 package com.filemanager.models;
 
+import javax.persistence.*;
+
+@Entity
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
+    private Integer id;
+    @Column(nullable = false)
     private String username = "";
+    @Column(nullable = false)
+    private String email = "";
     private String password = "";
+    @Column(nullable = false)
     private String roles = "";
 
     public String getUsername() {
