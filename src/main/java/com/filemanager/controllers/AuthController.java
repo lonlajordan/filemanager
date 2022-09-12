@@ -26,9 +26,11 @@ public class AuthController {
             context.getModel().put("error", true);
             String message = "Une erreur s'est produite. Réessayez plutard.";
             if("1".equalsIgnoreCase(error)){
-                message = "Utilisateur introuvable";
+                message = "utilisateur introuvable";
             }else if("2".equalsIgnoreCase(error)){
-                message = "Mot de passe incorrect";
+                message = "mot de passe incorrect";
+            }else if("3".equalsIgnoreCase(error)){
+                message = "serveur d'authentification indisponible";
             }
             context.getModel().put("message", message);
         }

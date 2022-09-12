@@ -12,9 +12,28 @@ public class User {
     private String username = "";
     @Column(nullable = false)
     private String email = "";
+    @Transient
     private String password = "";
     @Column(nullable = false)
     private String roles = "";
+    @Column(nullable = false)
+    private String institution = "";
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getUsername() {
         return username;
@@ -41,6 +60,14 @@ public class User {
 
     public void setRoles(String roles) {
         this.roles = roles;
+    }
+
+    public String getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(String institution) {
+        this.institution = institution;
     }
 
     public boolean hasRole(String role){

@@ -1,4 +1,7 @@
 package com.filemanager.repositories;
 
-public interface LogRepository {
+import com.filemanager.models.Log;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface LogRepository  extends JpaRepository<Log, Integer> {
 }
