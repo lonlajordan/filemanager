@@ -46,12 +46,6 @@ import java.util.stream.Stream;
 public class SecurityConfig {
     public static String ADMIN_USERNAME;
     public static String ADMIN_PASSWORD;
-    public static String GIE_USERNAME;
-    public static String GIE_PASSWORD;
-    public static String CBC_USERNAME;
-    public static String CBC_PASSWORD;
-    public static String CBT_USERNAME;
-    public static String CBT_PASSWORD;
     private static String LDAP_PROVIDER_URL;
     private static String LDAP_PROVIDER_HOST;
     private static String LDAP_PROVIDER_PORT;
@@ -86,36 +80,6 @@ public class SecurityConfig {
     @Value("${admin.password}")
     public void setAdminPassword(String adminPassword) {
         ADMIN_PASSWORD = adminPassword;
-    }
-
-    @Value("${gie.username}")
-    public void setGieUsername(String gieUsername) {
-        GIE_USERNAME = gieUsername;
-    }
-
-    @Value("${gie.password}")
-    public void setGiePassword(String giePassword) {
-        GIE_PASSWORD = giePassword;
-    }
-
-    @Value("${cbc.username}")
-    public void setCbcUsername(String cbcUsername) {
-        CBC_USERNAME = cbcUsername;
-    }
-
-    @Value("${cbc.password}")
-    public void setCbcPassword(String cbcPassword) {
-        CBC_PASSWORD = cbcPassword;
-    }
-
-    @Value("${cbt.username}")
-    public void setCbtUsername(String cbtUsername) {
-        CBT_USERNAME = cbtUsername;
-    }
-
-    @Value("${cbt.password}")
-    public void setCbtPassword(String cbtPassword) {
-        CBT_PASSWORD = cbtPassword;
     }
 
     @Bean

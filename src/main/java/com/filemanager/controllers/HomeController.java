@@ -1,9 +1,9 @@
 package com.filemanager.controllers;
 
+import com.filemanager.enums.Role;
 import com.filemanager.models.FileItem;
 import com.filemanager.models.Notification;
 import com.filemanager.models.User;
-import com.filemanager.security.SecurityConfig;
 import com.filemanager.services.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -230,12 +230,11 @@ public class HomeController {
             directory = this.ROOT_WORKING_DIRECTORY;
             User user = (User) session.getAttribute("user");
             if(user != null){
-                String username = StringUtils.defaultString(user.getUsername());
-                if(username.equals(SecurityConfig.GIE_USERNAME)){
+                if(user.hasRole(Role.ROLE_GIE.toString())){
                     directory += File.separator + "giegcb";
-                }else if(username.equals(SecurityConfig.CBC_USERNAME)){
+                }else if(user.hasAnyRole(Role.ROLE_CBC_INFO.name(), Role.ROLE_CBC_MONET.name())){
                     directory += File.separator + "cbc";
-                }else if(username.equals(SecurityConfig.CBT_USERNAME)){
+                }else if(user.hasAnyRole(Role.ROLE_CBT_INFO.name(), Role.ROLE_CBT_MONET.name())){
                     directory += File.separator + "cbt";
                 }
             }

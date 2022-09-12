@@ -1,6 +1,12 @@
 package com.filemanager.models;
 
+import com.filemanager.enums.Institution;
+import com.filemanager.enums.Role;
+
 import javax.persistence.*;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 public class User {
@@ -16,8 +22,9 @@ public class User {
     private String password = "";
     @Column(nullable = false)
     private String roles = "";
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String institution = "";
+    private Institution institution = Institution.GIE;
 
     public Integer getId() {
         return id;
@@ -62,16 +69,24 @@ public class User {
         this.roles = roles;
     }
 
-    public String getInstitution() {
+    public Institution getInstitution() {
         return institution;
     }
 
-    public void setInstitution(String institution) {
+    public void setInstitution(Institution institution) {
         this.institution = institution;
     }
 
     public boolean hasRole(String role){
         return this.roles.contains(role);
+    }
+
+    public boolean hasAnyRole(String... roles){
+        List<String> values = Stream.of(Role.values()).map(Enum::name).collect(Collectors.toList());
+        for(String role: roles){
+            if(values.contains(role)) return true;
+        }
+        return false;
     }
 
     public User(String username, String password, String roles) {
