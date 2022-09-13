@@ -25,12 +25,15 @@
                 <div class="row mx-0">
                     <div class="col-lg-9 px-0">
                         <ul class="list-inline">
-                            <li th:if="${session?.action == null}" class="list-inline-item">
-                                <a href="javascript:reverseSelection();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-list"></i> Inverser la sélection</a>
+                            <li class="list-inline-item">
+                                <a th:href="@{'/user/save'}" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-plus"></i> Ajouter</a>
                             </li>
                             <li class="list-inline-item">
                                 <input type="submit" class="d-none delete" id="a-delete">
                                 <a href="javascript:document.getElementById('a-delete').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-trash-o"></i> Supprimer</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a href="javascript:reverseSelection();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-list"></i> Inverser la sélection</a>
                             </li>
                         </ul>
                     </div>
@@ -42,34 +45,61 @@
                 </div>
                 <table class="table table-bordered table-hover table-sm bg-white dataTable" id="main-table" role="grid">
                     <thead>
-                    <tr role="row">
-                        <th style="width: 10px;" class="custom-checkbox-header sorting_asc">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="js-select-all-items" onclick="selectItems(this)">
-                                <label class="custom-control-label" for="js-select-all-items"></label>
-                            </div>
-                        </th>
-                        <th class="sorting" tabindex="0" aria-controls="main-table">Nom d'utilisateur</th>
-                        <th class="sorting" tabindex="0" aria-controls="main-table">Email</th>
-                        <th class="sorting" tabindex="0" aria-controls="main-table">Roles</th>
-                        <th class="sorting" tabindex="0" aria-controls="main-table">Statut</th>
-                        <th class="sorting" tabindex="0" aria-controls="main-table">Dernière connexion</th>
-                    </tr>
+                        <tr role="row">
+                            <th style="width: 10px;" class="custom-checkbox-header sorting_asc">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="js-select-all-items" onclick="selectItems(this)">
+                                    <label class="custom-control-label" for="js-select-all-items"></label>
+                                </div>
+                            </th>
+                            <th>Nom d'utilisateur</th>
+                            <th>Role</th>
+                            <th>Statut</th>
+                            <th>Dernière connexion</th>
+                            <th>Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="user,iter: ${users}">
-                        <td class="custom-checkbox-td">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" th:id="${'item-' + iter.count}" name="ids" th:value="${user.id}" onclick="return selectItem(this)">
-                                <label class="custom-control-label" th:for="${'item-' + iter.count }"></label>
-                            </div>
-                        </td>
-                        <td th:text="${user.username}"></td>
-                        <td th:text="${user.email}"></td>
-                        <td th:text="${user.role}"></td>
-                        <td th:text="${user.enabled ? 'ACTIF' : #strings.toUpperCase('désactivé')}"></td>
-                        <td th:text="${#calendars.format(user.lastLogin, 'dd-MM-yyyy  HH:mm')}"></td>
-                    </tr>
+                        <tr th:each="user,iter: ${users}">
+                            <td class="custom-checkbox-td">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" th:id="${'item-' + iter.count}" name="ids" th:value="${user.id}" onclick="return selectItem(this)">
+                                    <label class="custom-control-label" th:for="${'item-' + iter.count }"></label>
+                                </div>
+                            </td>
+                            <td th:text="${user.username}"></td>
+                            <td th:text="${user.role}"></td>
+                            <td th:text="${user.enabled ? 'ACTIF' : #strings.toUpperCase('désactivé')}"></td>
+                            <td th:text="${#calendars.format(user.lastLogin, 'dd-MM-yyyy  HH:mm')}"></td>
+                            <td>
+                                <li class="dropdown list-style-none text-center">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-action p-0">
+                                        <li>
+                                            <a class="lazy-link text-decoration-none text-left" th:href="@{'/user/toggle/' + ${user.id}}">
+                                                <i class="fa fa-fw" th:classappend="${user.enabled ? 'fa-toggle-off' : 'fa-toggle-on'}"></i> <span th:text="${user.enabled ? 'Désactiver' : 'Activer'}"></span>
+                                            </a>
+                                        </li>
+                                        <li class="divider m-0"></li>
+                                        <li>
+                                            <a class="lazy-link text-decoration-none text-left" th:href="@{'/user/save?id=' + ${user.id}}">
+                                                <i class="fa fa-pencil-square-o fa-fw"></i> Modifier
+                                            </a>
+                                        </li>
+                                        <th:block th:if="${user.id != session?.user?.id}">
+                                            <li class="divider m-0"></li>
+                                            <li>
+                                                <a class="text-decoration-none text-danger text-left" th:data-user-id="${user.id}" onclick="deleteItem(this.getAttribute('data-user-id'), 'user/delete')" href="#">
+                                                    <i class="fa fa-trash-o fa-fw"></i> Supprimer
+                                                </a>
+                                            </li>
+                                        </th:block>
+                                    </ul>
+                                </li>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

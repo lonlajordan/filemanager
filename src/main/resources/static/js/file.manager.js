@@ -158,9 +158,9 @@ function fetch(url){
 
 $(document).ready( function () {
     let table = $('#main-table'),
-    tableLength = table.find('th').length,
-    targets = (tableLength && tableLength === 7 ) ? [0, 4,5,6] : tableLength === 5 ? [0,4] : [3],
-    mainTable = table.DataTable({"paging": false, "info": false, "columnDefs": [{"targets": targets, "orderable": false}]});
+    length = table.find('th').length,
+    targets = [length-1];
+    let mainTable = table.DataTable({"paging": false, "info": false, "columnDefs": [{"targets": targets, "orderable": false}]});
     $('#search-addon').on('keyup', function () {
         mainTable.search(this.value).draw();
     });

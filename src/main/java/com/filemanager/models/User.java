@@ -12,10 +12,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Integer id;
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username = "";
-    @Column(nullable = false)
-    private String email = "";
     @Transient
     private String password = "";
     @Enumerated(EnumType.STRING)
@@ -25,7 +23,7 @@ public class User {
     @Column(nullable = false)
     private Institution institution = Institution.GIE;
     private Date lastLogin = new Date();
-    private Boolean enabled = true;
+    private boolean enabled = true;
 
     public Integer getId() {
         return id;
@@ -33,14 +31,6 @@ public class User {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getUsername() {
@@ -86,11 +76,11 @@ public class User {
         this.lastLogin = lastLogin;
     }
 
-    public Boolean getEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
@@ -111,6 +101,5 @@ public class User {
 
     public void normalize(){
         if(this.username != null) this.username = this.username.trim().toLowerCase();
-        if(this.email != null) this.email = this.email.trim();
     }
 }

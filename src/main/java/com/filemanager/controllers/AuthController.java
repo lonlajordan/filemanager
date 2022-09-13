@@ -30,6 +30,8 @@ public class AuthController {
             }else if("2".equalsIgnoreCase(error)){
                 message = "mot de passe incorrect";
             }else if("3".equalsIgnoreCase(error)){
+                message = "votre compte est désactivé";
+            }else if("4".equalsIgnoreCase(error)){
                 message = "serveur d'authentification indisponible";
             }
             context.getModel().put("message", message);

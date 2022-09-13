@@ -4,6 +4,7 @@ import com.filemanager.enums.Role;
 import com.filemanager.models.FileItem;
 import com.filemanager.models.Notification;
 import com.filemanager.models.User;
+import com.filemanager.repositories.LogRepository;
 import com.filemanager.services.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -34,6 +35,12 @@ public class HomeController {
     private String ROOT_WORKING_DIRECTORY;
 
     private final Logger logger = LoggerFactory.getLogger(HomeController.class);
+
+    private final LogRepository logRepository;
+
+    public HomeController(LogRepository logRepository) {
+        this.logRepository = logRepository;
+    }
 
     @GetMapping(path = "/home")
     private String home(@RequestParam(required = false, defaultValue = "") String p, Model model, HttpSession session){

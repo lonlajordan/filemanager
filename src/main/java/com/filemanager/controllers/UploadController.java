@@ -1,6 +1,7 @@
 package com.filemanager.controllers;
 
 import com.filemanager.models.Notification;
+import com.filemanager.repositories.LogRepository;
 import com.filemanager.services.EmailHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -49,6 +50,12 @@ public class UploadController {
     private String GIE_ALERT_MAIL;
 
     private final Logger logger = LoggerFactory.getLogger(UploadController.class);
+
+    private final LogRepository logRepository;
+
+    public UploadController(LogRepository logRepository) {
+        this.logRepository = logRepository;
+    }
 
     @PostMapping(value = "files")
     public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam String bank, @RequestParam String destination, RedirectAttributes attributes){

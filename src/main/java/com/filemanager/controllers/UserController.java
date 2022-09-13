@@ -6,7 +6,9 @@ import com.filemanager.models.User;
 import com.filemanager.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,9 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpSession;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,9 +26,6 @@ import java.util.Optional;
 public class UserController {
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
-
-    @PersistenceContext
-    private EntityManager em;
 
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -69,10 +67,10 @@ public class UserController {
         try {
             User user = userRepository.findById(id).orElse(null);
             if(user != null){
-                user.setEnabled(!user.getEnabled());
+                user.setEnabled(!user.isEnabled());
                 userRepository.save(user);
                 notification.setType("success");
-                notification.setMessage("<b>" + user.getUsername() + "</b> a été " + (user.getEnabled() ? "activé" : "désactivé") + " avec succès.");
+                notification.setMessage("<b>" + user.getUsername() + "</b> a été " + (user.isEnabled() ? "activé" : "désactivé") + " avec succès.");
             }
         }catch (Exception e){
             notification.setType("error");
@@ -115,9 +113,8 @@ public class UserController {
                     user$ = userRepository.findByUsername(user$.getUsername());
                     if(user$ != null){
                         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-                        /*Collection<SimpleGrantedAuthority> authorities$ = user$.getRoleList().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-                        auth = new UsernamePasswordAuthenticationToken(auth.getPrincipal(), auth.getCredentials(), authorities$);
-                        SecurityContextHolder.getContext().setAuthentication(auth);*/
+                        auth = new UsernamePasswordAuthenticationToken(auth.getPrincipal(), auth.getCredentials(), Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())));
+                        SecurityContextHolder.getContext().setAuthentication(auth);
                         session.setAttribute("user", user$);
                     }
                 }

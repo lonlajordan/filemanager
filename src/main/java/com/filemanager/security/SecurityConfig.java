@@ -35,7 +35,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Configuration
 @EnableWebSecurity
@@ -145,6 +144,7 @@ public class SecurityConfig {
                 String error = e.getExplanation() == null ? "" : e.toString().toLowerCase();
                 throw new BadCredentialsException(error.contains("connection refused") ? "connection.refused" : "incorrect.password");
             }
+            if(!user.isEnabled()) throw new BadCredentialsException("account.disabled");
             user.setLastLogin(new Date());
             userRepository.save(user);
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
@@ -170,8 +170,10 @@ public class SecurityConfig {
                     url = "/?error=1";
                 }else if("incorrect.password".equals(message)){
                     url = "/?error=2";
-                }else if("connection.refused".equals(message)){
+                }else if("account.disabled".equals(message)){
                     url = "/?error=3";
+                }else if("connection.refused".equals(message)){
+                    url = "/?error=4";
                 }
             }
             RequestDispatcher dispatcher = request.getRequestDispatcher(url);

@@ -1,5 +1,6 @@
 package com.filemanager.controllers;
 
+import com.filemanager.repositories.LogRepository;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,12 @@ import java.util.zip.ZipOutputStream;
 public class DownloadController {
 
     private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
+
+    private final LogRepository logRepository;
+
+    public DownloadController(LogRepository logRepository) {
+        this.logRepository = logRepository;
+    }
 
     @GetMapping("file")
     public void downloadFile(@RequestParam String path, HttpServletResponse response) {
