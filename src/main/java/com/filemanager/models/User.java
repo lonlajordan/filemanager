@@ -5,9 +5,6 @@ import com.filemanager.enums.Role;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Entity
 public class User {
@@ -21,12 +18,14 @@ public class User {
     private String email = "";
     @Transient
     private String password = "";
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String roles = "";
+    private Role role = Role.ROLE_GIE;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Institution institution = Institution.GIE;
     private Date lastLogin = new Date();
+    private Boolean enabled = true;
 
     public Integer getId() {
         return id;
@@ -63,12 +62,12 @@ public class User {
     public User() {
     }
 
-    public String getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoles(String roles) {
-        this.roles = roles;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public Institution getInstitution() {
@@ -87,25 +86,31 @@ public class User {
         this.lastLogin = lastLogin;
     }
 
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public boolean hasRole(String role){
-        return this.roles.contains(role);
+        return this.role.name().equals(role);
     }
 
     public boolean hasAnyRole(String... roles){
-        List<String> values = Stream.of(Role.values()).map(Enum::name).collect(Collectors.toList());
-        for(String role: roles){
-            if(values.contains(role)) return true;
-        }
+        for(String role: roles) if(this.role.name().equals(role)) return true;
         return false;
     }
 
-    public User(String username, String password, String roles) {
+    public User(String username, String password, String role) {
         this.username = username;
         this.password = password;
-        this.roles = roles;
+        this.role = Role.valueOf(role);
     }
 
     public void normalize(){
         if(this.username != null) this.username = this.username.trim().toLowerCase();
+        if(this.email != null) this.email = this.email.trim();
     }
 }

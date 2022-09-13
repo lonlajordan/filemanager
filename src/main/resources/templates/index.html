@@ -16,34 +16,7 @@
     </head>
     <body class="navbar-sticky-top">
         <div id="wrapper" class="container-fluid overflow-auto">
-            <nav class="navbar navbar-expand-lg navbar-light bg-white main-nav sticky-top row">
-                <a class="navbar-brand" th:href="@{'/home'}"> File Manager </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <a th:href="@{/home}"><i class="fa fa-home" aria-hidden="true"></i></a>
-                    <th:block th:each="directory: ${directories}">
-                        <i class="bread-crumb px-1"> / </i><a th:href="@{'/home?p=' + ${directory.absolutePath}}" th:text="${directory.file?.name}"></a>
-                    </th:block>
-                    <div class="col text-right">
-                        <ul class="navbar-nav mr-auto float-right">
-                            <li class="nav-item avatar dropdown">
-                                <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-5" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-user"></i>&nbsp;<span th:text="${session?.user?.username}"></span></a>
-                                <div class="dropdown-menu dropdown-menu-right p-0" aria-labelledby="navbarDropdownMenuLink-5">
-                                    <a title="Gestion des utilisateurs" class="dropdown-item nav-link" th:href="@{/users}"><i class="fa fa-users" aria-hidden="true"></i> Utilisateurs</a>
-                                    <hr class="dropdown-divider m-0">
-                                    <a title="Historique" class="dropdown-item nav-link" th:href="@{/logs}"><i class="fa fa-history" aria-hidden="true"></i> Historique</a>
-                                    <hr class="dropdown-divider m-0">
-                                    <a title="Paramètres" class="dropdown-item nav-link" th:href="@{/settings}"><i class="fa fa-cogs" aria-hidden="true"></i> Paramètres</a>
-                                    <hr class="dropdown-divider m-0">
-                                    <a title="Déconnexion" class="dropdown-item nav-link" th:href="@{/logout}"><i class="fa fa-sign-out" aria-hidden="true"></i> Déconnexion</a>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+            <div th:replace="navbar.html"></div>
             <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
             <div class="pt-3">
                 <p class="message" th:if="${notification}" th:classappend="${notification?.type == 'error' ? 'error' : 'ok'}" th:text="${notification?.message}"></p>
@@ -108,7 +81,7 @@
                                 </ul>
                             </div>
                             <div class="col-lg-3 px-0">
-                                <div class="input-group input-group-sm mr-1" style="margin-top:4px;">
+                                <div class="input-group input-group-sm">
                                     <input class="form-control" placeholder="Recherche" aria-label="Recherche" id="search-addon">
                                 </div>
                             </div>

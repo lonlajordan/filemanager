@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Manage your files efficiently and easily with GIE File Manager">
+    <meta name="author" content="GIE-GCB">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex">
+    <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
+    <title>GIE File Manager | Historique</title>
+    <link rel="icon" type="image/x-ico" th:href="@{/images/logo.ico}">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+<body class="navbar-sticky-top">
+<div id="wrapper" class="container-fluid overflow-auto">
+    <div th:replace="navbar.html"></div>
+    <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
+    <div class="pt-3">
+        <p class="message" th:if="${notification}" th:classappend="${notification?.type == 'error' ? 'error' : 'ok'}" th:text="${notification?.message}"></p>
+        <form onsubmit="return submitForm(event)" th:action="@{'/download/files'}" id="selection-form" name="selectionForm" method="post">
+            <div class="table-responsive">
+                <div class="row mx-0">
+                    <div class="col-lg-9 px-0">
+                        <ul class="list-inline">
+                            <li th:if="${session?.action == null}" class="list-inline-item">
+                                <a href="javascript:reverseSelection();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-list"></i> Inverser la sélection</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <input type="submit" class="d-none delete" id="a-delete">
+                                <a href="javascript:document.getElementById('a-delete').click();" class="btn btn-small btn-outline-primary btn-2"><i class="fa fa-trash-o"></i> Supprimer</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-3 px-0">
+                        <div class="input-group input-group-sm">
+                            <input class="form-control" placeholder="Recherche" aria-label="Recherche" id="search-addon">
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-bordered table-hover table-sm bg-white dataTable" id="main-table" role="grid">
+                    <thead>
+                    <tr role="row">
+                        <th style="width: 10px;" class="custom-checkbox-header sorting_asc">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="js-select-all-items" onclick="selectItems(this)">
+                                <label class="custom-control-label" for="js-select-all-items"></label>
+                            </div>
+                        </th>
+                        <th class="sorting" tabindex="0" aria-controls="main-table">Date</th>
+                        <th class="sorting" tabindex="0" aria-controls="main-table">Type</th>
+                        <th class="sorting" tabindex="0" aria-controls="main-table">Message</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="log,iter: ${logs}">
+                        <td class="custom-checkbox-td">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" th:id="${'item-' + iter.count}" name="ids" th:value="${item.id}" onclick="return selectItem(this)">
+                                <label class="custom-control-label" th:for="${'item-' + iter.count }"></label>
+                            </div>
+                        </td>
+                        <td th:text="${#calendars.format(log.date, 'dd-MM-yyyy  HH:mm')}"></td>
+                        <td th:text="${log.level}"></td>
+                        <td th:text="${log.message}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script th:src="@{/js/loadingoverlay.min.js}"></script>
+<script th:src="@{/js/file.manager.js}"></script>
+</body>
+</html>

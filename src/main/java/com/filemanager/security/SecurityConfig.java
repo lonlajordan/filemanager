@@ -150,8 +150,7 @@ public class SecurityConfig {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
             HttpSession session = attributes.getRequest().getSession(true);
             session.setAttribute("user", user);
-            Collection<SimpleGrantedAuthority> authorities = Stream.of(user.getRoles().split(";")).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-            return new UsernamePasswordAuthenticationToken(username, password, authorities);
+            return new UsernamePasswordAuthenticationToken(username, password, Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())));
         }
 
         @Override

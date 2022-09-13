@@ -20,6 +20,9 @@ public class Notification {
         this.message = message;
     }
 
+    public Notification() {
+    }
+
     public Notification(String type, String message) {
         this.type = type;
         this.message = message;
