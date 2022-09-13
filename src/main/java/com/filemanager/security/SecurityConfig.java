@@ -33,10 +33,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -148,7 +145,7 @@ public class SecurityConfig {
                 String error = e.getExplanation() == null ? "" : e.toString().toLowerCase();
                 throw new BadCredentialsException(error.contains("connection refused") ? "connection.refused" : "incorrect.password");
             }
-
+            user.setLastLogin(new Date());
             userRepository.save(user);
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
             HttpSession session = attributes.getRequest().getSession(true);

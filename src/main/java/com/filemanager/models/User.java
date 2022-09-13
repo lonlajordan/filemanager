@@ -4,6 +4,7 @@ import com.filemanager.enums.Institution;
 import com.filemanager.enums.Role;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,6 +26,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Institution institution = Institution.GIE;
+    private Date lastLogin = new Date();
 
     public Integer getId() {
         return id;
@@ -75,6 +77,14 @@ public class User {
 
     public void setInstitution(Institution institution) {
         this.institution = institution;
+    }
+
+    public Date getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(Date lastLogin) {
+        this.lastLogin = lastLogin;
     }
 
     public boolean hasRole(String role){

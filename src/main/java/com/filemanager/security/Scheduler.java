@@ -11,13 +11,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class Scheduler {
     private final Logger logger = LoggerFactory.getLogger(Scheduler.class);
 
-    @Scheduled(cron = "0 0 10 * * SUN", zone = "GMT+1")
-    public void deleteUselessFiles(){
-
-    }
-
     @Scheduled(cron = "0 0 10 * * MON-FRI", zone = "GMT+1")
-    public void notifyForDelivery(){
+    public void archive(){
     }
 
 }
