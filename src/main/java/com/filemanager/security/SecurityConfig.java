@@ -1,5 +1,6 @@
 package com.filemanager.security;
 
+import com.filemanager.enums.Role;
 import com.filemanager.models.User;
 import com.filemanager.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
@@ -125,25 +127,30 @@ public class SecurityConfig {
                 throw new BadCredentialsException("incorrect.username");
             }
 
-            Hashtable<String, String> environment = new Hashtable<>();
-            environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-            try {
-                List<InetAddress> addresses = Arrays.asList(InetAddress.getAllByName(SecurityConfig.LDAP_PROVIDER_HOST));
-                SecurityConfig.LDAP_PROVIDER_URL = addresses.stream().map(address -> "ldap://" + address.getHostAddress() + ":" + SecurityConfig.LDAP_PROVIDER_PORT + "/" + SecurityConfig.LDAP_PROVIDER_DOMAIN_COMPONENT).collect(Collectors.joining(" "));
-            } catch (UnknownHostException e) {
-                SecurityConfig.LDAP_PROVIDER_URL = "ldap://" + SecurityConfig.LDAP_PROVIDER_DOMAIN_NAME + ":" + SecurityConfig.LDAP_PROVIDER_PORT + "/" + SecurityConfig.LDAP_PROVIDER_DOMAIN_COMPONENT;
+            if(Role.ROLE_ADMIN.equals(user.getRole())){
+                if(new BCryptPasswordEncoder().matches(password, user.getPassword())) throw new BadCredentialsException("incorrect.password");
+            }else {
+                Hashtable<String, String> environment = new Hashtable<>();
+                environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+                try {
+                    List<InetAddress> addresses = Arrays.asList(InetAddress.getAllByName(SecurityConfig.LDAP_PROVIDER_HOST));
+                    SecurityConfig.LDAP_PROVIDER_URL = addresses.stream().map(address -> "ldap://" + address.getHostAddress() + ":" + SecurityConfig.LDAP_PROVIDER_PORT + "/" + SecurityConfig.LDAP_PROVIDER_DOMAIN_COMPONENT).collect(Collectors.joining(" "));
+                } catch (UnknownHostException e) {
+                    SecurityConfig.LDAP_PROVIDER_URL = "ldap://" + SecurityConfig.LDAP_PROVIDER_DOMAIN_NAME + ":" + SecurityConfig.LDAP_PROVIDER_PORT + "/" + SecurityConfig.LDAP_PROVIDER_DOMAIN_COMPONENT;
+                }
+                environment.put(Context.PROVIDER_URL, SecurityConfig.LDAP_PROVIDER_URL);
+                environment.put(Context.SECURITY_AUTHENTICATION, "simple");
+                environment.put(Context.SECURITY_PRINCIPAL, username + "@" + SecurityConfig.LDAP_PROVIDER_DOMAIN_NAME);
+                environment.put(Context.SECURITY_CREDENTIALS, password);
+                try {
+                    LdapContext context = new InitialLdapContext(environment, null);
+                    context.close();
+                } catch (NamingException e) {
+                    String error = e.getExplanation() == null ? "" : e.toString().toLowerCase();
+                    throw new BadCredentialsException(error.contains("connection refused") ? "connection.refused" : "incorrect.password");
+                }
             }
-            environment.put(Context.PROVIDER_URL, SecurityConfig.LDAP_PROVIDER_URL);
-            environment.put(Context.SECURITY_AUTHENTICATION, "simple");
-            environment.put(Context.SECURITY_PRINCIPAL, username + "@" + SecurityConfig.LDAP_PROVIDER_DOMAIN_NAME);
-            environment.put(Context.SECURITY_CREDENTIALS, password);
-            try {
-                LdapContext context = new InitialLdapContext(environment, null);
-                context.close();
-            } catch (NamingException e) {
-                String error = e.getExplanation() == null ? "" : e.toString().toLowerCase();
-                throw new BadCredentialsException(error.contains("connection refused") ? "connection.refused" : "incorrect.password");
-            }
+
             if(!user.isEnabled()) throw new BadCredentialsException("account.disabled");
             user.setLastLogin(new Date());
             userRepository.save(user);

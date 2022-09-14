@@ -1,10 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Manage your files efficiently and easily with GIE File Manager">
+    <meta name="author" content="GIE-GCB">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex">
+    <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
+    <title>Paramètres</title>
+    <link rel="icon" type="image/x-ico" th:href="@{/images/logo.ico}">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
 </head>
-<body>
-
+<body class="navbar-sticky-top">
+<div id="wrapper" class="container-fluid overflow-auto">
+    <div th:replace="navbar.html"></div>
+    <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
+    <div class="pt-3">
+        <p class="message" th:if="${notification}" th:classappend="${notification?.type == 'error' ? 'error' : 'ok'}" th:text="${notification?.message}"></p>
+        <form th:action="@{'/setting/save'}" method="post">
+            <div class="form-group" th:each="setting,iter: ${settings}">
+                <label class="font-weight-bold" th:for="${setting.id}" th:text="${setting.label}"></label>
+                <input class="form-control" th:id="${setting.id}" th:name="${setting.id}" th:value="${setting.value}">
+            </div>
+            <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Enregistrer</button>
+        </form>
+    </div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script th:src="@{/js/loadingoverlay.min.js}"></script>
+<script th:src="@{/js/file.manager.js}"></script>
 </body>
 </html>

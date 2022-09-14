@@ -1,6 +1,7 @@
 package com.filemanager;
 
 import com.filemanager.enums.Role;
+import com.filemanager.models.Setting;
 import com.filemanager.models.User;
 import com.filemanager.repositories.SettingRepository;
 import com.filemanager.repositories.UserRepository;
@@ -10,6 +11,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @SpringBootApplication
@@ -37,6 +42,16 @@ public class FileManagerApplication extends SpringBootServletInitializer impleme
         if(user == null){
             user = new User("admin", new BCryptPasswordEncoder().encode("admin@123"), Role.ROLE_ADMIN.name());
             userRepository.save(user);
+        }
+        Map<String, String> map = Stream.of(new String[][] {
+                { "sys.alert.mail", "Mail de notification Système" },
+                { "cbc.alert.mail", "Mail de notification CBC" },
+                { "cbt.alert.mail", "Mail de notification CBT" },
+                { "gie.alert.mail", "Mail de notification GIE" },
+        }).collect(Collectors.toMap(data -> data[0], data -> data[1]));
+        for(Map.Entry<String, String> entry: map.entrySet()){
+            Setting setting = settingRepository.findById(entry.getKey()).orElse(null);
+            if(setting == null) settingRepository.save(new Setting(entry.getKey(), entry.getValue()));
         }
     }
 }
