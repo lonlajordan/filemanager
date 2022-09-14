@@ -13,13 +13,18 @@ import org.springframework.web.servlet.ModelAndView;
 public class AuthController {
     @GetMapping("/")
     public String login() {
-        return  isAuthenticated() ? "redirect:home" : "login" ;
+        return  isAuthenticated() ? "redirect:home" : "sign-in" ;
+    }
+
+    @GetMapping("/login")
+    public String login1() {
+        return  "login" ;
     }
 
     @PostMapping("/")
     public ModelAndView login(@RequestParam(required = false, defaultValue = "") String error, @RequestParam String username, @RequestParam String password) {
         ModelAndView context = new ModelAndView();
-        context.setViewName("login");
+        context.setViewName("sign-in");
         context.getModel().put("username", username);
         context.getModel().put("password", password);
         if(error != null && !error.isEmpty()){
