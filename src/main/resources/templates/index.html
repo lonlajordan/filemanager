@@ -19,7 +19,7 @@
             <div th:replace="navbar.html"></div>
             <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
             <div class="pt-3">
-                <p class="message" th:if="${notification}" th:classappend="${notification?.type == 'error' ? 'error' : 'ok'}" th:text="${notification?.message}"></p>
+                <p class="message" th:if="${notification}" th:classappend="${notification?.type == 'error' ? 'error' : 'ok'}" th:utext="${notification?.message}"></p>
                 <form onsubmit="return submitForm(event)" th:action="@{'/download/files'}" id="selection-form" name="selectionForm" method="post">
                     <div class="table-responsive">
                         <div class="row mx-0">

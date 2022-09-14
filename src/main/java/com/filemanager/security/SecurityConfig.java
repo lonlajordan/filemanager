@@ -120,16 +120,18 @@ public class SecurityConfig {
         public Authentication authenticate(Authentication authentication) throws AuthenticationException {
             String username = authentication.getName();
             String password = (String) authentication.getCredentials();
+            User user = new User();
+            if(SecurityConfig.ADMIN_USERNAME.equals(username)){
+                if(!new BCryptPasswordEncoder().matches(password, SecurityConfig.ADMIN_PASSWORD)) throw new BadCredentialsException("incorrect.password");
+                user.setRole(Role.ROLE_ADMIN);
+                user.setUsername(username);
+            }else{
+                user = userRepository.findByUsername(username);
 
-            User user = userRepository.findByUsername(username);
+                if (user == null || !user.getUsername().equalsIgnoreCase(username)) {
+                    throw new BadCredentialsException("incorrect.username");
+                }
 
-            if (user == null || !user.getUsername().equalsIgnoreCase(username)) {
-                throw new BadCredentialsException("incorrect.username");
-            }
-
-            if(Role.ROLE_ADMIN.equals(user.getRole())){
-                if(new BCryptPasswordEncoder().matches(password, user.getPassword())) throw new BadCredentialsException("incorrect.password");
-            }else {
                 Hashtable<String, String> environment = new Hashtable<>();
                 environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
                 try {
@@ -149,11 +151,12 @@ public class SecurityConfig {
                     String error = e.getExplanation() == null ? "" : e.toString().toLowerCase();
                     throw new BadCredentialsException(error.contains("connection refused") ? "connection.refused" : "incorrect.password");
                 }
+
+                if(!user.isEnabled()) throw new BadCredentialsException("account.disabled");
+                user.setLastLogin(new Date());
+                userRepository.save(user);
             }
 
-            if(!user.isEnabled()) throw new BadCredentialsException("account.disabled");
-            user.setLastLogin(new Date());
-            userRepository.save(user);
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
             HttpSession session = attributes.getRequest().getSession(true);
             session.setAttribute("user", user);

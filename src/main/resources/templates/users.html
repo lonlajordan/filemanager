@@ -14,12 +14,10 @@
     <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet">
     <link th:href="@{/css/styles.css}" rel="stylesheet">
 </head>
-<body class="navbar-sticky-top">
-<div id="wrapper" class="container-fluid overflow-auto">
+<body class="navbar-sticky-top" style="height: 100vh">
+<div id="wrapper" class="container-fluid overflow-auto position-relative h-100">
     <div th:replace="navbar.html"></div>
-    <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
     <div class="pt-3">
-        <p class="message" th:if="${notification}" th:classappend="${notification?.type == 'error' ? 'error' : 'ok'}" th:text="${notification?.message}"></p>
         <form onsubmit="return submitForm(event)" th:action="@{'/download/files'}" id="selection-form" name="selectionForm" method="post">
             <div class="table-responsive">
                 <div class="row mx-0">
@@ -72,32 +70,15 @@
                             <td th:text="${user.enabled ? 'ACTIF' : #strings.toUpperCase('désactivé')}"></td>
                             <td th:text="${#calendars.format(user.lastLogin, 'dd-MM-yyyy  HH:mm')}"></td>
                             <td>
-                                <li class="dropdown list-style-none text-center">
-                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                        <i class="fa fa-ellipsis-h"></i>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-action p-0">
-                                        <li>
-                                            <a class="lazy-link text-decoration-none text-left" th:href="@{'/user/toggle/' + ${user.id}}">
-                                                <i class="fa fa-fw" th:classappend="${user.enabled ? 'fa-toggle-off' : 'fa-toggle-on'}"></i> <span th:text="${user.enabled ? 'Désactiver' : 'Activer'}"></span>
-                                            </a>
-                                        </li>
-                                        <li class="divider m-0"></li>
-                                        <li>
-                                            <a class="lazy-link text-decoration-none text-left" th:href="@{'/user/save?id=' + ${user.id}}">
-                                                <i class="fa fa-pencil-square-o fa-fw"></i> Modifier
-                                            </a>
-                                        </li>
-                                        <th:block th:if="${user.id != session?.user?.id}">
-                                            <li class="divider m-0"></li>
-                                            <li>
-                                                <a class="text-decoration-none text-danger text-left" th:data-user-id="${user.id}" onclick="deleteItem(this.getAttribute('data-user-id'), 'user/delete')" href="#">
-                                                    <i class="fa fa-trash-o fa-fw"></i> Supprimer
-                                                </a>
-                                            </li>
-                                        </th:block>
-                                    </ul>
-                                </li>
+                                <a class="text-decoration-none text-left" th:href="@{'/user/save?id=' + ${user.id}}">
+                                    <i class="fa fa-pencil-square-o fa-fw"></i> Modifier
+                                </a> |
+                                <a class="text-decoration-none text-danger text-left" th:data-user-id="${user.id}" onclick="deleteItem(this.getAttribute('data-user-id'), 'user/delete')" href="#">
+                                    <i class="fa fa-trash-o fa-fw"></i> Supprimer
+                                </a> |
+                                <a class="text-decoration-none text-left" th:href="@{'/user/toggle/' + ${user.id}}">
+                                    <i class="fa fa-fw" th:classappend="${user.enabled ? 'fa-toggle-off' : 'fa-toggle-on'}"></i> <span th:text="${user.enabled ? 'Désactiver' : 'Activer'}"></span>
+                                </a>
                             </td>
                         </tr>
                     </tbody>
@@ -105,11 +86,25 @@
             </div>
         </form>
     </div>
+    <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
+    <div th:if="${notification}" id="notification" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000" style="position: absolute; bottom: 10px; right: 10px;">
+        <div class="toast-header">
+            <i class="fa fa-warning mr-2"></i>
+            <strong class="mr-auto">Notification</strong>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body" th:utext="${notification?.message}"></div>
+    </div>
 </div>
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/bootstrap.min.js}"></script>
 <script th:src="@{/js/jquery.dataTables.min.js}"></script>
 <script th:src="@{/js/loadingoverlay.min.js}"></script>
 <script th:src="@{/js/file.manager.js}"></script>
+<script>
+    $('#notification').toast('show');
+</script>
 </body>
 </html>

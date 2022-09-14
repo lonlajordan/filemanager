@@ -19,7 +19,7 @@
     <div th:replace="navbar.html"></div>
     <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
     <div class="pt-3">
-        <p class="message" th:if="${notification}" th:classappend="${notification?.type == 'error' ? 'error' : 'ok'}" th:text="${notification?.message}"></p>
+        <p class="message" th:if="${notification}" th:classappend="${notification?.type == 'error' ? 'error' : 'ok'}" th:utext="${notification?.message}"></p>
         <form th:action="@{'/setting/save'}" method="post">
             <div class="form-group" th:each="setting,iter: ${settings}">
                 <label class="font-weight-bold" th:for="${setting.id}" th:text="${setting.label}"></label>

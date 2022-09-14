@@ -6,6 +6,7 @@ import com.filemanager.models.User;
 import com.filemanager.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @RequestMapping(value="delete/{id}")
-    public RedirectView deleteUser(@PathVariable int id, RedirectAttributes attributes){
+    public String deleteUser(@PathVariable int id, RedirectAttributes attributes){
         Notification notification = new Notification();
         try {
             User user = userRepository.findById(id).orElse(null);
@@ -58,12 +58,12 @@ public class UserController {
             logger.error(notification.getMessage(), e);
         }
         attributes.addFlashAttribute("notification", notification);
-        return new RedirectView("/user/list", true);
+        return "redirect:/user/list";
     }
 
     @RequestMapping(value="toggle/{id}")
-    public RedirectView toggleUser(@PathVariable int id, RedirectAttributes attributes){
-        Notification notification = new Notification("error", "Produit introuvable.");
+    public String toggleUser(@PathVariable int id, RedirectAttributes attributes){
+        Notification notification = new Notification("error", "utilisateur introuvable.");
         try {
             User user = userRepository.findById(id).orElse(null);
             if(user != null){
@@ -78,7 +78,7 @@ public class UserController {
             logger.error(notification.getMessage(), e);
         }
         attributes.addFlashAttribute("notification", notification);
-        return new RedirectView("/user/list", true);
+        return "redirect:/user/list";
     }
 
     @GetMapping(value = "save")
@@ -90,7 +90,7 @@ public class UserController {
     }
 
     @PostMapping(value = "save")
-    public String saveUser(User user, @RequestParam String role, @RequestParam(required = false, defaultValue = "false") Boolean multiple, RedirectAttributes attributes, Model model, HttpSession session){
+    public String saveUser(@NonNull User user, @RequestParam String role, @RequestParam(required = false, defaultValue = "false") Boolean multiple, RedirectAttributes attributes, Model model, HttpSession session){
         User user$ = user;
         boolean creation = true;
         if(user.getId() != null){

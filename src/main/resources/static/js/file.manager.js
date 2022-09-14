@@ -16,6 +16,29 @@ function selectItem(checkBox){
     if(!checkBox.checked) $("#js-select-all-items").prop( "checked", false);
 }
 
+function deleteItem(id, url){
+    if(confirm("Voulez vous vraiment supprimer cet élément ?")){
+        fetch(ctx + '/' + url + '/' + id, false);
+    }
+}
+
+function deleteItems(url){
+    let selected = $("#main-table tbody tr input[type=checkbox]:checked");
+    let n = selected.length;
+    if(n === 0){
+        alert('Aucun élément sélectionné');
+    }else{
+        let params = [];
+        selected.each(function () {
+            params.push('ids=' + $(this).attr('title'));
+        });
+        params = params.join("&");
+        if(confirm("Voulez-vous vraiment supprimer " + (n === 1 ? 'cet élément ?' : 'ces ' + n + ' éléments ?'))){
+            fetch(ctx + '/' + url + '?' + params, false);
+        }
+    }
+}
+
 function submitForm(event) {
     let n = $("#main-table tbody tr input[type=checkbox]:checked").length;
     if(n === 0){
