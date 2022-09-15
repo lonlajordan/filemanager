@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Manage your files efficiently and easily with GIE File Manager">
-    <meta name="author" content="GIE-GCB">
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="googlebot" content="noindex">
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
     <title>Historique</title>
     <link rel="icon" type="image/x-ico" th:href="@{/images/logo.ico}">
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet">
-    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <link th:href="@{/fonts/inter.css}" rel="stylesheet"/>
+    <link th:href="@{/css/tabler.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/demo.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
 </head>
-<body class="navbar-sticky-top">
-<div id="wrapper" class="container-fluid overflow-auto">
+<body>
+<div class="page" id="wrapper">
     <div th:replace="navbar.html"></div>
     <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
     <div class="pt-3">
@@ -72,10 +71,36 @@
         </form>
     </div>
 </div>
+<!-- Libs JS -->
+<script th:src="@{/js/list.min.js}"></script>
+<!-- Tabler Core -->
 <script th:src="@{/js/jquery.min.js}"></script>
-<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/tabler.min.js}"></script>
+<script th:src="@{/js/demo.min.js}"></script>
+<script th:src="@{/js/js-snackbar.min.js}"></script>
 <script th:src="@{/js/jquery.dataTables.min.js}"></script>
 <script th:src="@{/js/loadingoverlay.min.js}"></script>
 <script th:src="@{/js/file.manager.js}"></script>
+<!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
+<script th:if="${notification}" th:inline="javascript">
+    new SnackBar({
+        message: /*[[${notification?.message}]]*/ '',
+        status: /*[[${notification?.type == 'error' ? 'error' : 'success'}]]*/ '',
+        dismissible: false,
+        position: 'bc',
+        timeout: 3000,
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const list = new List('table-default', {
+            sortClass: 'table-sort',
+            listClass: 'table-tbody',
+            valueNames: [ 'sort-name', 'sort-height', 'sort-modified', 'sort-permission',
+                'sort-owner'
+            ]
+        });
+    })
+</script>
 </body>
 </html>

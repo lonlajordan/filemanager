@@ -42,7 +42,13 @@ function deleteItems(url){
 function submitForm(event) {
     let n = $("#main-table tbody tr input[type=checkbox]:checked").length;
     if(n === 0){
-        alert('Sélectionnez au moins un dossier/fichier');
+        new SnackBar({
+            message: 'Aucun élément sélectionné',
+            status: 'error',
+            dismissible: false,
+            position: 'bc',
+            timeout: 3000,
+        });
         return false;
     }
     let form = $(event.target);
@@ -104,7 +110,7 @@ function createFolder(event) {
 }
 
 function downloadFile(path, url) {
-   // $("#wrapper").LoadingOverlay('show', options);
+    $("#wrapper").LoadingOverlay('show', options);
     let xhr = new XMLHttpRequest();
     if(url.includes('files')){
         url = ctx + url + "?" + path;
@@ -150,12 +156,18 @@ function downloadFile(path, url) {
                 }, 10000);
             }
         }else {
-            alert('fichier introuvable');
+            new SnackBar({
+                message: 'Fichier introuvable',
+                status: 'error',
+                dismissible: false,
+                position: 'bc',
+                timeout: 3000,
+            });
         }
         $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = false; });
         $("#js-select-all-items").prop( "checked", false);
-       // $('#wrapper').LoadingOverlay('hide', options);
-       // $('#wrapper').scrollTop(0);
+        $('#wrapper').LoadingOverlay('hide', options);
+        $('#wrapper').scrollTop(0);
     };
     xhr.setRequestHeader('Content-type', 'application/*');
     xhr.send();
