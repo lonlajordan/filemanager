@@ -113,7 +113,7 @@ public class HomeController {
             Collections.reverse(directories);
             model.addAttribute("directories", directories);
         }
-        return "index";
+        return "layout-navbar-sticky";
     }
 
     @GetMapping(path = "/rename")

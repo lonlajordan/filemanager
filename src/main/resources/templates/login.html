@@ -1,66 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="Manage your files efficiently and easily with GIE File Manager">
-        <meta name="author" content="GIE-GCB">
-        <meta name="robots" content="noindex, nofollow">
-        <meta name="googlebot" content="noindex">
-        <title>Connexion</title>
-        <link rel="icon" type="image/x-ico" th:href="@{/images/logo.ico}">
-        <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-        <link th:href="@{/css/styles.css}" rel="stylesheet">
-    </head>
-    <body class="fm-login-page">
-        <div id="wrapper" class="container-fluid">
-            <section class="h-100">
-                <div class="container h-100">
-                    <div class="row justify-content-md-center h-100">
-                        <div class="card-wrapper">
-                            <div class="card fat">
-                                <div class="card-body">
-                                    <form class="form-signin" th:action="@{/}" method="post">
-                                        <div class="form-group">
-                                            <div class="brand">
-                                                <img th:src="@{/images/logo_gie.jpg}" alt="Logo GIE GCB">
-                                            </div>
-                                            <div class="text-center">
-                                                <h1 class="card-title">GIE File Manager</h1>
-                                            </div>
-                                        </div>
-                                        <hr />
-                                        <div class="form-group">
-                                            <label for="fm_usr">Nom d'utilisateur</label>
-                                            <input type="text" class="form-control" id="fm_usr" name="username" th:value="${username}" autocomplete="off" required autofocus>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="fm_pwd">Mot de passe</label>
-                                            <input type="password" class="form-control" id="fm_pwd" name="password" th:value="${password}" autocomplete="off" required>
-                                        </div>
-
-                                        <div class="form-group" th:if="${error}">
-                                            <p class="message error" th:text="${message}"></p>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <button type="submit" class="btn btn-success btn-block mt-4" role="button">
-                                                Se connecter
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <div class="footer text-center">
-                                &mdash;&mdash; &copy; <a href="https://www.commercialbank-cm.com" target="_blank" class="text-muted" data-version="2.5">GIE GCB</a> &mdash;&mdash;
-                            </div>
-                        </div>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>Connexion</title>
+    <link rel="icon" type="image/x-ico" th:href="@{/images/logo.ico}">
+    <link th:href="@{/fonts/inter.css}" rel="stylesheet"/>
+    <link th:href="@{/css/tabler.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/demo.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
+</head>
+<body class="d-flex flex-column login-page overflow-hidden">
+<div class="page page-center">
+    <div class="container-tight py-3">
+        <form class="card card-md" id="login-form" onsubmit="return login(event)" th:action="@{/}" method="post" autocomplete="off">
+            <div class="ribbon ribbon-top bg-yellow"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path></svg>
+            </div>
+            <div class="card-body p-4">
+                <h2 class="card-title text-center mb-3">GIE FILE MANAGER</h2>
+                <div class="text-center mb-4">
+                    <img width="50" th:src="@{/images/logo.png}" alt="">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required">Nom d'utilisateur</label>
+                    <div class="input-group input-group-flat">
+                        <input type="text" name="username" class="form-control" autocomplete="off" required>
+                        <span class="input-group-text">
+                  <a href="#" class="link-secondary ms-2 disabled" tabindex="-1" data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler-icons.io/i/bell -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                  </a>
+                </span>
                     </div>
                 </div>
-            </section>
+                <div class="mb-2">
+                    <label class="form-label required">Mot de passe</label>
+                    <div class="input-group input-group-flat">
+                        <input type="password" class="form-control" name="password" autocomplete="off" required>
+                        <span class="input-group-text">
+                  <a href="#" class="link-secondary ms-2 disabled" tabindex="-1" data-bs-toggle="tooltip"><!-- Download SVG icon from http://tabler-icons.io/i/eye -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="5" y="11" width="14" height="10" rx="2" /><circle cx="12" cy="16" r="1" /><path d="M8 11v-4a4 4 0 0 1 8 0v4" /></svg>
+                  </a>
+                </span>
+                    </div>
+                </div>
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                </div>
+            </div>
+            <div id="loader" class="progress progress-sm card-progress invisible">
+                <div class="progress-bar progress-bar-indeterminate bg-blue"></div>
+            </div>
+        </form>
+        <div class="text-center text-muted mt-3">
+            &mdash;&mdash; &copy; <a href="https://www.commercialbank-cm.com" target="_blank" class="text-muted" data-version="2.5">GIE GCB</a> &mdash;&mdash;
         </div>
-        <script th:src="@{/js/jquery.min.js}"></script>
-        <script th:src="@{/js/bootstrap.min.js}"></script>
-    </body>
+    </div>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/tabler.min.js}"></script>
+<script th:src="@{/js/demo.min.js}"></script>
+<script th:src="@{/js/js-snackbar.min.js}"></script>
+<script>
+    function login(event) {
+        event.preventDefault();
+        $("#loader").removeClass("invisible");
+        let xhr = new XMLHttpRequest();
+        let form = $("#login-form");
+        xhr.open('POST', form.attr('action'), true);
+        xhr.responseType = 'json';
+        xhr.onload = function() {
+            let error = false;
+            let message = '';
+            if(this.response != null){
+                error = this.response.error;
+                if(error) message = this.response.message;
+            }
+
+            if(error){
+                new SnackBar({
+                    message: message,
+                    status: 'error',
+                    dismissible: false,
+                    position: 'bc',
+                    timeout: 2500,
+                });
+            }else{
+                location.reload();
+            }
+            $("#loader").addClass("invisible");
+        };
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.send(form.serialize());
+    }
+</script>
+</body>
 </html>

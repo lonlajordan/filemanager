@@ -1,34 +1,28 @@
 package com.filemanager.controllers;
 
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class AuthController {
     @GetMapping("/")
     public String login() {
-        return  isAuthenticated() ? "redirect:home" : "sign-in" ;
+        return  isAuthenticated() ? "redirect:home" : "login" ;
     }
 
-    @GetMapping("/login")
-    public String login1() {
-        return  "login" ;
-    }
-
-    @PostMapping("/")
-    public ModelAndView login(@RequestParam(required = false, defaultValue = "") String error, @RequestParam String username, @RequestParam String password) {
-        ModelAndView context = new ModelAndView();
-        context.setViewName("sign-in");
-        context.getModel().put("username", username);
-        context.getModel().put("password", password);
+    @ResponseBody
+    @RequestMapping(value = "/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> login(@RequestParam(required = false, defaultValue = "") String error) {
+        HashMap<String, Object> map = new HashMap<>();
         if(error != null && !error.isEmpty()){
-            context.getModel().put("error", true);
+            map.put("error", true);
             String message = "Une erreur s'est produite. Réessayez plutard.";
             if("1".equalsIgnoreCase(error)){
                 message = "utilisateur introuvable";
@@ -39,9 +33,9 @@ public class AuthController {
             }else if("4".equalsIgnoreCase(error)){
                 message = "serveur d'authentification indisponible";
             }
-            context.getModel().put("message", message);
+            map.put("message", message);
         }
-        return context;
+        return map;
     }
 
     private boolean isAuthenticated() {
