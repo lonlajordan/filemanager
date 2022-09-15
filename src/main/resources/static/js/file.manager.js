@@ -104,7 +104,7 @@ function createFolder(event) {
 }
 
 function downloadFile(path, url) {
-    $("#wrapper").LoadingOverlay('show', options);
+   // $("#wrapper").LoadingOverlay('show', options);
     let xhr = new XMLHttpRequest();
     if(url.includes('files')){
         url = ctx + url + "?" + path;
@@ -154,8 +154,8 @@ function downloadFile(path, url) {
         }
         $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = false; });
         $("#js-select-all-items").prop( "checked", false);
-        $('#wrapper').LoadingOverlay('hide', options);
-        $('#wrapper').scrollTop(0);
+       // $('#wrapper').LoadingOverlay('hide', options);
+       // $('#wrapper').scrollTop(0);
     };
     xhr.setRequestHeader('Content-type', 'application/*');
     xhr.send();
