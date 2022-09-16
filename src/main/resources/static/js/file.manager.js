@@ -39,6 +39,7 @@ function deleteItems(url){
     }
 }
 
+/*
 function submitForm(event) {
     let n = $("#main-table tbody tr input[type=checkbox]:checked").length;
     if(n === 0){
@@ -67,6 +68,34 @@ function submitForm(event) {
     }else{
         event.preventDefault();
         downloadFile(form.serialize(), '/download/files');
+    }
+}*/
+
+function submitForm(method = 'zip') {
+    let n = $("#main-table tbody tr input[type=checkbox]:checked").length;
+    if(n === 0){
+        new SnackBar({
+            message: 'Aucun élément sélectionné',
+            status: 'error',
+            dismissible: false,
+            position: 'bc',
+            timeout: 3000,
+        });
+        return false;
+    }
+    let form = $("#selection-form");
+    if(method === 'delete'){
+        if(!confirm("Voulez-vous vraiment supprimer " + (n < 2 ? "cet élément" :  "ces " + n + " éléments") + " ?")){
+            return false;
+        }
+        form.attr('action', ctx + '/delete/files');
+    }else if(method === 'copy'){
+        form.attr('action', ctx + '/move/files?action=copy');
+    }else if(method === 'cut'){
+        form.attr('action', ctx + '/move/files?action=cut');
+    }else{
+        downloadFile(new FormData(document.selectionForm), ctx  + '/download/files');
+        return false;
     }
 }
 
@@ -109,15 +138,26 @@ function createFolder(event) {
     }
 }
 
-function downloadFile(path, url) {
+function downloadFiles() {
+    let paths = $.makeArray($("#main-table tbody input[type=checkbox]:checked")).map(checkbox => $(checkbox).val());
+    $("#main-table input[type=checkbox]:checked").each(function () { this.checked = false; })
+    let data = new FormData();
+    data.append('paths', "test");
+    data.append('paths1', "test");
+    data.append('paths2', "test");
+    /*
+    for(let path of paths){
+        console.log("i am here");
+        data.append("paths", path);
+    }*/
+    console.log(data);
+    downloadFile(data, ctx + '/download/files');
+}
+
+function downloadFile(data, url) {
     $("#wrapper").LoadingOverlay('show', options);
     let xhr = new XMLHttpRequest();
-    if(url.includes('files')){
-        url = ctx + url + "?" + path;
-    }else{
-        url = ctx + url + "?path=" + path;
-    }
-    xhr.open('GET', url, true);
+    xhr.open('POST', url, true);
     xhr.responseType = 'arraybuffer';
     xhr.onload = function() {
         if(this.status === 200) {
@@ -170,7 +210,8 @@ function downloadFile(path, url) {
         $('#wrapper').scrollTop(0);
     };
     xhr.setRequestHeader('Content-type', 'application/*');
-    xhr.send();
+    console.log(data);
+    xhr.send(data);
 }
 
 function sendBankFiles() {
