@@ -55,7 +55,7 @@
                           <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="7" cy="17" r="3" /><circle cx="17" cy="17" r="3" /><line x1="9.15" y1="14.85" x2="18" y2="4" /><line x1="6" y1="4" x2="14.85" y2="14.85" /></svg>
                           <span class="ml-2">Couper</span>
                         </a>
-                        <a th:if="${session?.action == null}" href="javascript:document.getElementById('a-zip').click();" class="dropdown-item text-danger mw-0">
+                        <a th:if="${session?.action == null}" href="#" onclick="invoke('delete')" class="dropdown-item text-danger mw-0">
                           <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                           <span class="ml-2">Supprimer</span>
                         </a>
@@ -140,7 +140,7 @@
                                     <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
                                     <span class="ml-2">Renommer</span>
                                   </a>
-                                  <a class="dropdown-item mw-0 text-danger" th:data-file-type="${item.file.directory}" th:href="@{'/delete/files?paths=' + ${item.absolutePath}}" onclick="return deleteFile(event, this.getAttribute('data-file-type'))">
+                                  <a class="dropdown-item mw-0 text-danger" th:data-file-path="${item.absolutePath}" th:data-file-type="${item.file.directory}" href="#" onclick="deleteFile(this.getAttribute('data-file-path'), this.getAttribute('data-file-type'))">
                                     <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                                     <span class="ml-2">Supprimer</span>
                                   </a>
@@ -302,6 +302,36 @@
         </div>
       </div>
     </div>
+    <div class="modal modal-blur fade" id="modal-delete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-status bg-danger"></div>
+          <div class="modal-body text-center py-4">
+            <svg class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
+            <h3>Êtes vous sûr ?</h3>
+            <div class="text-muted" id="delete-message">Voulez-vous vraiment supprimer ces éléments ?</div>
+          </div>
+          <div class="modal-footer">
+            <form th:action="@{/delete/files}">
+              <div id="delete-files"></div>
+              <div class="w-100">
+                <div class="row">
+                  <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">
+                    Annuler
+                  </a></div>
+                  <div class="col">
+                    <button type="submit" class="btn btn-danger w-100">
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Libs JS -->
     <script th:src="@{/js/list.min.js}"></script>
     <!-- Tabler Core -->
@@ -347,9 +377,7 @@
         new List('table-default', {
           sortClass: 'table-sort',
           listClass: 'table-tbody',
-          valueNames: [ 'sort-name', 'sort-height', 'sort-modified', 'sort-permission',
-          'sort-owner'
-          ]
+          valueNames: [ 'sort-name', 'sort-height', 'sort-modified', 'sort-permission', 'sort-owner' ]
         });
       })
     </script>

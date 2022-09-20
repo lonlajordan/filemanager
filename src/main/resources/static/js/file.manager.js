@@ -20,6 +20,7 @@ function deleteItem(id, url){
     if(confirm("Voulez vous vraiment supprimer cet élément ?")){
         fetch(ctx + '/' + url + '/' + id, false);
     }
+    $("#modal-delete").modal('show');
 }
 
 function deleteItems(url){
@@ -33,16 +34,23 @@ function deleteItems(url){
             params.push('ids=' + $(this).attr('title'));
         });
         params = params.join("&");
-        if(confirm("Voulez-vous vraiment supprimer " + (n === 1 ? 'cet élément ?' : 'ces ' + n + ' éléments ?'))){
+       /* if(confirm("Voulez-vous vraiment supprimer " + (n === 1 ? 'cet élément ?' : 'ces ' + n + ' éléments ?'))){
             fetch(ctx + '/' + url + '?' + params, false);
-        }
+        }*/
+        $("#modal-delete").modal('show');
     }
 }
 
-function deleteFile(event, isDirectory){
-    if(!confirm("Voulez-vous vraiment supprimer ce " + (isDirectory ? "dossier" :  "fichier") + " ?")){
-        event.preventDefault();
-    }
+function deleteFile(path, isDirectory){
+    $("#delete-message").text("Voulez-vous vraiment supprimer ce " + (isDirectory ? "dossier" :  "fichier") + " ?");
+    let container = document.getElementById("delete-files");
+    container.innerHTML = '';
+    let input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "paths";
+    input.value = path;
+    container.appendChild(input);
+    $("#modal-delete").modal('show');
 }
 
 function renameFile(path, oldName) {
@@ -83,14 +91,20 @@ function invoke(action) {
         }else if(action === 'copy' || action === 'cut'){
             let params = paths.map(path => 'paths=' + path).join('&');
             window.location = ctx + '/move/files?action=' + action + '&' + params;
+        }else if(action === 'delete'){
+            $("#delete-message").text("Voulez-vous vraiment supprimer " + (paths.length < 2 ? "cet élément" :  "ces " + paths.length + " éléments") + " ?");
+            let container = document.getElementById("delete-files");
+            container.innerHTML = '';
+            for(let path of paths){
+                let input = document.createElement("input");
+                input.type = "hidden";
+                input.name = "paths";
+                input.value = path;
+                container.appendChild(input);
+            }
+            $("#modal-delete").modal('show');
         }
     }
-    /*if(method === 'delete'){
-        if(!confirm("Voulez-vous vraiment supprimer " + (n < 2 ? "cet élément" :  "ces " + n + " éléments") + " ?")){
-            return false;
-        }
-        form.attr('action', ctx + '/delete/files');
-    }*/
 }
 
 function downloadFile(paths, url) {
