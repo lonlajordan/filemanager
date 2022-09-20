@@ -115,10 +115,10 @@ public class HomeController {
             Collections.reverse(directories);
             model.addAttribute("directories", directories);
         }
-        return "layout-navbar-sticky";
+        return "home";
     }
 
-    @GetMapping(path = "/rename")
+    @PostMapping(path = "/rename")
     public String renameFile(@RequestParam String path, @RequestParam String name, RedirectAttributes attributes){
         try {
             Path sourcePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
@@ -173,6 +173,7 @@ public class HomeController {
         String p = "";
         session.setAttribute("action", action);
         session.setAttribute("paths", Arrays.asList(paths));
+        Notification notification = new Notification("success", paths.length + " élément" + (paths.length > 1 ? "s" : "") + " en attente de " + ("copy".equalsIgnoreCase(action) ? "copie" : "déplacement"));
         for(String path: paths){
             try {
                 p = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize().getParent().toAbsolutePath().toString();
@@ -182,6 +183,7 @@ public class HomeController {
             }
         }
         attributes.addAttribute("p", p);
+        attributes.addFlashAttribute("notification", notification);
         return "redirect:/home";
     }
 
@@ -193,8 +195,8 @@ public class HomeController {
             attributes.addAttribute("p", p.toAbsolutePath().toString());
         } catch (UnsupportedEncodingException ignored) { }
         if("paste".equalsIgnoreCase(action) && p != null){
-            List<String> paths = (List<String>) session.getAttribute("paths");
             String method = (String) session.getAttribute("action");
+            List<String> paths = (List<String>) session.getAttribute("paths");
             if(method != null && paths != null && !paths.isEmpty()){
                 List<Path> pathList = paths.stream().map(path -> {
                     try {
@@ -222,13 +224,13 @@ public class HomeController {
                             }
                         } catch (IOException e) {
                             logger.error("file copy/move error", e);
-                            if(!attributes.getFlashAttributes().containsKey("notification")) attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
+                            if(!attributes.getFlashAttributes().containsKey("notification")) attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération"));
                         }
                     }
                 });
             }
         }
-        if(!attributes.getFlashAttributes().containsKey("notification")) attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
+        if(!attributes.getFlashAttributes().containsKey("notification")) attributes.addFlashAttribute("notification", new Notification("success", "cancel".equalsIgnoreCase(action) ? "Opération annulée" : "Opération terminée avec succès"));
         session.removeAttribute("action");
         session.removeAttribute("paths");
         return "redirect:/home";

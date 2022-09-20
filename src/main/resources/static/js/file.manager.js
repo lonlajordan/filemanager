@@ -39,87 +39,16 @@ function deleteItems(url){
     }
 }
 
-/*
-function submitForm(event) {
-    let n = $("#main-table tbody tr input[type=checkbox]:checked").length;
-    if(n === 0){
-        new SnackBar({
-            message: 'Aucun élément sélectionné',
-            status: 'error',
-            dismissible: false,
-            position: 'bc',
-            timeout: 3000,
-        });
-        return false;
-    }
-    let form = $(event.target);
-    let deletion = $(event.submitter).hasClass('delete');
-    let copy = $(event.submitter).hasClass('copy');
-    let cut = $(event.submitter).hasClass('cut');
-    if(deletion){
-        if(!confirm("Voulez-vous vraiment supprimer " + (n < 2 ? "cet élément" :  "ces " + n + " éléments") + " ?")){
-            return false;
-        }
-        form.attr('action', ctx + '/delete/files');
-    }else if(copy){
-        form.attr('action', ctx + '/move/files?action=copy');
-    }else if(cut){
-        form.attr('action', ctx + '/move/files?action=cut');
-    }else{
-        event.preventDefault();
-        downloadFile(form.serialize(), '/download/files');
-    }
-}*/
-
-function submitForm(method = 'zip') {
-    let n = $("#main-table tbody tr input[type=checkbox]:checked").length;
-    if(n === 0){
-        new SnackBar({
-            message: 'Aucun élément sélectionné',
-            status: 'error',
-            dismissible: false,
-            position: 'bc',
-            timeout: 3000,
-        });
-        return false;
-    }
-    let form = $("#selection-form");
-    if(method === 'delete'){
-        if(!confirm("Voulez-vous vraiment supprimer " + (n < 2 ? "cet élément" :  "ces " + n + " éléments") + " ?")){
-            return false;
-        }
-        form.attr('action', ctx + '/delete/files');
-    }else if(method === 'copy'){
-        form.attr('action', ctx + '/move/files?action=copy');
-    }else if(method === 'cut'){
-        form.attr('action', ctx + '/move/files?action=cut');
-    }else{
-        downloadFile(new FormData(document.selectionForm), ctx  + '/download/files');
-        return false;
-    }
-}
-
 function deleteFile(event, isDirectory){
     if(!confirm("Voulez-vous vraiment supprimer ce " + (isDirectory ? "dossier" :  "fichier") + " ?")){
         event.preventDefault();
     }
 }
 
-function renameFile(event, oldName, id) {
-    let newName = prompt("Nouveau nom", oldName);
-    if(newName){
-        let selector = "#" + id;
-        let href = $(selector).attr('href');
-        let index = href.lastIndexOf('&name');
-        if(index < 0){
-            href += "&name=" + newName;
-        }else{
-            href = href.substring(0, index) + "&name=" + newName;
-        }
-        $(selector).attr("href", href);
-    }else{
-        event.preventDefault();
-    }
+function renameFile(path, oldName) {
+    $("#file-path").val(path);
+    $("#new-name").val(oldName);
+    $("#modal-rename").modal('show');
 }
 
 function createFolder(event) {
@@ -138,37 +67,46 @@ function createFolder(event) {
     }
 }
 
-function downloadFiles() {
+function invoke(action) {
     let paths = $.makeArray($("#main-table tbody input[type=checkbox]:checked")).map(checkbox => $(checkbox).val());
-    $("#main-table input[type=checkbox]:checked").each(function () { this.checked = false; })
-    let data = new FormData();
-    data.append('paths', "test");
-    data.append('paths1', "test");
-    data.append('paths2', "test");
-    /*
-    for(let path of paths){
-        console.log("i am here");
-        data.append("paths", path);
+    if(paths === undefined || paths.length === 0){
+        new SnackBar({
+            message: 'Aucun élément sélectionné',
+            status: 'error',
+            dismissible: false,
+            position: 'bc',
+            timeout: 3000,
+        });
+    }else{
+        if(action === 'download'){
+            downloadFile(paths, '/download/files');
+        }else if(action === 'copy' || action === 'cut'){
+            let params = paths.map(path => 'paths=' + path).join('&');
+            window.location = ctx + '/move/files?action=' + action + '&' + params;
+        }
+    }
+    /*if(method === 'delete'){
+        if(!confirm("Voulez-vous vraiment supprimer " + (n < 2 ? "cet élément" :  "ces " + n + " éléments") + " ?")){
+            return false;
+        }
+        form.attr('action', ctx + '/delete/files');
     }*/
-    console.log(data);
-    downloadFile(data, ctx + '/download/files');
 }
 
-function downloadFile(data, url) {
+function downloadFile(paths, url) {
     $("#wrapper").LoadingOverlay('show', options);
     let xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
+    let params = paths.map(path => 'path=' + path).join('&');
+    xhr.open('GET', ctx + url + '?' + params, true);
     xhr.responseType = 'arraybuffer';
     xhr.onload = function() {
         if(this.status === 200) {
             let filename = '';
-            //get the filename from the header.
             let disposition = xhr.getResponseHeader('Content-Disposition');
             if (disposition && disposition.indexOf('attachment') !== -1) {
                 let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
                 let matches = filenameRegex.exec(disposition);
-                if (matches !== null && matches[1])
-                    filename = matches[1].replace(/['"]/g, '');
+                if (matches !== null && matches[1]) filename = matches[1].replace(/['"]/g, '');
             }
             let type = xhr.getResponseHeader('Content-Type');
             let blob = new Blob([this.response],  {type: type});
@@ -197,25 +135,19 @@ function downloadFile(data, url) {
             }
         }else {
             new SnackBar({
-                message: 'Fichier introuvable',
+                message: 'Téléchargement échoué',
                 status: 'error',
                 dismissible: false,
                 position: 'bc',
                 timeout: 3000,
             });
         }
-        $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = false; });
-        $("#js-select-all-items").prop( "checked", false);
+        $("#main-table input[type=checkbox]:checked").each(function () { this.checked = false; });
         $('#wrapper').LoadingOverlay('hide', options);
         $('#wrapper').scrollTop(0);
     };
     xhr.setRequestHeader('Content-type', 'application/*');
-    console.log(data);
-    xhr.send(data);
-}
-
-function sendBankFiles() {
-    document.getElementById('uploadForm').submit();
+    xhr.send();
 }
 
 $.ajaxSetup({

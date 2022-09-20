@@ -77,8 +77,8 @@ public class DownloadController {
         }
     }
 
-    @PostMapping(path = "files")
-    public ResponseEntity<StreamingResponseBody> downloadFilesAsZip(@RequestParam String[] paths, HttpServletResponse response) {
+    @GetMapping(path = "files")
+    public ResponseEntity<StreamingResponseBody> downloadFilesAsZip(@RequestParam(name = "path") String[] paths, HttpServletResponse response) {
         StreamingResponseBody streamResponseBody = out -> {
             final ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
             List<Path> pathList = Stream.of(paths).map(path -> {
