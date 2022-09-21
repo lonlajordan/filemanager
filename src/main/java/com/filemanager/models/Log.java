@@ -49,4 +49,24 @@ public class Log {
     public void setDate(Date date) {
         this.date = date;
     }
+
+    public Log() {
+    }
+
+    public Log(String message) {
+        this.message = message;
+    }
+
+    public Log(Level level, String message) {
+        this.level = level;
+        this.message = message;
+    }
+
+    public static Log info(String message){
+        return new Log(Level.INFO, message);
+    }
+
+    public static Log error(String message){
+        return new Log(Level.ERROR, message);
+    }
 }

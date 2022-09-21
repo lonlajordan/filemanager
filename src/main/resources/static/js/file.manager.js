@@ -17,26 +17,40 @@ function selectItem(checkBox){
 }
 
 function deleteItem(id, url){
-    if(confirm("Voulez vous vraiment supprimer cet élément ?")){
-        fetch(ctx + '/' + url + '/' + id, false);
-    }
+    $("#delete-message").text("Voulez-vous vraiment supprimer cet élément ?");
+    if(url.includes('user')) $("#delete-message").text("Voulez-vous vraiment supprimer cet utilisateur ?");
+    let container = document.getElementById("delete-files");
+    container.innerHTML = '';
+    let input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "ids";
+    input.value = id;
+    container.appendChild(input);
     $("#modal-delete").modal('show');
 }
 
 function deleteItems(url){
-    let selected = $("#main-table tbody tr input[type=checkbox]:checked");
-    let n = selected.length;
-    if(n === 0){
-        alert('Aucun élément sélectionné');
-    }else{
-        let params = [];
-        selected.each(function () {
-            params.push('ids=' + $(this).attr('title'));
+    let ids = $.makeArray($("#main-table tbody input[type=checkbox]:checked")).map(checkbox => $(checkbox).val());
+    if(ids === undefined || ids.length === 0){
+        new SnackBar({
+            message: 'Aucun élément sélectionné',
+            status: 'error',
+            dismissible: false,
+            position: 'bc',
+            timeout: 3000,
         });
-        params = params.join("&");
-       /* if(confirm("Voulez-vous vraiment supprimer " + (n === 1 ? 'cet élément ?' : 'ces ' + n + ' éléments ?'))){
-            fetch(ctx + '/' + url + '?' + params, false);
-        }*/
+    }else{
+        $("#delete-message").text("Voulez-vous vraiment supprimer " + (ids.length < 2 ? "cet élément" :  "ces " + ids.length + " éléments") + " ?");
+        if(url.includes('user')) $("#delete-message").text("Voulez-vous vraiment supprimer " + (ids.length < 2 ? "cet utilisateur" :  "ces " + ids.length + " utilisateurs") + " ?");
+        let container = document.getElementById("delete-files");
+        container.innerHTML = '';
+        for(let path of paths){
+            let input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "paths";
+            input.value = path;
+            container.appendChild(input);
+        }
         $("#modal-delete").modal('show');
     }
 }
@@ -174,11 +188,29 @@ $.ajaxSetup({
     }
 })
 
+function initPagination(){
+    let paginator = $('#pagination');
+    if(paginator.length !== 0){
+        paginator.pagination({
+            dataSource: Array.from(Array(parseInt(paginator.attr('title'))).keys()),
+            pageSize: 1,
+            pageNumber: parseInt(paginator.attr('aria-placeholder')),
+            showGoInput: true,
+            showGoButton: true,
+            triggerPagingOnInit: false,
+            callback: function(data, pagination) {
+                window.location = ctx + '/' + paginator.attr('aria-label') + '?p=' + pagination.pageNumber;
+            }
+        })
+    }
+}
+
 function fetch(url){
     $.get(url, function (data) {});
 }
 
 $(document).ready( function () {
+    initPagination();
     let table = $('#main-table'),
     length = table.find('th').length,
     targets = [length-1];

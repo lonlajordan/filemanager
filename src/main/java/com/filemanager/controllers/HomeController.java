@@ -2,6 +2,7 @@ package com.filemanager.controllers;
 
 import com.filemanager.enums.Role;
 import com.filemanager.models.FileItem;
+import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.models.User;
 import com.filemanager.repositories.LogRepository;
@@ -28,6 +29,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -119,7 +121,7 @@ public class HomeController {
     }
 
     @PostMapping(path = "/rename")
-    public String renameFile(@RequestParam String path, @RequestParam String name, RedirectAttributes attributes){
+    public String renameFile(@RequestParam String path, @RequestParam String name, RedirectAttributes attributes, Principal principal){
         try {
             Path sourcePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
             String p = sourcePath.getParent().toAbsolutePath().toString();
@@ -127,6 +129,7 @@ public class HomeController {
             Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
             attributes.addAttribute("p", p);
             attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
+            logRepository.save(Log.info("Renommage de <b>" + sourcePath + "</b> en <b>" + targetPath + "</b> par <b>" + principal.getName() + "</b>"));
         } catch (IOException e) {
             logger.error("renaming file error", e);
             attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
