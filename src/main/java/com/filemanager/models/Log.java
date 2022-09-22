@@ -15,6 +15,8 @@ public class Log {
     private Level level = Level.INFO;
     @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String message = "";
+    @Column(columnDefinition = "LONGTEXT")
+    private String details = "";
     @Column(nullable = false)
     private Date date = new Date();
 
@@ -40,6 +42,14 @@ public class Log {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
     }
 
     public Date getDate() {

@@ -142,34 +142,27 @@
         </div>
     </div>
 </div>
-<div class="modal modal-blur fade" id="modal-upload" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="modal-search" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Transférer les fichiers</h5>
+                <h5 class="modal-title">Recherche des logs</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form name="uploadForm" th:action="@{/upload/files}" method="post" enctype="multipart/form-data">
+            <form name="uploadForm" th:action="@{/log/search}" method="post" enctype="multipart/form-data">
                 <div class="modal-body">
-                    <div class="mb-3" th:if="${!T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}">
-                        <label class="form-label">Destinataire</label>
-                        <select class="form-select" name="institution" th:disabled="${!T(com.filemanager.enums.Institution).GIE.equals(session?.user?.institution)}" required>
-                            <option th:each="institution : ${T(com.filemanager.enums.Institution).values()}" th:value="${institution}" th:text="${institution.displayValue}"></option>
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" name="type" th:disabled="${!T(com.filemanager.enums.Institution).GIE.equals(session?.user?.institution)}" required>
+                            <option th:each="level : ${T(com.filemanager.enums.Level).values()}" th:value="${level}" th:text="${level}"></option>
                         </select>
                     </div>
-                    <input th:if="${T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}" type="hidden" name="destination" th:value="${currentDirectory}" class="form-control" disabled>
-                    <input type="file" class="visually-hidden" id="upload-files" name="files" multiple />
-                    <div id="preview" class="dropzone bg-white">
-                        <div class="fallback">
-                            <input name="file" type="file" multiple />
-                        </div>
-                        <div class="dz-message">
-                            <h3 class="dropzone-msg-title">
-                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 9 12 4 17 9" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
-                            </h3>
-                            <span class="dropzone-msg-desc">Déposez les fichiers ici</span>
-                        </div>
-                    </div>
+                    <label class="form-label">Message</label>
+                    <input class="form-control" name="message">
+                    <label class="form-label">A partir du</label>
+                    <input class="form-control" type="date" name="start">
+                    <label class="form-label">Jusqu'au</label>
+                    <input class="form-control" type="date" name="end">
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
@@ -177,7 +170,7 @@
                     </a>
                     <button id="send-files" class="btn btn-primary ms-auto">
                         <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 9 12 4 17 9" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
-                        Envoyer
+                        Rechercher
                     </button>
                 </div>
             </form>

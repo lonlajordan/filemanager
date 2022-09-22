@@ -1,5 +1,6 @@
 package com.filemanager.controllers;
 
+import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.models.Setting;
 import com.filemanager.repositories.LogRepository;
@@ -46,6 +47,7 @@ public class SettingController {
                     setting.setValue(entry.getValue()[0]);
                     settingRepository.save(setting);
                 }
+                logRepository.save(Log.info(notification.getMessage()));
             } catch (Exception exception){
                 notification.setType("error");
                 notification.setMessage("Erreur lors de l'enregistrement des paramètres.");

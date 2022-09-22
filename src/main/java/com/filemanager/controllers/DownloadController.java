@@ -1,5 +1,6 @@
 package com.filemanager.controllers;
 
+import com.filemanager.models.Log;
 import com.filemanager.repositories.LogRepository;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -36,7 +38,7 @@ public class DownloadController {
     }
 
     @GetMapping("file")
-    public void downloadFile(@RequestParam String path, HttpServletResponse response) {
+    public void downloadFile(@RequestParam String path, HttpServletResponse response, Principal principal) {
         try {
             Path filePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
             File file = filePath.toFile();
@@ -49,6 +51,7 @@ public class DownloadController {
                 inputStream.close();
                 response.flushBuffer();
                 response.setStatus(HttpServletResponse.SC_OK);
+                logRepository.save(Log.info("Le fichier <b>" + filePath + "</b> a été téléchargé par <b>" + principal.getName() + "</b>"));
             }else{
                 response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }

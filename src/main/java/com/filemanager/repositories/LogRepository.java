@@ -8,4 +8,5 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface LogRepository  extends JpaRepository<Log, Integer> , PagingAndSortingRepository<Log, Integer> {
     Page<Log> findAllByOrderByDateDesc(Pageable pageable);
+    int countAllByMessageContaining(String message);
 }
