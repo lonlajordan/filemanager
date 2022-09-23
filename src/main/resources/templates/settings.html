@@ -15,7 +15,7 @@
 </head>
 <body>
 <div class="page" id="wrapper">
-    <div th:replace="navbar.html"></div>
+    <div th:replace="header.html"></div>
     <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
     <form th:action="@{'/setting/save'}" method="post">
         <div class="form-group" th:each="setting,iter: ${settings}">

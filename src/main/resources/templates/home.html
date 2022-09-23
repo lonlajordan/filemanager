@@ -17,7 +17,39 @@
   </head>
   <body>
     <div class="page" id="wrapper">
-      <div th:replace="navbar.html"></div>
+        <div class="sticky-top">
+        <div th:replace="header.html"></div>
+        <div class="navbar-expand-md">
+          <div class="collapse navbar-collapse" id="navbar-menu">
+            <div class="navbar navbar-light">
+              <div class="container-fluid">
+                <div class="d-flex">
+                  <ol class="breadcrumb navbar-nav d-flex align-items-center flex-row" aria-label="breadcrumbs">
+                    <li class="breadcrumb-item">
+                      <a th:href="@{/home}" >
+                                  <span class="d-lg-inline-block">
+                                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                                  </span>
+                      </a>
+                    </li>
+                    <th:block th:each="directory,iter: ${directories}">
+                      <li class="breadcrumb-item" th:classappend="${iter.last ? 'active' : ''}"><a th:href="@{'/home?p=' + ${directory.absolutePath}}" th:text="${directory.file?.name}"></a></li>
+                    </th:block>
+                  </ol>
+                </div>
+                <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last">
+                  <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+                            </span>
+                    <input type="text" value="" class="form-control" placeholder="Rechercher…" id="search-addon">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
         <div class="page-wrapper">
           <div class="container-fluid">
             <!-- Page title -->

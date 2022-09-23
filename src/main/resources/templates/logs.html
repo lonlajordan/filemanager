@@ -18,7 +18,37 @@
 </head>
 <body>
 <div class="page" id="wrapper">
-    <div th:replace="navbar.html"></div>
+    <div class="sticky-top">
+        <div th:replace="header.html"></div>
+        <div class="navbar-expand-md">
+            <div class="collapse navbar-collapse" id="navbar-menu">
+                <div class="navbar navbar-light">
+                    <div class="container-fluid">
+                        <div class="d-flex">
+                            <ol class="breadcrumb navbar-nav d-flex align-items-center flex-row" aria-label="breadcrumbs">
+                                <li class="breadcrumb-item">
+                                    <a th:href="@{/home}" >
+                                      <span class="d-lg-inline-block">
+                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                                      </span>
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item active"><a th:href="@{/log/list}">Historique</a></li>
+                            </ol>
+                        </div>
+                        <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last">
+                            <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+                            </span>
+                                <input type="text" value="" class="form-control" placeholder="Rechercher…" id="search-addon">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="page-wrapper">
         <div class="container-fluid">
             <!-- Page title -->
@@ -32,7 +62,7 @@
                     <!-- Page title actions -->
                     <div class="col-12 col-md-auto ms-auto d-print-none">
                         <div class="btn-list">
-                            <a id="create-folder" data-bs-toggle="modal" data-bs-target="#modal-create-folder" class="btn btn-success d-none d-sm-inline-block">
+                            <a id="create-folder" data-bs-toggle="modal" data-bs-target="#modal-search" class="btn btn-success d-none d-sm-inline-block">
                                 <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5.5 5h13a1 1 0 0 1 .5 1.5l-5 5.5l0 7l-4 -3l0 -4l-5 -5.5a1 1 0 0 1 .5 -1.5" /></svg>
                                 Filtrer
                             </a>
@@ -80,8 +110,8 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="card-footer d-flex align-items-center">
-                                <div th:if="${totalPages > 1}" id="pagination" th:title="${totalPages}" th:aria-placeholder="${currentPage}" aria-label="log/list"></div>
+                            <div th:if="${totalPages > 1}" class="card-footer d-flex align-items-center">
+                                <div id="pagination" th:title="${totalPages}" th:aria-placeholder="${currentPage}" aria-label="log/list"></div>
                             </div>
                         </div>
                     </div>
@@ -120,28 +150,6 @@
     </div>
 </div>
 </div>
-<div class="modal modal-blur fade" id="modal-rename" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Renommer</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form th:action="@{/rename}" method="post">
-                <input name="path" type="hidden" id="file-path">
-                <div class="modal-body">
-                    <div class="input-group">
-                        <input name="name" id="new-name" class="form-control" autocomplete="off" required>
-                        <button type="submit" class="btn btn-primary">
-                            <svg class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><circle cx="12" cy="14" r="2" /><polyline points="14 4 14 8 8 8 8 4" /></svg>
-                            <span class="d-none d-sm-inline-block ml-2">Enregistrer</span>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 <div class="modal modal-blur fade" id="modal-search" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -153,16 +161,22 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Type</label>
-                        <select class="form-select" name="type" th:disabled="${!T(com.filemanager.enums.Institution).GIE.equals(session?.user?.institution)}" required>
+                        <select class="form-select" name="level" th:disabled="${!T(com.filemanager.enums.Institution).GIE.equals(session?.user?.institution)}" required>
                             <option th:each="level : ${T(com.filemanager.enums.Level).values()}" th:value="${level}" th:text="${level}"></option>
                         </select>
                     </div>
-                    <label class="form-label">Message</label>
-                    <input class="form-control" name="message">
-                    <label class="form-label">A partir du</label>
-                    <input class="form-control" type="date" name="start">
-                    <label class="form-label">Jusqu'au</label>
-                    <input class="form-control" type="date" name="end">
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <input class="form-control" name="message">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">A partir du</label>
+                        <input class="form-control" type="date" name="start">
+                    </div>
+                    <div>
+                        <label class="form-label">Jusqu'au</label>
+                        <input class="form-control" type="date" name="end">
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
@@ -228,16 +242,6 @@
         position: 'bc',
         timeout: 3000,
     });
-</script>
-<script>
-    Dropzone.options.preview = {
-        url: ctx + '/upload/files',
-        addRemoveLinks: true,
-        autoProcessQueue: false,
-        uploadMultiple: true,
-        parallelUploads: 100,
-        maxFiles: 100
-    }
 </script>
 <script th:if="${!#lists.isEmpty(logs)}">
     document.addEventListener("DOMContentLoaded", function() {
