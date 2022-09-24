@@ -52,18 +52,16 @@
       </div>
         <div class="page-wrapper">
           <div class="container-fluid">
-            <!-- Page title -->
             <div class="page-header d-print-none">
               <div class="row g-2 align-items-center">
                 <div class="col">
-                  <a th:if="${!#lists.isEmpty(items)}" href="javascript:reverseSelection();" class="btn btn-white" title="Inverser la sélection">
+                  <button th:if="${!#lists.isEmpty(items) && session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" onclick="reverseSelection()" class="btn btn-white" title="Inverser la sélection">
                     <svg class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3.5 5.5l1.5 1.5l2.5 -2.5" /><path d="M3.5 11.5l1.5 1.5l2.5 -2.5" /><path d="M3.5 17.5l1.5 1.5l2.5 -2.5" /><line x1="11" y1="6" x2="20" y2="6" /><line x1="11" y1="12" x2="20" y2="12" /><line x1="11" y1="18" x2="20" y2="18" /></svg>
-                  </a>
+                  </button>
                   <a th:if="${!isHome}" th:href="@{'/home?p=' + ${parent}}" class="btn btn-white">
                     <svg class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4" /></svg>
                   </a>
                 </div>
-                <!-- Page title actions -->
                 <div class="col-12 col-md-auto ms-auto d-print-none">
                   <div class="btn-list">
                     <div th:if="${session?.user?.hasRole('ROLE_ADMIN')}" class="dropdown">
@@ -93,18 +91,18 @@
                         </a>
                       </div>
                     </div>
-                    <a th:if="${session?.user?.hasRole('ROLE_ADMIN')}" id="create-folder" data-bs-toggle="modal" data-bs-target="#modal-create-folder" class="btn btn-success d-none d-sm-inline-block">
+                    <button th:if="${session?.user?.hasRole('ROLE_ADMIN')}" th:disabled="${session?.action != null}" id="create-folder" data-bs-toggle="modal" data-bs-target="#modal-create-folder" class="btn btn-success d-none d-sm-inline-block">
                       <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" /><line x1="12" y1="10" x2="12" y2="16" /><line x1="9" y1="13" x2="15" y2="13" /></svg>
                       Nouveau
-                    </a>
-                    <a th:if="${session?.action == null}" onclick="invoke('download')" class="btn btn-primary d-none d-sm-inline-block">
+                    </button>
+                    <button th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET')}" th:disabled="${session?.action != null}" onclick="invoke('download')" class="btn btn-primary d-none d-sm-inline-block">
                       <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 11 12 16 17 11" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
                       Télécharger
-                    </a>
-                    <a href="#" class="btn btn-orange d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-upload">
+                    </button>
+                    <button th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_INFO')}" th:disabled="${session?.action != null}" class="btn btn-orange d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-upload">
                       <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 9 12 4 17 9" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
                       Téléverser
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -119,7 +117,7 @@
                       <table class="table card-table table-vcenter text-nowrap datatable" id="main-table">
                         <thead>
                           <tr>
-                              <th th:if="${session?.action == null}" class="w-1">
+                              <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" class="w-1">
                                 <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices" id="js-select-all-items" onclick="selectItems(this)">
                               </th>
                               <th><button class="table-sort" data-sort="sort-name">Nom</button></th>
@@ -127,63 +125,63 @@
                               <th><button class="table-sort" data-sort="sort-modified">Modifié le</button></th>
                               <th><button class="table-sort" data-sort="sort-permission">Permissions</button></th>
                               <th><button class="table-sort" data-sort="sort-owner">Propriétaire</button></th>
-                              <th th:if="${session?.action == null && session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_CBC_INFO', 'ROLE_CBT_INFO')}"></th>
+                              <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}"></th>
                           </tr>
                         </thead>
                         <tbody class="table-tbody">
                             <tr th:each="item,iter: ${items}">
-                          <td th:if="${session?.action == null}">
-                            <input class="form-check-input m-0 align-middle" type="checkbox" th:id="${'item-' + iter.count}" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" name="paths" th:value="${item.absolutePath}" onclick="return selectItem(this)">
-                          </td>
-                          <td class="sort-name">
-                            <div class="filename">
-                              <th:block th:if="${!item.file.directory}">
-                                <span th:text="${item.file.name}"></span>
-                              </th:block>
-                              <a th:if="${item.file.directory}" th:href="@{'/home?p=' + ${item.absolutePath}}">
-                                <span th:text="${item.file.name}"></span>
-                              </a>
-                            </div>
-                          </td>
-                          <td class="sort-height" th:text="${item.fileSize}"></td>
-                          <td class="sort-modified" th:text="${#calendars.format(item.lastModifiedDate, 'dd-MM-yyyy  HH:mm')}"></td>
-                          <td class="sort-permission" th:text="${item.permissions}"></td>
-                          <td class="sort-owner" th:text="${item.owner}"></td>
-                          <td class="inline-actions" th:if="${session?.action == null && session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_CBC_INFO', 'ROLE_CBT_INFO')}">
-                            <div class="dropdown" th:if="${T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}">
-                              <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
-                                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
-                              </a>
-                              <div class="dropdown-menu mw-0">
-                                <a class="dropdown-item mw-0" th:data-download-url="${item.file.directory ? '/download/folder': '/download/file'}" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile([this.getAttribute('data-file-path')], this.getAttribute('data-download-url'))">
-                                  <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 11 12 16 17 11" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
-                                  <span class="ml-2">Télécharger</span>
+                              <td th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}">
+                                <input class="form-check-input m-0 align-middle" type="checkbox" th:id="${'item-' + iter.count}" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" name="paths" th:value="${item.absolutePath}" onclick="return selectItem(this)">
+                              </td>
+                              <td class="sort-name">
+                                <div class="filename">
+                                  <th:block th:if="${!item.file.directory}">
+                                    <span th:text="${item.file.name}"></span>
+                                  </th:block>
+                                  <a th:if="${item.file.directory}" th:href="@{'/home?p=' + ${item.absolutePath}}">
+                                    <span th:text="${item.file.name}"></span>
+                                  </a>
+                                </div>
+                              </td>
+                              <td class="sort-height" th:text="${item.fileSize}"></td>
+                              <td class="sort-modified" th:text="${#calendars.format(item.lastModifiedDate, 'dd-MM-yyyy  HH:mm')}"></td>
+                              <td class="sort-permission" th:text="${item.permissions}"></td>
+                              <td class="sort-owner" th:text="${item.owner}"></td>
+                              <td class="inline-actions" th:if="${session?.action == null && session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET')}">
+                                <div class="dropdown" th:if="${T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}">
+                                  <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
+                                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
+                                  </a>
+                                  <div class="dropdown-menu mw-0">
+                                    <a class="dropdown-item mw-0" th:data-download-url="${item.file.directory ? '/download/folder': '/download/file'}" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile([this.getAttribute('data-file-path')], this.getAttribute('data-download-url'))">
+                                      <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 11 12 16 17 11" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
+                                      <span class="ml-2">Télécharger</span>
+                                    </a>
+                                    <th:block th:if="${session?.user?.hasRole('ROLE_ADMIN')}">
+                                      <a class="dropdown-item mw-0" th:href="@{/move/files(action='copy',paths=${item.absolutePath})}">
+                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h3m9 -9v-5a2 2 0 0 0 -2 -2h-2" /><path d="M13 17v-1a1 1 0 0 1 1 -1h1m3 0h1a1 1 0 0 1 1 1v1m0 3v1a1 1 0 0 1 -1 1h-1m-3 0h-1a1 1 0 0 1 -1 -1v-1" /><rect x="9" y="3" width="6" height="4" rx="2" /></svg>
+                                        <span class="ml-2">Copier</span>
+                                      </a>
+                                      <a class="dropdown-item mw-0" th:href="@{/move/files(action='cut',paths=${item.absolutePath})}">
+                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="7" cy="17" r="3" /><circle cx="17" cy="17" r="3" /><line x1="9.15" y1="14.85" x2="18" y2="4" /><line x1="6" y1="4" x2="14.85" y2="14.85" /></svg>
+                                        <span class="ml-2">Couper</span>
+                                      </a>
+                                      <a class="dropdown-item mw-0" th:data-file-path="${item.absolutePath}" th:data-file-name="${item.file.name}" href="#" onclick="renameFile(this.getAttribute('data-file-path'), this.getAttribute('data-file-name'))">
+                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
+                                        <span class="ml-2">Renommer</span>
+                                      </a>
+                                      <a class="dropdown-item mw-0 text-danger" th:data-file-path="${item.absolutePath}" th:data-file-type="${item.file.directory}" href="#" onclick="deleteFile(this.getAttribute('data-file-path'), this.getAttribute('data-file-type'))">
+                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                        <span class="ml-2">Supprimer</span>
+                                      </a>
+                                    </th:block>
+                                  </div>
+                                </div>
+                                <a th:unless="${T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}" class="link-secondary show" title="Télécharger" th:data-download-url="${item.file.directory ? '/download/folder': '/download/file'}" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile([this.getAttribute('data-file-path')], this.getAttribute('data-download-url'))">
+                                  <svg class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 11 12 16 17 11" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
                                 </a>
-                                <th:block th:if="${session?.user?.hasRole('ROLE_ADMIN')}">
-                                  <a class="dropdown-item mw-0" th:href="@{/move/files(action='copy',paths=${item.absolutePath})}">
-                                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h3m9 -9v-5a2 2 0 0 0 -2 -2h-2" /><path d="M13 17v-1a1 1 0 0 1 1 -1h1m3 0h1a1 1 0 0 1 1 1v1m0 3v1a1 1 0 0 1 -1 1h-1m-3 0h-1a1 1 0 0 1 -1 -1v-1" /><rect x="9" y="3" width="6" height="4" rx="2" /></svg>
-                                    <span class="ml-2">Copier</span>
-                                  </a>
-                                  <a class="dropdown-item mw-0" th:href="@{/move/files(action='cut',paths=${item.absolutePath})}">
-                                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="7" cy="17" r="3" /><circle cx="17" cy="17" r="3" /><line x1="9.15" y1="14.85" x2="18" y2="4" /><line x1="6" y1="4" x2="14.85" y2="14.85" /></svg>
-                                    <span class="ml-2">Couper</span>
-                                  </a>
-                                  <a class="dropdown-item mw-0" th:data-file-path="${item.absolutePath}" th:data-file-name="${item.file.name}" href="#" onclick="renameFile(this.getAttribute('data-file-path'), this.getAttribute('data-file-name'))">
-                                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
-                                    <span class="ml-2">Renommer</span>
-                                  </a>
-                                  <a class="dropdown-item mw-0 text-danger" th:data-file-path="${item.absolutePath}" th:data-file-type="${item.file.directory}" href="#" onclick="deleteFile(this.getAttribute('data-file-path'), this.getAttribute('data-file-type'))">
-                                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                                    <span class="ml-2">Supprimer</span>
-                                  </a>
-                                </th:block>
-                              </div>
-                            </div>
-                            <a th:if="${!T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}" class="link-secondary show" title="Télécharger" th:data-download-url="${item.file.directory ? '/download/folder': '/download/file'}" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile([this.getAttribute('data-file-path')], this.getAttribute('data-download-url'))">
-                              <svg class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 11 12 16 17 11" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
-                            </a>
-                          </td>
-                        </tr>
+                              </td>
+                            </tr>
                         </tbody>
                       </table>
                     </div>
@@ -276,7 +274,7 @@
               <div class="mb-3" th:if="${!T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}">
                 <label class="form-label">Destinataire</label>
                 <select class="form-select" name="institution" th:disabled="${!T(com.filemanager.enums.Institution).GIE.equals(session?.user?.institution)}" required>
-                  <option th:each="institution : ${T(com.filemanager.enums.Institution).values()}" th:value="${institution}" th:text="${institution.displayValue}"></option>
+                  <option th:each="institution : ${T(com.filemanager.enums.Institution).values()}" th:value="${institution}" th:if="${!institution.equals(session?.user?.institution)}" th:text="${institution.displayValue}"></option>
                 </select>
               </div>
               <input th:if="${T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}" type="hidden" name="destination" th:value="${currentDirectory}" class="form-control" disabled>
@@ -336,9 +334,7 @@
         </div>
       </div>
     </div>
-    <!-- Libs JS -->
     <script th:src="@{/js/list.min.js}"></script>
-    <!-- Tabler Core -->
     <script th:src="@{/js/jquery.min.js}"></script>
     <script th:src="@{/js/tabler.min.js}"></script>
     <script th:src="@{/js/demo.min.js}"></script>
@@ -381,7 +377,7 @@
         new List('table-default', {
           sortClass: 'table-sort',
           listClass: 'table-tbody',
-          valueNames: [ 'sort-name', 'sort-height', 'sort-modified', 'sort-permission', 'sort-owner' ]
+          valueNames: ['sort-name', 'sort-height', 'sort-modified', 'sort-permission', 'sort-owner']
         });
       })
     </script>

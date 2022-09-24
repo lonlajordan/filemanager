@@ -16,14 +16,22 @@
 <body>
 <div class="page" id="wrapper">
     <div th:replace="header.html"></div>
-    <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
-    <form th:action="@{'/setting/save'}" method="post">
-        <div class="form-group" th:each="setting,iter: ${settings}">
-            <label class="font-weight-bold" th:for="${setting.id}" th:text="${setting.label}"></label>
-            <input class="form-control" th:id="${setting.id}" th:name="${setting.id}" th:value="${setting.value}">
+    <div class="page-wrapper">
+        <div class="container-fluid pt-3">
+            <!--/*@thymesVar id="notification" type="com.filemanager.models.Notification"*/-->
+            <form th:action="@{'/setting/save'}" method="post">
+                <div class="form-group mb-3" th:each="setting,iter: ${settings}">
+                    <label class="font-weight-bold" th:for="${setting.id}" th:text="${setting.label}"></label>
+                    <input class="form-control" th:id="${setting.id}" th:name="${setting.id}" th:value="${setting.value}">
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><circle cx="12" cy="14" r="2" /><polyline points="14 4 14 8 8 8 8 4" /></svg>
+                    Enregistrer
+                </button>
+            </form>
+            <div th:replace="footer.html"></div>
         </div>
-        <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Enregistrer</button>
-    </form>
+    </div>
 </div>
 <!-- Tabler Core -->
 <script th:src="@{/js/jquery.min.js}"></script>

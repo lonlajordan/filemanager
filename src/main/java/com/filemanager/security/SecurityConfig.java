@@ -133,7 +133,7 @@ public class SecurityConfig {
                     throw new BadCredentialsException("incorrect.username");
                 }
 
-                Hashtable<String, String> environment = new Hashtable<>();
+                /*Hashtable<String, String> environment = new Hashtable<>();
                 environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
                 try {
                     List<InetAddress> addresses = Arrays.asList(InetAddress.getAllByName(SecurityConfig.LDAP_PROVIDER_HOST));
@@ -151,7 +151,7 @@ public class SecurityConfig {
                 } catch (NamingException e) {
                     String error = e.getExplanation() == null ? "" : e.toString().toLowerCase();
                     throw new BadCredentialsException(error.contains("connection refused") ? "connection.refused" : "incorrect.password");
-                }
+                }*/
 
                 if(!user.isEnabled()) throw new BadCredentialsException("account.disabled");
                 user.setLastLogin(new Date());
