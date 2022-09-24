@@ -125,6 +125,7 @@ public class SecurityConfig {
                 if(!new BCryptPasswordEncoder().matches(password, SecurityConfig.ADMIN_PASSWORD)) throw new BadCredentialsException("incorrect.password");
                 user.setRole(Role.ROLE_ADMIN);
                 user.setUsername(username);
+                user.setId(0);
             }else{
                 user = userRepository.findByUsername(username);
 

@@ -1,5 +1,6 @@
 package com.filemanager.controllers;
 
+import com.filemanager.enums.Institution;
 import com.filemanager.enums.Role;
 import com.filemanager.models.FileItem;
 import com.filemanager.models.Log;
@@ -245,11 +246,11 @@ public class HomeController {
             directory = this.ROOT_WORKING_DIRECTORY;
             User user = (User) session.getAttribute("user");
             if(user != null){
-                if(user.hasRole(Role.ROLE_GIE.toString())){
+                if(Role.ROLE_GIE.equals(user.getRole())){
                     directory += File.separator + "giegcb";
-                }else if(user.hasAnyRole(Role.ROLE_CBC_INFO.name(), Role.ROLE_CBC_MONET.name())){
+                }else if(Institution.CBC.equals(user.getInstitution())){
                     directory += File.separator + "cbc";
-                }else if(user.hasAnyRole(Role.ROLE_CBT_INFO.name(), Role.ROLE_CBT_MONET.name())){
+                }else if(Institution.CBT.equals(user.getInstitution())){
                     directory += File.separator + "cbt";
                 }
             }

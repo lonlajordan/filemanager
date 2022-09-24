@@ -1,12 +1,12 @@
 package com.filemanager.controllers;
 
+import com.filemanager.enums.Institution;
 import com.filemanager.enums.Role;
 import com.filemanager.models.Notification;
 import com.filemanager.models.User;
 import com.filemanager.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,25 +40,15 @@ public class UserController {
         return "users";
     }
 
-    @RequestMapping(value="delete/{id}")
-    public String deleteUser(@PathVariable int id, RedirectAttributes attributes){
-        Notification notification = new Notification();
+    @PostMapping(value="delete")
+    public String deleteUsers(@RequestParam Integer[] ids, RedirectAttributes attributes){
         try {
-            User user = userRepository.findById(id).orElse(null);
-            if(user != null){
-                userRepository.deleteById(id);
-                notification.setType("success");
-                notification.setMessage("<b>" + user.getUsername() + "</b> a été supprimé avec succès.");
-            }else{
-                notification.setType("error");
-                notification.setType("Utilisateur introuvable.");
-            }
+            userRepository.deleteAllById(Arrays.asList(ids));
+            attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
         }catch (Exception e){
-            notification.setType("error");
-            notification.setMessage("Erreur lors de la suppression de l'utilisateur d'identifiant <b>" + id + "</b>.");
-            logger.error(notification.getMessage(), e);
+            logger.error("error while deleting users", e);
+            attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
         }
-        attributes.addFlashAttribute("notification", notification);
         return "redirect:/user/list";
     }
 
@@ -81,26 +72,21 @@ public class UserController {
         return "redirect:/user/list";
     }
 
-    @GetMapping(value = "save")
-    private String getUser(@RequestParam(required = false, defaultValue = "-1") int id, Model model){
-        User user = userRepository.findById(id).orElse(null);
-        model.addAttribute("user", user);
-        model.addAttribute("creation", user == null);
-        return "user_save";
-    }
-
     @PostMapping(value = "save")
-    public String saveUser(@NonNull User user, @RequestParam String role, @RequestParam(required = false, defaultValue = "false") Boolean multiple, RedirectAttributes attributes, Model model, HttpSession session){
+    public String saveUser(User user, RedirectAttributes attributes, HttpSession session){
         User user$ = user;
         boolean creation = true;
         if(user.getId() != null){
             Optional<User> _user = userRepository.findById(user.getId());
             if(_user.isPresent()){
                 user$ = _user.get();
+                user$.setUsername(user.getUsername());
+                user$.setInstitution(user.getInstitution());
+                user$.setRole(user.getRole());
                 creation = false;
             }
         }
-        user$.setRole(Role.valueOf(role));
+        if(Institution.GIE.equals(user$.getInstitution())) user$.setRole(Role.ROLE_GIE);
         user$.normalize();
         Notification notification = new Notification();
         try {
@@ -127,14 +113,7 @@ public class UserController {
             logger.error(notification.getMessage(), e);
         }
 
-        if(multiple || "error".equalsIgnoreCase(notification.getType())){
-            model.addAttribute("notification", notification);
-            model.addAttribute("user", user$);
-            model.addAttribute("creation", creation);
-            return "user_save";
-        }else{
-            attributes.addFlashAttribute("notification", notification);
-        }
+        attributes.addFlashAttribute("notification", notification);
         return "redirect:/user/list";
     }
 }

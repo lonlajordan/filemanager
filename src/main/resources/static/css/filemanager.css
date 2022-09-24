@@ -32,10 +32,18 @@ body { background-color:#f7f9fb;background-color:#f7f9fb;background-image:url("d
     text-transform: uppercase;
 }
 
+.text-transform-lowercase {
+    text-transform: lowercase;
+}
+
 .dz-progress {
     display: none;
 }
 
 .dropzone {
     border: 1px dashed #e6e7e9 !important;
+}
+
+.dataTables_empty {
+    text-align: center;
 }

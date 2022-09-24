@@ -66,7 +66,7 @@
                                 <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5.5 5h13a1 1 0 0 1 .5 1.5l-5 5.5l0 7l-4 -3l0 -4l-5 -5.5a1 1 0 0 1 .5 -1.5" /></svg>
                                 Filtrer
                             </a>
-                            <a th:if="${session?.action == null}" onclick="deleteItems('log/delete')" class="btn btn-danger d-none d-sm-inline-block">
+                            <a th:if="${session?.action == null}" onclick="invoke('delete', 'event')" class="btn btn-danger d-none d-sm-inline-block">
                                 <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
                                 Supprimer
                             </a>
@@ -118,35 +118,7 @@
                 </div>
             </div>
         </div>
-        <footer class="footer footer-transparent d-print-none">
-            <div class="container-fluid">
-                <div class="row text-center align-items-center flex-row-reverse">
-                    <div class="col-lg-auto ms-lg-auto">
-                        <ul class="list-inline list-inline-dots mb-0">
-                            <li class="list-inline-item"><a href="#" class="link-secondary">FILE MANAGER</a></li>
-                            <li class="list-inline-item">
-                                <a href="#" class="link-secondary" rel="noopener">
-                                    v2.5.0
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                        <ul class="list-inline list-inline-dots mb-0">
-                            <li class="list-inline-item">
-                                Copyright &copy; 2022
-                                <a href="#" class="link-secondary"></a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#" class="link-secondary" rel="noopener">
-                                    GIE GCB
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </footer>
+        <div th:replace="footer.html"></div>
     </div>
 </div>
 </div>
@@ -203,7 +175,7 @@
             </div>
             <div class="modal-footer">
                 <form th:action="@{/log/delete}" method="post">
-                    <div id="delete-files"></div>
+                    <div id="delete-objects"></div>
                     <div class="w-100">
                         <div class="row">
                             <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">

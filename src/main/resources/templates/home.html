@@ -27,9 +27,9 @@
                   <ol class="breadcrumb navbar-nav d-flex align-items-center flex-row" aria-label="breadcrumbs">
                     <li class="breadcrumb-item">
                       <a th:href="@{/home}" >
-                                  <span class="d-lg-inline-block">
-                                    <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
-                                  </span>
+                          <span class="d-lg-inline-block">
+                            <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                          </span>
                       </a>
                     </li>
                     <th:block th:each="directory,iter: ${directories}">
@@ -216,35 +216,7 @@
               </div>
             </div>
           </div>
-          <footer class="footer footer-transparent d-print-none">
-            <div class="container-fluid">
-              <div class="row text-center align-items-center flex-row-reverse">
-                <div class="col-lg-auto ms-lg-auto">
-                  <ul class="list-inline list-inline-dots mb-0">
-                    <li class="list-inline-item"><a href="#" class="link-secondary">FILE MANAGER</a></li>
-                    <li class="list-inline-item">
-                      <a href="#" class="link-secondary" rel="noopener">
-                        v2.5.0
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                  <ul class="list-inline list-inline-dots mb-0">
-                    <li class="list-inline-item">
-                      Copyright &copy; 2022
-                      <a href="#" class="link-secondary"></a>
-                    </li>
-                    <li class="list-inline-item">
-                      <a href="#" class="link-secondary" rel="noopener">
-                        GIE GCB
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </footer>
+          <div th:replace="footer.html"></div>
         </div>
     </div>
     </div>
@@ -346,7 +318,7 @@
           </div>
           <div class="modal-footer">
             <form th:action="@{/delete/files}">
-              <div id="delete-files"></div>
+              <div id="delete-objects"></div>
               <div class="w-100">
                 <div class="row">
                   <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">
@@ -371,7 +343,7 @@
     <script th:src="@{/js/tabler.min.js}"></script>
     <script th:src="@{/js/demo.min.js}"></script>
     <script th:src="@{/js/js-snackbar.min.js}"></script>
-    <script th:src="@{/js/jquery.dataTables.min.js}"></script>
+    <script th:src="@{/js/jquery.dataTables1.min.js}"></script>
     <script th:src="@{/js/loadingoverlay.min.js}"></script>
     <script th:src="@{/js/dropzone.min.js}"></script>
     <script th:src="@{/js/file.manager.js}"></script>

@@ -22,7 +22,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Institution institution = Institution.GIE;
-    private Date lastLogin = new Date();
+    private Date lastLogin;
     private boolean enabled = true;
 
     public Integer getId() {
