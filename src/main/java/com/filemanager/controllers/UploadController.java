@@ -111,16 +111,16 @@ public class UploadController {
         operator = StringUtils.defaultString(operator, "GIMAC");
         List<String> dayList = new ArrayList<>(days);
         Collections.sort(dayList);
-        String root = ROOT_WORKING_DIRECTORY + File.separator + "cbc";
+        String root = ROOT_WORKING_DIRECTORY + File.separator + "CBC";
         if("CBC".equalsIgnoreCase(bank)){
-            root = ROOT_WORKING_DIRECTORY + File.separator + "cbc";
+            root = ROOT_WORKING_DIRECTORY + File.separator + "CBC";
         }else if("CBT".equalsIgnoreCase(bank)){
-            root = ROOT_WORKING_DIRECTORY + File.separator + "cbt";
+            root = ROOT_WORKING_DIRECTORY + File.separator + "CBT";
         }
         LocalDate date = Instant.ofEpochSecond(lastTimer).atZone(ZoneId.systemDefault()).toLocalDate();
         Path path = Paths.get(root, operator, date.getYear() + "", months.get(date.getMonthValue() - 1), String.join("-", dayList));
         if("APPLICATION".equalsIgnoreCase(operator)){
-            root = ROOT_WORKING_DIRECTORY + File.separator + "giegcb";
+            root = ROOT_WORKING_DIRECTORY + File.separator + "GIEGCB";
             path = Paths.get(root, bank, operator, date.getYear() + "", months.get(date.getMonthValue() - 1), String.join("-", dayList));
         }else if("ADMIN".equalsIgnoreCase(bank)){
             try {

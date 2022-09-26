@@ -72,11 +72,21 @@ public class Log {
         this.message = message;
     }
 
+    public Log(Level level, String message, String details) {
+        this.level = level;
+        this.message = message;
+        this.details = details;
+    }
+
     public static Log info(String message){
         return new Log(Level.INFO, message);
     }
 
-    public static Log error(String message){
-        return new Log(Level.ERROR, message);
+    public static Log error(String message, String details){
+        return new Log(Level.ERROR, message, details);
+    }
+
+    public static Log warn(String message){
+        return new Log(Level.WARN, message);
     }
 }

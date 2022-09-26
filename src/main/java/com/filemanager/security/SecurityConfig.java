@@ -105,7 +105,10 @@ public class SecurityConfig {
                 .and()
             .authorizeRequests()
                 .antMatchers("/", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
-                .anyRequest().permitAll();
+                .antMatchers("/user/**", "/log/**", "/setting/**", "/create", "/rename", "/delete/**", "/move/**", "/paste/**").hasAuthority("ROLE_ADMIN")
+                .antMatchers("/upload/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_GIE", "ROLE_BANK_INFO")
+                .antMatchers("/download/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_GIE", "ROLE_BANK_MONET")
+                .anyRequest().authenticated();
         return http.build();
     }
 

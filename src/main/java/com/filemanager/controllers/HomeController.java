@@ -247,11 +247,11 @@ public class HomeController {
             User user = (User) session.getAttribute("user");
             if(user != null){
                 if(Role.ROLE_GIE.equals(user.getRole())){
-                    directory += File.separator + "giegcb";
+                    directory += File.separator + "GIEGCB";
                 }else if(Institution.CBC.equals(user.getInstitution())){
-                    directory += File.separator + "cbc";
+                    directory += File.separator + "CBC";
                 }else if(Institution.CBT.equals(user.getInstitution())){
-                    directory += File.separator + "cbt";
+                    directory += File.separator + "CBT";
                 }
             }
             session.setAttribute("directory", directory);
