@@ -269,19 +269,19 @@
             <h5 class="modal-title">Transférer les fichiers</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form name="uploadForm" th:action="@{/upload/files}" method="post" enctype="multipart/form-data">
+          <form name="uploadForm" th:action="@{/upload/files}" onsubmit="return validateUploadForm(event)" method="post" enctype="multipart/form-data">
             <div class="modal-body">
               <div class="mb-3" th:if="${!T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}">
                 <label class="form-label">Destinataire</label>
-                <select class="form-select" name="institution" th:disabled="${!T(com.filemanager.enums.Institution).GIE.equals(session?.user?.institution)}" required>
-                  <option th:each="institution : ${T(com.filemanager.enums.Institution).values()}" th:value="${institution}" th:if="${!institution.equals(session?.user?.institution)}" th:text="${institution.displayValue}"></option>
+                <select class="form-select" name="institution" required>
+                  <option th:each="institution : ${T(com.filemanager.enums.Institution).values()}" th:value="${institution}" th:if="${!institution.equals(session?.user?.institution) && (T(com.filemanager.enums.Institution).GIE.equals(session?.user?.institution) || T(com.filemanager.enums.Institution).GIE.equals(institution))}" th:text="${institution.displayValue}"></option>
                 </select>
               </div>
-              <input th:if="${T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}" type="hidden" name="destination" th:value="${currentDirectory}" class="form-control" disabled>
-              <input type="file" class="visually-hidden" id="upload-files" name="files" multiple />
+              <input th:if="${T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}" type="hidden" name="destination" th:value="${currentDirectory}" class="form-control">
+              <input type="file" class="visually-hidden" id="upload-files" name="files" multiple required/>
               <div id="preview" class="dropzone bg-white">
                 <div class="fallback">
-                  <input name="file" type="file" multiple />
+                  <input name="file" type="file" multiple/>
                 </div>
                 <div class="dz-message">
                   <h3 class="dropzone-msg-title">
@@ -295,7 +295,7 @@
               <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
                 Annuler
               </a>
-              <button id="send-files" class="btn btn-primary ms-auto">
+              <button onclick="upload()" class="btn btn-primary ms-auto">
                 <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 9 12 4 17 9" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
                 Envoyer
               </button>
@@ -365,12 +365,19 @@
       $('#modal-upload').on('hidden.bs.modal', function () {
         Dropzone.forElement('#preview').removeAllFiles(true)
       });
-      $("#send-files").on("click", function() {
+      function validateUploadForm(event) {
+        let n = document.querySelector('#upload-files').files.length;
+        if(n < 1){
+          event.preventDefault();
+          return false;
+        }
+      }
+      function upload() {
         const dataTransfer = new DataTransfer();
         Dropzone.forElement('#preview').files.forEach(file => dataTransfer.items.add(file));
         document.querySelector('#upload-files').files = dataTransfer.files;
-        document.uploadForm.submit();
-      });
+        if(dataTransfer.files.length > 0) document.uploadForm.submit();
+      }
     </script>
     <script th:if="${!#lists.isEmpty(items)}">
       document.addEventListener("DOMContentLoaded", function() {

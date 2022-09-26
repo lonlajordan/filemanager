@@ -3,6 +3,7 @@ package com.filemanager.controllers;
 import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.models.Setting;
+import com.filemanager.models.User;
 import com.filemanager.repositories.LogRepository;
 import com.filemanager.repositories.SettingRepository;
 import com.filemanager.services.EmailHelper;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpSession;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,7 +50,8 @@ public class UploadController {
     }
 
     @PostMapping(value = "files")
-    public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam String bank, @RequestParam String destination, RedirectAttributes attributes){
+    public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam(required = false, defaultValue = "") String institution, @RequestParam(required = false, defaultValue = "") String destination, RedirectAttributes attributes){
+        System.out.println(files[0].getOriginalFilename());
         List<Setting> settings = settingRepository.findAll();
         String SYS_ALERT_MAIL = settings.stream().filter(setting -> "sys.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
         String CBC_ALERT_MAIL = settings.stream().filter(setting -> "cbc.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
@@ -60,7 +63,7 @@ public class UploadController {
         Set<String> days = new HashSet<>();
         List<String> months = Arrays.asList("JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE");
         for(MultipartFile file: files){
-            if(bank.equals("ADMIN")) break;
+            if(StringUtils.isEmpty(institution)) break;
             name = StringUtils.defaultString(file.getOriginalFilename()).toUpperCase();
             index = name.lastIndexOf(".");
             if(index > 0 && name.substring(index).matches(".*[a-zA-Z].*")) name = name.substring(0, index);
@@ -107,17 +110,17 @@ public class UploadController {
         List<String> dayList = new ArrayList<>(days);
         Collections.sort(dayList);
         String root = ROOT_WORKING_DIRECTORY + File.separator + "CBC";
-        if("CBC".equalsIgnoreCase(bank)){
+        if("CBC".equalsIgnoreCase(institution)){
             root = ROOT_WORKING_DIRECTORY + File.separator + "CBC";
-        }else if("CBT".equalsIgnoreCase(bank)){
+        }else if("CBT".equalsIgnoreCase(institution)){
             root = ROOT_WORKING_DIRECTORY + File.separator + "CBT";
         }
         LocalDate date = Instant.ofEpochSecond(lastTimer).atZone(ZoneId.systemDefault()).toLocalDate();
         Path path = Paths.get(root, operator, date.getYear() + "", months.get(date.getMonthValue() - 1), String.join("-", dayList));
         if("APPLICATION".equalsIgnoreCase(operator)){
             root = ROOT_WORKING_DIRECTORY + File.separator + "GIEGCB";
-            path = Paths.get(root, bank, operator, date.getYear() + "", months.get(date.getMonthValue() - 1), String.join("-", dayList));
-        }else if("ADMIN".equalsIgnoreCase(bank)){
+            path = Paths.get(root);
+        }else if(StringUtils.isEmpty(institution)){
             try {
                 path = Paths.get(URLDecoder.decode(destination, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
                 attributes.addAttribute("p", path.toAbsolutePath().toString());
@@ -157,7 +160,7 @@ public class UploadController {
         String subject = "";
         String body = "";
         if("GIMAC".equalsIgnoreCase(operator)){
-            to = "CBC".equalsIgnoreCase(bank) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
+            to = "CBC".equalsIgnoreCase(institution) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
             cc = GIE_ALERT_MAIL;
             subject = "Rapports GIMAC disponibles";
             body = "-----------------------------------------------------------------------------------------<br><br>" +
@@ -167,7 +170,7 @@ public class UploadController {
                    "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
                    "-----------------------------------------------------------------------------------------";
         }else if("VISA".equalsIgnoreCase(operator)){
-            to = "CBC".equalsIgnoreCase(bank) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
+            to = "CBC".equalsIgnoreCase(institution) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
             cc = GIE_ALERT_MAIL;
             subject = "Rapports VISA disponibles";
             body = "-----------------------------------------------------------------------------------------<br><br>" +
@@ -178,21 +181,20 @@ public class UploadController {
                    "-----------------------------------------------------------------------------------------";
         }else if("APPLICATION".equalsIgnoreCase(operator)){
             to = GIE_ALERT_MAIL;
-            cc = "CBC".equalsIgnoreCase(bank) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
+            cc = "CBC".equalsIgnoreCase(institution) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
             subject = "Intégration des fichiers applications";
             body = "-----------------------------------------------------------------------------------------<br><br>" +
                    "Bonjour,<br><br>";
             if(fileNames.size() == 1){
-                body += "Nous vous prions d’intégrer le fichier application <b>" + fileNames.get(0) + "</b> <br><br><u>Emplacement :</u><b> " + bank + "/" + operator + "/" + date.getYear() + "/" + months.get(date.getMonthValue() - 1) + "/" + day + "</b><br><br>";
+                body += "Nous vous prions d’intégrer le fichier application <b>" + fileNames.get(0) + "</b> <br><br><u>Emplacement :</u><b> " + institution + "/" + operator + "/" + date.getYear() + "/" + months.get(date.getMonthValue() - 1) + "/" + day + "</b><br><br>";
             }else {
                 body += "Nous vous prions d’intégrer les fichiers applications : <br><br>" +
                         "<ul>" +
                         fileNames.stream().map(n -> "<li><b>" + n + "</b></li>").collect(Collectors.joining("\n")) +
-                        "</ul>" +
-                        "<u>Emplacement :</u><b> " + bank + "/" + operator + "/" + date.getYear() + "/" + months.get(date.getMonthValue() - 1) + "/" + day + "</b><br><br>";
+                        "</ul>";
             }
             body += "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
-                    "<i>L'Equipe Support Monétique " + bank + "</i><br><br>" +
+                    "<i>L'Equipe Support Monétique " + institution + "</i><br><br>" +
                     "-----------------------------------------------------------------------------------------";
         }
         if(StringUtils.isNotEmpty(operator)){
