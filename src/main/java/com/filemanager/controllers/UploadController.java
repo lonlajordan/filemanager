@@ -186,7 +186,7 @@ public class UploadController {
             body = "-----------------------------------------------------------------------------------------<br><br>" +
                    "Bonjour,<br><br>";
             if(fileNames.size() == 1){
-                body += "Nous vous prions d’intégrer le fichier application <b>" + fileNames.get(0) + "</b> <br><br><u>Emplacement :</u><b> " + institution + "/" + operator + "/" + date.getYear() + "/" + months.get(date.getMonthValue() - 1) + "/" + day + "</b><br><br>";
+                body += "Nous vous prions d’intégrer le fichier application <b>" + fileNames.get(0) + "</b><br><br>";
             }else {
                 body += "Nous vous prions d’intégrer les fichiers applications : <br><br>" +
                         "<ul>" +
