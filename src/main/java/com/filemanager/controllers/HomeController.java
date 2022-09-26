@@ -9,8 +9,7 @@ import com.filemanager.models.User;
 import com.filemanager.repositories.LogRepository;
 import com.filemanager.services.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
@@ -38,8 +37,6 @@ import java.util.stream.Collectors;
 public class HomeController {
     @Value("${root.working.directory}")
     private String ROOT_WORKING_DIRECTORY;
-
-    private final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
     private final LogRepository logRepository;
 
@@ -77,7 +74,7 @@ public class HomeController {
                     items.add(new FileItem(file));
                 }
             } catch (IOException e) {
-                logger.error("Error while reading [" + file.getAbsolutePath() + "] properties", e);
+                logRepository.save(Log.error("Erreur lors de la lecture des propriétés de <b>" + file.getAbsolutePath() + "</b> properties", ExceptionUtils.getStackTrace(e)));
             }
         }
         try {
@@ -87,20 +84,18 @@ public class HomeController {
         model.addAttribute("isHome", isHome);
         model.addAttribute("files", files);
         model.addAttribute("folders", folders);
-        Path path = Paths.get(home.toURI());
-        Path root = path.getRoot();
         try {
-            FileStore store = Files.getFileStore(root);
+            FileStore store = Files.getFileStore(Paths.get(home.toURI()));
             model.addAttribute("freeSpace", FileUtils.readableFileSize(store.getUsableSpace()));
             model.addAttribute("totalSpace", FileUtils.readableFileSize(store.getTotalSpace()));
         } catch (IOException e) {
-            logger.error("partition properties reading error", e);
+            logRepository.save(Log.error("Erreur lors de la lecture des propriétés de la partition", ExceptionUtils.getStackTrace(e)));
         }
         if(!isHome) {
             try {
                 model.addAttribute("parent", URLEncoder.encode(folder.getParentFile().getAbsolutePath(), String.valueOf(StandardCharsets.UTF_8)));
             } catch (UnsupportedEncodingException e) {
-                logger.error("parent directory reading error", e);
+                logRepository.save(Log.error("Erreur lors de l'accès au répertoire parent", ExceptionUtils.getStackTrace(e)));
             }
             ArrayList<FileItem> directories = new ArrayList<>();
             File directory = folder;
@@ -110,7 +105,7 @@ public class HomeController {
                 try {
                     fileItem.setAbsolutePath(URLEncoder.encode(directory.getAbsolutePath(), String.valueOf(StandardCharsets.UTF_8)));
                 } catch (UnsupportedEncodingException e) {
-                    logger.error("full path reading error", e);
+                    logRepository.save(Log.error("Erreur lors de la lecture du chemin absolu", ExceptionUtils.getStackTrace(e)));
                 }
                 directories.add(fileItem);
                 directory = directory.getParentFile();
@@ -132,7 +127,7 @@ public class HomeController {
             attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
             logRepository.save(Log.info("Renommage de <b>" + sourcePath + "</b> en <b>" + targetPath + "</b> par <b>" + principal.getName() + "</b>"));
         } catch (IOException e) {
-            logger.error("renaming file error", e);
+            logRepository.save(Log.error("Erreur lors du renommage", ExceptionUtils.getStackTrace(e)));
             attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
         }
         return "redirect:/home";
@@ -140,15 +135,16 @@ public class HomeController {
 
     @PostMapping(path = "/create")
     public String createFolder(@RequestParam String path, @RequestParam @NonNull String name, RedirectAttributes attributes){
+        Path parent = null;
         try {
             name = name.trim().replaceAll("\\s+", "_").toUpperCase();
-            Path parent = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
+            parent = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
             File folder = parent.resolve(name).toFile();
             if(!folder.exists()) folder.mkdirs();
             attributes.addAttribute("p", parent.toAbsolutePath().toString());
             attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
         } catch (IOException e) {
-            logger.error("creating folder error", e);
+            logRepository.save(Log.error("Erreur lors de la création du dossier <b>" + name + "</b> dans <b>" + parent + "</b>", ExceptionUtils.getStackTrace(e)));
             attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
         }
         return "redirect:/home";
@@ -157,15 +153,16 @@ public class HomeController {
     @RequestMapping(path = "/delete/files")
     public String deleteFiles(@RequestParam String[] paths, RedirectAttributes attributes){
         String p = "";
+        Path filePath = null;
         for(String path: paths){
             try {
-                Path filePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
+                filePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
                 FileSystemUtils.deleteRecursively(filePath);
                 if(StringUtils.isEmpty(p)) p = filePath.getParent().toAbsolutePath().toString();
                 attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
             } catch (IOException e) {
-                logger.error("file deletion error", e);
                 attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
+                logRepository.save(Log.error("Erreur lors de la suppression de <b>" + filePath + "</b>", ExceptionUtils.getStackTrace(e)));
             }
         }
         attributes.addAttribute("p", p);
@@ -183,7 +180,7 @@ public class HomeController {
                 p = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize().getParent().toAbsolutePath().toString();
                 break;
             } catch (IOException e) {
-                logger.error("error while getting file parent path", e);
+                logRepository.save(Log.error("Erreur lors de l'accès au répertoire parent", ExceptionUtils.getStackTrace(e)));
             }
         }
         attributes.addAttribute("p", p);
@@ -227,7 +224,7 @@ public class HomeController {
                                 }
                             }
                         } catch (IOException e) {
-                            logger.error("file copy/move error", e);
+                            logRepository.save(Log.error("Erreur lors d'une copie / déplacement", ExceptionUtils.getStackTrace(e)));
                             if(!attributes.getFlashAttributes().containsKey("notification")) attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération"));
                         }
                     }

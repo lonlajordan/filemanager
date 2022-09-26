@@ -5,8 +5,7 @@ import com.filemanager.models.Notification;
 import com.filemanager.models.Setting;
 import com.filemanager.repositories.LogRepository;
 import com.filemanager.repositories.SettingRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +22,6 @@ import java.util.Map;
 public class SettingController {
     private final LogRepository logRepository;
     private final SettingRepository settingRepository;
-    private final Logger logger = LoggerFactory.getLogger(SettingController.class);
 
     public SettingController(LogRepository logRepository, SettingRepository settingRepository) {
         this.logRepository = logRepository;
@@ -51,7 +49,7 @@ public class SettingController {
             } catch (Exception exception){
                 notification.setType("error");
                 notification.setMessage("Erreur lors de l'enregistrement des paramètres.");
-                logger.error("error while changing " + entry.getKey() + " parameter value", exception);
+                logRepository.save(Log.error("Erreur lors de la modification du paramètre <b>" + entry.getKey() + "</b>", ExceptionUtils.getStackTrace(exception)));
             }
         }
         attributes.addFlashAttribute("notification", notification);

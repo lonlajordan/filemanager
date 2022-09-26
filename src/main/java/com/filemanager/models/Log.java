@@ -10,7 +10,7 @@ public class Log {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    private Integer id;
+    private Long id;
     @Enumerated(EnumType.STRING)
     private Level level = Level.INFO;
     @Column(nullable = false, columnDefinition = "LONGTEXT")
@@ -20,11 +20,11 @@ public class Log {
     @Column(nullable = false)
     private Date date = new Date();
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

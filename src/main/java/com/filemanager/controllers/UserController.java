@@ -2,11 +2,12 @@ package com.filemanager.controllers;
 
 import com.filemanager.enums.Institution;
 import com.filemanager.enums.Role;
+import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.models.User;
+import com.filemanager.repositories.LogRepository;
 import com.filemanager.repositories.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,10 +27,11 @@ import java.util.Optional;
 @RequestMapping("/user")
 public class UserController {
     private final UserRepository userRepository;
-    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final LogRepository logRepository;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, LogRepository logRepository) {
         this.userRepository = userRepository;
+        this.logRepository = logRepository;
     }
 
 
@@ -46,8 +48,8 @@ public class UserController {
             userRepository.deleteAllById(Arrays.asList(ids));
             attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
         }catch (Exception e){
-            logger.error("error while deleting users", e);
             attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
+            logRepository.save(Log.error("Erreur lors de la suppression d'un groupe d'utilisateur", ExceptionUtils.getStackTrace(e)));
         }
         return "redirect:/user/list";
     }
@@ -66,7 +68,7 @@ public class UserController {
         }catch (Exception e){
             notification.setType("error");
             notification.setMessage("Erreur lors du changement de statut du l'utilisateur d'identifiant <b>" + id + "</b>.");
-            logger.error(notification.getMessage(), e);
+            logRepository.save(Log.error(notification.getMessage(), ExceptionUtils.getStackTrace(e)));
         }
         attributes.addFlashAttribute("notification", notification);
         return "redirect:/user/list";
@@ -110,7 +112,7 @@ public class UserController {
         } catch (Exception e){
             notification.setType("error");
             notification.setMessage("Erreur lors de la " + (creation ? "création" : "modification") + " de l'utilisateur <b>[ " + user$.getUsername() + " ]</b>.");
-            logger.error(notification.getMessage(), e);
+            logRepository.save(Log.error(notification.getMessage(), ExceptionUtils.getStackTrace(e)));
         }
 
         attributes.addFlashAttribute("notification", notification);

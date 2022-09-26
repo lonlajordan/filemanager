@@ -172,6 +172,39 @@ function downloadFile(paths, url) {
     xhr.send();
 }
 
+function showLogDetails(id, level){
+    if(level !== 'ERROR'){
+        new SnackBar({
+            message: 'Aucun détail concernant cet évènement',
+            status: 'error',
+            dismissible: false,
+            position: 'bc',
+            timeout: 3000,
+        });
+        return;
+    }
+    $("#wrapper").LoadingOverlay('show', options);
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', ctx + '/log/details/' + id, true);
+    xhr.onload = function() {
+        if(this.status === 200 && this.response !== undefined && this.response.length > 0) {
+            $('#error-details').html(this.response);
+            $("#modal-details").modal('show');
+        }else {
+            new SnackBar({
+                message: 'Aucun détail concernant cet évènement',
+                status: 'error',
+                dismissible: false,
+                position: 'bc',
+                timeout: 3000,
+            });
+        }
+        $('#wrapper').LoadingOverlay('hide', options);
+        $('#wrapper').scrollTop(0);
+    };
+    xhr.send();
+}
+
 $.ajaxSetup({
     beforeSend: function () {
         $("#wrapper").LoadingOverlay('show', options);

@@ -1,11 +1,13 @@
 package com.filemanager.controllers;
 
+import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
+import com.filemanager.models.Setting;
 import com.filemanager.repositories.LogRepository;
+import com.filemanager.repositories.SettingRepository;
 import com.filemanager.services.EmailHelper;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,28 +39,21 @@ public class UploadController {
     @Value("${root.working.directory}")
     private String ROOT_WORKING_DIRECTORY;
 
-    @Value("${sys.alert.mail}")
-    private String SYS_ALERT_MAIL;
-
-    @Value("${cbc.alert.mail}")
-    private String CBC_ALERT_MAIL;
-
-    @Value("${cbt.alert.mail}")
-    private String CBT_ALERT_MAIL;
-
-    @Value("${gie.alert.mail}")
-    private String GIE_ALERT_MAIL;
-
-    private final Logger logger = LoggerFactory.getLogger(UploadController.class);
-
     private final LogRepository logRepository;
+    private final SettingRepository settingRepository;
 
-    public UploadController(LogRepository logRepository) {
+    public UploadController(LogRepository logRepository, SettingRepository settingRepository) {
         this.logRepository = logRepository;
+        this.settingRepository = settingRepository;
     }
 
     @PostMapping(value = "files")
     public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam String bank, @RequestParam String destination, RedirectAttributes attributes){
+        List<Setting> settings = settingRepository.findAll();
+        String SYS_ALERT_MAIL = settings.stream().filter(setting -> "sys.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
+        String CBC_ALERT_MAIL = settings.stream().filter(setting -> "cbc.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
+        String CBT_ALERT_MAIL = settings.stream().filter(setting -> "cbt.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
+        String GIE_ALERT_MAIL = settings.stream().filter(setting -> "gie.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
         int length, index;
         long timer, lastTimer = 0;
         String name, operator = "", day = "", month, year = "";
@@ -83,7 +78,7 @@ public class UploadController {
                     lastTimer = Math.max(timer, lastTimer);
                     days.add(day);
                 } catch (Exception e) {
-                    logger.error("error", e);
+                    logRepository.save(Log.error("Erreur lors de la détermination de la date des fichiers téléversés", ExceptionUtils.getStackTrace(e)));
                 }
                 operator = "VISA";
             }else if(name.matches("(CBT|CBC)?[0-9]+")){
@@ -96,7 +91,7 @@ public class UploadController {
                     lastTimer = Math.max(timer, lastTimer);
                     days.add(day);
                 } catch (Exception e) {
-                    logger.error("error", e);
+                    logRepository.save(Log.error("Erreur lors de la détermination de la date des fichiers téléversés", ExceptionUtils.getStackTrace(e)));
                 }
                 operator = "GIMAC";
             }else if(name.toLowerCase().contains("application")){
@@ -145,7 +140,7 @@ public class UploadController {
                     stream.close();
                     count++;
                 } catch (Exception e) {
-                    logger.error("error", e);
+                    logRepository.save(Log.error("Erreur lors de l'enregistrement des fichiers téléversés sur le serveur", ExceptionUtils.getStackTrace(e)));
                 }
             }
         }
@@ -157,7 +152,6 @@ public class UploadController {
             String plural = count == 1 ? "" : "s";
             attributes.addFlashAttribute("notification", new Notification("error", count + " fichier" + plural + " non envoyé" + plural + "."));
         }
-        String from = SYS_ALERT_MAIL;
         String cc = "";
         String to = "";
         String subject = "";
@@ -203,9 +197,9 @@ public class UploadController {
         }
         if(StringUtils.isNotEmpty(operator)){
             try {
-                EmailHelper.sendMail(from, to, cc, subject, body);
+                EmailHelper.sendMail(SYS_ALERT_MAIL, to, cc, subject, body);
             } catch (MessagingException e) {
-                logger.error("notifcation mail not sent", e);
+                logRepository.save(Log.error("Erreur lors de l'envoie du mail de notification", ExceptionUtils.getStackTrace(e)));
             }
         }
         return "redirect:/home";

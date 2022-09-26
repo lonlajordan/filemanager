@@ -2,9 +2,9 @@ package com.filemanager.enums;
 
 public enum Role {
     ROLE_ADMIN("ADMINISTRATEUR"),
-    ROLE_GIE("GIE"),
-    ROLE_BANK_MONET("BANK_MONET"),
-    ROLE_BANK_INFO("BANK_INFO");
+    ROLE_GIE("OPERATEUR GIE"),
+    ROLE_BANK_MONET("MONETIQUE"),
+    ROLE_BANK_INFO("INFORMATIQUE");
 
     private final String displayValue;
 

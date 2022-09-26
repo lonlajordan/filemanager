@@ -4,8 +4,6 @@ import com.filemanager.models.Log;
 import com.filemanager.repositories.LogRepository;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +30,6 @@ import java.util.zip.ZipOutputStream;
 @RestController
 @RequestMapping("/download")
 public class DownloadController {
-
-    private static final Logger logger = LoggerFactory.getLogger(DownloadController.class);
 
     private final LogRepository logRepository;
 
@@ -76,7 +72,7 @@ public class DownloadController {
             if(!folder.isDirectory()) throw new Exception("excepting folder instead of file");
             StreamingResponseBody streamResponseBody = out -> {
                 final ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
-                zipFile(folder, zipOutputStream, logRepository);
+                zipFile(folder, zipOutputStream);
             };
             response.setHeader("Content-Transfer-Encoding", "binary");
             response.setHeader("Content-Disposition", "attachment; filename=" + folder.getName() + ".zip");
@@ -109,7 +105,7 @@ public class DownloadController {
         return ResponseEntity.ok(streamResponseBody);
     }
 
-    private static void zipFile(File fileToZip, ZipOutputStream zipOut, LogRepository logRepository) {
+    private void zipFile(File fileToZip, ZipOutputStream zipOut) {
         final Path sourceDir = Paths.get(fileToZip.toURI());
         try {
             Files.walkFileTree(sourceDir, new SimpleFileVisitor<Path>() {
@@ -133,12 +129,12 @@ public class DownloadController {
         }
     }
 
-    private static void zipFiles(List<Path> paths, ZipOutputStream zipOut) {
+    private void zipFiles(List<Path> paths, ZipOutputStream zipOut) {
         if(paths.isEmpty()){
             try {
                 zipOut.close();
             } catch (IOException e) {
-                logger.error("ZipOutputStream closing error", e);
+                logRepository.save(Log.error("Erreur lors de la fermeture du fichier compressé", ExceptionUtils.getStackTrace(e)));
             }
             return;
         }
@@ -156,14 +152,14 @@ public class DownloadController {
                             zipOut.closeEntry();
                         }
                     } catch (IOException e) {
-                        logger.error("zip entry error", e);
+                        logRepository.save(Log.error("Erreur lors de la compression de <b>" + file + "</b>", ExceptionUtils.getStackTrace(e)));
                     }
                     return FileVisitResult.CONTINUE;
                 }
             });
             zipOut.close();
         } catch (IOException e) {
-            logger.error("multiple files compression error", e);
+            logRepository.save(Log.error("Erreur lors de la compression d'un ensemble de fichier dans <b>" + sourceDir + "</b>", ExceptionUtils.getStackTrace(e)));
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.filemanager.controllers;
 
-import com.filemanager.enums.Level;
 import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.repositories.LogRepository;
@@ -13,10 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityManager;
@@ -52,11 +48,19 @@ public class LogController {
         model.addAttribute("logs", logs.get().collect(Collectors.toList()));
         model.addAttribute("totalPages", logs.getTotalPages());
         model.addAttribute("currentPage", p);
+        model.addAttribute("filtered", false);
         return "logs";
     }
 
+    @GetMapping(value="details/{id}")
+    @ResponseBody
+    public String getDetails(@PathVariable long id){
+        Log log = logRepository.findById(id).orElse(null);
+        return log == null || log.getDetails() == null ? "" : log.getDetails();
+    }
+
     @PostMapping(value="delete")
-    public String deleteLogs(@RequestParam Integer[] ids, RedirectAttributes attributes){
+    public String deleteLogs(@RequestParam Long[] ids, RedirectAttributes attributes){
         try {
             logRepository.deleteAllById(Arrays.asList(ids));
             attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
@@ -68,8 +72,8 @@ public class LogController {
     }
 
     @PostMapping(value="search")
-    public String search(@RequestParam String level,
-                         @RequestParam String message,
+    public String search(@RequestParam(required = false, defaultValue = "") String level,
+                         @RequestParam(required = false, defaultValue = "") String message,
                          @RequestParam(required = false, defaultValue = "1970-01-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date start,
                          @RequestParam(required = false, defaultValue = "1970-01-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date end,
                          Model model){
@@ -78,7 +82,7 @@ public class LogController {
         Root<Log> log = cq.from(Log.class);
         List<Predicate> predicates = new ArrayList<>();
         if(StringUtils.isNotEmpty(message)) predicates.add(cb.like(log.get("message"), "%" + message + "%"));
-        predicates.add(cb.equal(log.get("level"), Level.valueOf(level)));
+        if(StringUtils.isNotEmpty(level)) predicates.add(cb.equal(log.get("level"), level));
         if(start.toInstant().getEpochSecond() > 0) predicates.add(cb.greaterThanOrEqualTo(log.get("date"), start));
         if(end.toInstant().getEpochSecond() > 0) predicates.add(cb.lessThanOrEqualTo(log.get("date"), end));
         cq.where(predicates.toArray(new Predicate[0]));
@@ -87,6 +91,7 @@ public class LogController {
         model.addAttribute("logs", logs);
         model.addAttribute("totalPages", 1);
         model.addAttribute("currentPage", 0);
+        model.addAttribute("filtered", true);
         return "logs";
     }
 }
