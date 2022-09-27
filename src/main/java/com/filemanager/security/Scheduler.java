@@ -43,9 +43,6 @@ public class Scheduler {
                 }
             }
         }
-        /*files.forEach(file -> {
-
-        });*/
     }
 
 }
