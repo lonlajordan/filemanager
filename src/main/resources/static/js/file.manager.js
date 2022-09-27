@@ -77,6 +77,7 @@ function invoke(action, object = 'file') {
             status: 'error',
             dismissible: false,
             position: 'bc',
+            fixed: true,
             timeout: 3000,
         });
     }else{
@@ -158,6 +159,7 @@ function downloadFile(paths, url) {
                 status: 'error',
                 dismissible: false,
                 position: 'bc',
+                fixed: true,
                 timeout: 3000,
             });
         }
@@ -176,6 +178,7 @@ function showLogDetails(id, level){
             status: 'error',
             dismissible: false,
             position: 'bc',
+            fixed: true,
             timeout: 3000,
         });
         return;
@@ -193,6 +196,7 @@ function showLogDetails(id, level){
                 status: 'error',
                 dismissible: false,
                 position: 'bc',
+                fixed: true,
                 timeout: 3000,
             });
         }

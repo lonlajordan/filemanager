@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
-    <title>Explorateur de fichiers</title>
+    <title>File Manager</title>
     <link rel="icon" type="image/x-ico" th:href="@{/images/logo.ico}">
     <link th:href="@{/fonts/inter.css}" rel="stylesheet"/>
     <link th:href="@{/css/tabler.min.css}" rel="stylesheet"/>
@@ -263,14 +263,14 @@
       </div>
     </div>
     <div class="modal modal-blur fade" id="modal-upload" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Transférer les fichiers</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form name="uploadForm" th:action="@{/upload/files}" onsubmit="return validateUploadForm(event)" method="post" enctype="multipart/form-data">
-            <div class="modal-body">
+          <div class="modal-body">
+            <form name="uploadForm" th:action="@{/upload/files}" onsubmit="return validateUploadForm(event)" method="post" enctype="multipart/form-data">
               <div class="mb-3" th:if="${!T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}">
                 <label class="form-label">Destinataire</label>
                 <select class="form-select" name="institution" required>
@@ -290,22 +290,22 @@
                   <span class="dropzone-msg-desc">Déposez les fichiers ici</span>
                 </div>
               </div>
-            </div>
-            <div class="modal-footer">
-              <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-                Annuler
-              </a>
-              <button onclick="upload()" class="btn btn-primary ms-auto">
-                <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 9 12 4 17 9" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
-                Envoyer
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+              Annuler
+            </a>
+            <button onclick="upload()" class="btn btn-primary ms-auto">
+              <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 9 12 4 17 9" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
+              Envoyer
+            </button>
+          </div>
         </div>
       </div>
     </div>
     <div class="modal modal-blur fade" id="modal-delete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-dialog modal-md modal-dialog-centered" role="document">
         <div class="modal-content">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           <div class="modal-status bg-danger"></div>
@@ -350,6 +350,7 @@
         status: /*[[${notification?.type == 'error' ? 'error' : 'success'}]]*/ '',
         dismissible: false,
         position: 'bc',
+        fixed: true,
         timeout: 3000,
       });
     </script>
@@ -376,7 +377,10 @@
         const dataTransfer = new DataTransfer();
         Dropzone.forElement('#preview').files.forEach(file => dataTransfer.items.add(file));
         document.querySelector('#upload-files').files = dataTransfer.files;
-        if(dataTransfer.files.length > 0) document.uploadForm.submit();
+        if(dataTransfer.files.length > 0){
+          $("#wrapper").LoadingOverlay('show', options);
+          document.uploadForm.submit();
+        }
       }
     </script>
     <script th:if="${!#lists.isEmpty(items)}">

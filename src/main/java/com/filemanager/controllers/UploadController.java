@@ -51,7 +51,6 @@ public class UploadController {
 
     @PostMapping(value = "files")
     public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam(required = false, defaultValue = "") String institution, @RequestParam(required = false, defaultValue = "") String destination, RedirectAttributes attributes){
-        System.out.println(files[0].getOriginalFilename());
         List<Setting> settings = settingRepository.findAll();
         String SYS_ALERT_MAIL = settings.stream().filter(setting -> "sys.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
         String CBC_ALERT_MAIL = settings.stream().filter(setting -> "cbc.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
