@@ -45,13 +45,13 @@ public class SettingController {
                     setting.setValue(entry.getValue()[0]);
                     settingRepository.save(setting);
                 }
-                logRepository.save(Log.info(notification.getMessage()));
             } catch (Exception exception){
                 notification.setType("error");
                 notification.setMessage("Erreur lors de l'enregistrement des paramètres.");
                 logRepository.save(Log.error("Erreur lors de la modification du paramètre <b>" + entry.getKey() + "</b>", ExceptionUtils.getStackTrace(exception)));
             }
         }
+        if("success".equals(notification.getType())) logRepository.save(Log.info(notification.getMessage()));
         attributes.addFlashAttribute("notification", notification);
         return "redirect:/setting/list";
     }
