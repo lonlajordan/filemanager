@@ -134,7 +134,7 @@ public class HomeController {
     }
 
     @PostMapping(path = "/create")
-    public String createFolder(@RequestParam String path, @RequestParam @NonNull String name, RedirectAttributes attributes){
+    public String createFolder(@RequestParam String path, @RequestParam @NonNull String name, RedirectAttributes attributes, Principal principal){
         Path parent = null;
         try {
             name = name.trim().replaceAll("\\s+", "_").toUpperCase();
@@ -143,6 +143,7 @@ public class HomeController {
             if(!folder.exists()) folder.mkdirs();
             attributes.addAttribute("p", parent.toAbsolutePath().toString());
             attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
+            logRepository.save(Log.info("Création du dossier <b>" + folder.toPath() + "</b> par <b>" + principal.getName() + "</b>"));
         } catch (IOException e) {
             logRepository.save(Log.error("Erreur lors de la création du dossier <b>" + name + "</b> dans <b>" + parent + "</b>", ExceptionUtils.getStackTrace(e)));
             attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
@@ -151,7 +152,7 @@ public class HomeController {
     }
 
     @RequestMapping(path = "/delete/files")
-    public String deleteFiles(@RequestParam String[] paths, RedirectAttributes attributes){
+    public String deleteFiles(@RequestParam String[] paths, RedirectAttributes attributes, Principal principal){
         String p = "";
         Path filePath = null;
         for(String path: paths){
@@ -160,6 +161,7 @@ public class HomeController {
                 FileSystemUtils.deleteRecursively(filePath);
                 if(StringUtils.isEmpty(p)) p = filePath.getParent().toAbsolutePath().toString();
                 attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
+                logRepository.save(Log.info("Suppression de <b>" + filePath + "</b> par <b>" + principal.getName() + "</b>"));
             } catch (IOException e) {
                 attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
                 logRepository.save(Log.error("Erreur lors de la suppression de <b>" + filePath + "</b>", ExceptionUtils.getStackTrace(e)));

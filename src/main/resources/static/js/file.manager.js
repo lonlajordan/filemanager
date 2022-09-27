@@ -88,9 +88,6 @@ function invoke(action, object = 'file') {
         }else if(action === 'delete'){
             let objectName = 'élément';
             switch (object) {
-                case 'file':
-                    objectName = 'fichier';
-                    break;
                 case 'user':
                     objectName = 'utilisateur';
                     break;
