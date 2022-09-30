@@ -88,7 +88,7 @@
                                         </th>
                                         <th><button class="table-sort" data-sort="sort-name">Nom d'utilisateur</button></th>
                                         <th><button class="table-sort" data-sort="sort-institution">Institution</button></th>
-                                        <th><button class="table-sort" data-sort="sort-role">Role</button></th>
+                                        <th><button class="table-sort" data-sort="sort-role">Roles</button></th>
                                         <th><button class="table-sort" data-sort="sort-status">Statut</button></th>
                                         <th><button class="table-sort" data-sort="sort-login">Dernière connexion</button></th>
                                         <th></th>
@@ -101,7 +101,12 @@
                                         </td>
                                         <td class="sort-name"th:text="${user.username}"></td>
                                         <td class="sort-name"th:text="${user.institution}"></td>
-                                        <td class="sort-role" th:text="${user.role.displayValue}"></td>
+                                        <td class="sort-role">
+                                            <span th:each="role, iter: ${user.roleList}">
+                                                <span th:text="${role.displayValue}"></span>
+                                                <br th:if="${iter.count > 0}">
+                                            </span>
+                                        </td>
                                         <td class="sort-status" th:if="${user.enabled}">
                                             <span class="badge bg-success me-1"></span> Actif
                                         </td>
@@ -123,7 +128,7 @@
                                                         <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="16" cy="12" r="2" /><rect x="2" y="6" width="20" height="12" rx="6" /></svg>
                                                         <span class="ml-2">Activer</span>
                                                     </a>
-                                                    <a class="dropdown-item mw-0" th:data-user-id="${user.id}" th:data-user-name="${user.username}" th:data-user-institution="${user.institution}" th:data-user-role="${user.role}" href="#" onclick="editUser(this.getAttribute('data-user-id'), this.getAttribute('data-user-name'), this.getAttribute('data-user-institution'), this.getAttribute('data-user-role'))">
+                                                    <a class="dropdown-item mw-0" th:data-user-id="${user.id}" th:data-user-name="${user.username}" th:data-user-institution="${user.institution}" th:data-user-roles="${user.roles}" href="#" onclick="editUser(this.getAttribute('data-user-id'), this.getAttribute('data-user-name'), this.getAttribute('data-user-institution'), this.getAttribute('data-user-roles'))">
                                                         <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
                                                         <span class="ml-2">Modifier</span>
                                                     </a>
@@ -148,7 +153,7 @@
 </div>
 </div>
 <div class="modal modal-blur fade" id="modal-create" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Formulaire</h5>
@@ -168,11 +173,11 @@
                         </select>
                     </div>
                     <div id="privilege-radio-group" class="d-none">
-                        <label class="form-label required">Rôle</label>
+                        <label class="form-label required">Rôles</label>
                         <div class="form-selectgroup-boxes row mb-3">
                             <div class="col-lg-6">
                                 <label class="form-selectgroup-item">
-                                    <input type="radio" name="role" id="role-info" th:value="${T(com.filemanager.enums.Role).ROLE_BANK_INFO}" class="form-selectgroup-input" checked="">
+                                    <input type="checkbox" onchange="changeRole(event)" name="authorities" id="role-info" th:value="${T(com.filemanager.enums.Role).ROLE_BANK_INFO}" class="form-selectgroup-input">
                                     <span class="form-selectgroup-label d-flex align-items-center p-3">
                                         <span class="me-3">
                                           <span class="form-selectgroup-check"></span>
@@ -185,7 +190,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <label class="form-selectgroup-item">
-                                    <input type="radio" name="role" id="role-monet" th:value="${T(com.filemanager.enums.Role).ROLE_BANK_MONET}" class="form-selectgroup-input">
+                                    <input type="checkbox" onchange="changeRole(event)" name="authorities" id="role-monet" th:value="${T(com.filemanager.enums.Role).ROLE_BANK_MONET}" class="form-selectgroup-input" checked="">
                                     <span class="form-selectgroup-label d-flex align-items-center p-3">
                                     <span class="me-3">
                                       <span class="form-selectgroup-check"></span>

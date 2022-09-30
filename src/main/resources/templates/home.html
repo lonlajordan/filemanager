@@ -123,9 +123,9 @@
                               <th><button class="table-sort" data-sort="sort-name">Nom</button></th>
                               <th><button class="table-sort" data-sort="sort-height">Taille</button></th>
                               <th><button class="table-sort" data-sort="sort-modified">Modifié le</button></th>
-                              <th><button class="table-sort" data-sort="sort-permission">Permissions</button></th>
-                              <th><button class="table-sort" data-sort="sort-owner">Propriétaire</button></th>
-                              <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}"></th>
+                              <th th:if="${session?.user?.hasRole('ROLE_ADMIN')}"><button class="table-sort" data-sort="sort-permission">Permissions</button></th>
+                              <th th:if="${session?.user?.hasRole('ROLE_ADMIN')}"><button class="table-sort" data-sort="sort-owner">Propriétaire</button></th>
+                              <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" class="fit-cell-content"></th>
                           </tr>
                         </thead>
                         <tbody class="table-tbody">
@@ -145,10 +145,10 @@
                               </td>
                               <td class="sort-height" th:text="${item.fileSize}"></td>
                               <td class="sort-modified" th:text="${#calendars.format(item.lastModifiedDate, 'dd-MM-yyyy  HH:mm')}"></td>
-                              <td class="sort-permission" th:text="${item.permissions}"></td>
-                              <td class="sort-owner" th:text="${item.owner}"></td>
-                              <td class="inline-actions" th:if="${session?.action == null && session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET')}">
-                                <div class="dropdown" th:if="${T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role) && !isHome}">
+                              <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" class="sort-permission" th:text="${item.permissions}"></td>
+                              <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" class="sort-owner" th:text="${item.owner}"></td>
+                              <td class="inline-actions fit-cell-content" th:if="${session?.action == null && session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET')}">
+                                <div class="dropdown" th:if="${session?.user?.hasRole('ROLE_ADMIN') && !isHome}">
                                   <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
                                     <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
                                   </a>
@@ -177,7 +177,7 @@
                                     </th:block>
                                   </div>
                                 </div>
-                                <a th:unless="${T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role) && !isHome}" class="link-secondary show" title="Télécharger" th:data-download-url="${item.file.directory ? '/download/folder': '/download/file'}" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile([this.getAttribute('data-file-path')], this.getAttribute('data-download-url'))">
+                                <a th:unless="${session?.user?.hasRole('ROLE_ADMIN') && !isHome}" class="link-secondary show" title="Télécharger" th:data-download-url="${item.file.directory ? '/download/folder': '/download/file'}" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile([this.getAttribute('data-file-path')], this.getAttribute('data-download-url'))">
                                   <svg class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 11 12 16 17 11" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
                                 </a>
                               </td>
@@ -271,13 +271,13 @@
           </div>
           <div class="modal-body">
             <form name="uploadForm" th:action="@{/upload/files}" onsubmit="return validateUploadForm(event)" method="post" enctype="multipart/form-data">
-              <div class="mb-3" th:if="${!T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}">
+              <div class="mb-3" th:unless="${session?.user?.hasRole('ROLE_ADMIN')}">
                 <label class="form-label">Destinataire</label>
                 <select class="form-select" name="institution" required>
                   <option th:each="institution : ${T(com.filemanager.enums.Institution).values()}" th:value="${institution}" th:if="${!institution.equals(session?.user?.institution) && (T(com.filemanager.enums.Institution).GIE.equals(session?.user?.institution) || T(com.filemanager.enums.Institution).GIE.equals(institution))}" th:text="${institution.displayValue}"></option>
                 </select>
               </div>
-              <input th:if="${T(com.filemanager.enums.Role).ROLE_ADMIN.equals(session?.user?.role)}" type="hidden" name="destination" th:value="${currentDirectory}" class="form-control">
+              <input th:if="${session?.user?.hasRole('ROLE_ADMIN')}" type="hidden" name="destination" th:value="${currentDirectory}" class="form-control">
               <input type="file" class="visually-hidden" id="upload-files" name="files" multiple required/>
               <div id="preview" class="dropzone bg-white">
                 <div class="fallback">

@@ -52,4 +52,9 @@ body { background-color:#f7f9fb;background-color:#f7f9fb;background-image:url("d
     font-weight: bold;
 }
 
+.fit-cell-content {
+    width: 1% !important;
+    white-space: nowrap;
+}
+
 

@@ -4,7 +4,11 @@ import com.filemanager.enums.Institution;
 import com.filemanager.enums.Role;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 public class User {
@@ -16,9 +20,8 @@ public class User {
     private String username = "";
     @Transient
     private String password = "";
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role = Role.ROLE_GIE;
+    private String roles = Role.ROLE_GIE.name();
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Institution institution = Institution.GIE;
@@ -52,12 +55,12 @@ public class User {
     public User() {
     }
 
-    public Role getRole() {
-        return role;
+    public String getRoles() {
+        return roles;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRoles(String roles) {
+        this.roles = roles;
     }
 
     public Institution getInstitution() {
@@ -84,19 +87,31 @@ public class User {
         this.enabled = enabled;
     }
 
+    public List<Role> getRoleList() {
+        Role[] values = Role.values();
+        List<Role> privileges = new ArrayList<>();
+        for(Role value: values){
+            if(roles.contains(value.name())) privileges.add(value);
+        }
+        return privileges;
+    }
+
     public boolean hasRole(String role){
-        return this.role.name().equals(role);
+        return this.getRoleList().contains(Role.valueOf(role));
     }
 
     public boolean hasAnyRole(String... roles){
-        for(String role: roles) if(this.role.name().equals(role)) return true;
+        List<String> values = Stream.of(Role.values()).map(Enum::name).collect(Collectors.toList());
+        for(String role: roles){
+            if(values.contains(role)) return true;
+        }
         return false;
     }
 
-    public User(String username, String password, String role) {
+    public User(String username, String password, String roles) {
         this.username = username;
         this.password = password;
-        this.role = Role.valueOf(role);
+        this.roles = roles;
     }
 
     public void normalize(){

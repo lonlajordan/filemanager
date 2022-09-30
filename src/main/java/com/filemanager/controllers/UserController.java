@@ -18,10 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/user")
@@ -75,7 +73,7 @@ public class UserController {
     }
 
     @PostMapping(value = "save")
-    public String saveUser(User user, RedirectAttributes attributes, HttpSession session){
+    public String saveUser(User user, @RequestParam(required = false, defaultValue = "ROLE_BANK_MONET") List<String> authorities, RedirectAttributes attributes, HttpSession session){
         User user$ = user;
         boolean creation = true;
         if(user.getId() != null){
@@ -84,11 +82,14 @@ public class UserController {
                 user$ = _user.get();
                 user$.setUsername(user.getUsername());
                 user$.setInstitution(user.getInstitution());
-                user$.setRole(user.getRole());
                 creation = false;
             }
         }
-        if(Institution.GIE.equals(user$.getInstitution())) user$.setRole(Role.ROLE_GIE);
+        if(Institution.GIE.equals(user$.getInstitution())){
+            user$.setRoles(Role.ROLE_GIE.name());
+        }else{
+            user$.setRoles(String.join(";", authorities));
+        }
         user$.normalize();
         Notification notification = new Notification();
         try {
@@ -101,7 +102,8 @@ public class UserController {
                     user$ = userRepository.findByUsername(user$.getUsername());
                     if(user$ != null){
                         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-                        auth = new UsernamePasswordAuthenticationToken(auth.getPrincipal(), auth.getCredentials(), Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())));
+                        Collection<SimpleGrantedAuthority> authorities$ = user$.getRoleList().stream().map(Enum::name).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+                        auth = new UsernamePasswordAuthenticationToken(auth.getPrincipal(), auth.getCredentials(), authorities$);
                         SecurityContextHolder.getContext().setAuthentication(auth);
                         session.setAttribute("user", user$);
                     }

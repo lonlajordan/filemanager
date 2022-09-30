@@ -127,7 +127,7 @@ public class SecurityConfig {
             User user = new User();
             if(SecurityConfig.ADMIN_USERNAME.equals(username)){
                 if(!new BCryptPasswordEncoder().matches(password, SecurityConfig.ADMIN_PASSWORD)) throw new BadCredentialsException("incorrect.password");
-                user.setRole(Role.ROLE_ADMIN);
+                user.setRoles(Role.ROLE_ADMIN.name());
                 user.setUsername(username);
                 user.setId(0);
             }else{
@@ -165,7 +165,8 @@ public class SecurityConfig {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
             HttpSession session = attributes.getRequest().getSession(true);
             session.setAttribute("user", user);
-            return new UsernamePasswordAuthenticationToken(username, password, Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())));
+            Collection<SimpleGrantedAuthority> authorities = user.getRoleList().stream().map(Enum::name).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+            return new UsernamePasswordAuthenticationToken(username, password, authorities);
         }
 
         @Override

@@ -1,5 +1,6 @@
 package com.filemanager.security;
 
+import com.filemanager.enums.Level;
 import com.filemanager.repositories.LogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
 
 @Configuration
 @EnableScheduling
@@ -27,6 +26,7 @@ public class Scheduler {
         this.logRepository = logRepository;
     }
 
+    // Archive application files every day from Monday to Friday at 2:00 AM
     @Scheduled(cron = "0 0 2 * * MON-FRI", zone = "GMT+1")
     public void archive(){
         File folder = new File(ROOT_WORKING_DIRECTORY + File.separator + "GIEGCB");
@@ -43,6 +43,12 @@ public class Scheduler {
                 }
             }
         }
+    }
+
+    // Delete all error logs every first of each month at 1:00 AM
+    @Scheduled(cron = "0 0 1 1 * ?", zone = "GMT+1")
+    public void deleteErrorLogs(){
+        logRepository.deleteAllByLevel(Level.ERROR);
     }
 
 }

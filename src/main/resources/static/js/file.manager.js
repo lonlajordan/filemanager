@@ -61,12 +61,20 @@ function editUser(id, name, institution, role) {
     $("#user-name").val(name);
     $("#user-institution").val(institution);
     if(!institution.includes('GIE')){
-        let isMonet = role.includes('MONET');
+        let isMonet = role != null && role.includes('MONET');
+        let isInfo = role != null && role.includes('INFO');
         $('#role-monet').prop('checked', isMonet);
-        $('#role-info').prop('checked', !isMonet);
+        $('#role-info').prop('checked', isInfo);
         $('#privilege-radio-group').removeClass('d-none');
     }
     $("#modal-create").modal('show');
+}
+
+function changeRole(event) {
+    if(!event.target.checked){
+        let id = event.target.id === 'role-info' ? 'role-monet' : 'role-info';
+        $('#' + id).prop('checked', true);
+    }
 }
 
 function invoke(action, object = 'file') {

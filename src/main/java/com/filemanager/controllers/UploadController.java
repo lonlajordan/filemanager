@@ -65,6 +65,7 @@ public class UploadController {
         for(MultipartFile file: files){
             if(StringUtils.isEmpty(institution)) break;
             name = StringUtils.defaultString(file.getOriginalFilename()).toUpperCase();
+            if(name.contains("NEW")) continue;
             index = name.lastIndexOf(".");
             if(index > 0 && name.substring(index).matches(".*[a-zA-Z].*")) name = name.substring(0, index);
             String[] blocks = name.split("\\.")[0].split("_");
