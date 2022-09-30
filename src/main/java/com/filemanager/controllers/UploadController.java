@@ -62,25 +62,36 @@ public class UploadController {
         String name, operator = "", day = "", month, year = "";
         Set<String> days = new HashSet<>();
         List<String> months = Arrays.asList("JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE");
+        List<String> shortMonths = Arrays.asList("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC");
         for(MultipartFile file: files){
             if(StringUtils.isEmpty(institution)) break;
             name = StringUtils.defaultString(file.getOriginalFilename()).toUpperCase();
             if(name.contains("NEW")) continue;
             index = name.lastIndexOf(".");
             if(index > 0 && name.substring(index).matches(".*[a-zA-Z].*")) name = name.substring(0, index);
-            String[] blocks = name.split("\\.")[0].split("_");
+            String[] blocks = name.split("\\.")[0].split("[-_]");
             String formatDate = blocks[blocks.length - 1];
             length = formatDate.length();
             SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-            if(name.toLowerCase().contains("ep745") || name.toLowerCase().contains("compen")){
+            for(int i = 1; i <= shortMonths.size(); i++){
+                formatDate = formatDate.replaceAll(shortMonths.get(i-1), (i < 10 ? "0" : "") + i);
+            }
+            if(name.toLowerCase().contains("ep745") || name.toLowerCase().contains("compen") || name.toLowerCase().contains("incom") || name.toLowerCase().contains("vss") || name.toLowerCase().contains("vis")){
+                if(formatDate.length() == 8){
+                    formatter = new SimpleDateFormat("ddMMyyyy");
+                }else{
+                    formatter = new SimpleDateFormat("ddMMyy");
+                    formatDate = formatDate.substring(Math.max(0, length - 6));
+                }
                 try {
-                    day = formatDate.substring(0, 2);
+                    /*day = formatDate.substring(0, 2);
                     month = formatDate.substring(2, 4);
                     year = (Calendar.getInstance().get(Calendar.YEAR) + "").substring(0, 2) + formatDate.substring(length - 2);
-                    Date date = formatter.parse(day + "-" + month + "-" + year);
+                    Date date = formatter.parse(day + "-" + month + "-" + year);*/
+                    Date date = formatter.parse(formatDate);
                     timer = date.toInstant().getEpochSecond();
                     lastTimer = Math.max(timer, lastTimer);
-                    days.add(day);
+                    //days.add(Calendar.getInstance().gt);
                 } catch (Exception e) {
                     logRepository.save(Log.error("Erreur lors de la détermination de la date des fichiers téléversés", ExceptionUtils.getStackTrace(e)));
                 }
