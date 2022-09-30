@@ -27,6 +27,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -50,7 +51,7 @@ public class UploadController {
     }
 
     @PostMapping(value = "files")
-    public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam(required = false, defaultValue = "") String institution, @RequestParam(required = false, defaultValue = "") String destination, RedirectAttributes attributes){
+    public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam(required = false, defaultValue = "") String institution, @RequestParam(required = false, defaultValue = "") String destination, RedirectAttributes attributes, Principal principal){
         List<Setting> settings = settingRepository.findAll();
         String SYS_ALERT_MAIL = settings.stream().filter(setting -> "sys.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
         String CBC_ALERT_MAIL = settings.stream().filter(setting -> "cbc.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
@@ -202,6 +203,7 @@ public class UploadController {
             } catch (MessagingException e) {
                 logRepository.save(Log.error("Erreur lors de l'envoie du mail de notification", ExceptionUtils.getStackTrace(e)));
             }
+            logRepository.save(Log.info("Des fichiers <b>" + operator + "</b> ont été déposés par <b>" + principal.getName() + "</b>"));
         }
         return "redirect:/home";
     }

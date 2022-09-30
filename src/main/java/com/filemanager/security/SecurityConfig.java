@@ -3,6 +3,7 @@ package com.filemanager.security;
 import com.filemanager.enums.Role;
 import com.filemanager.models.User;
 import com.filemanager.repositories.UserRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -121,7 +122,7 @@ public class SecurityConfig {
         }
 
         public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-            String username = authentication.getName();
+            String username = StringUtils.lowerCase(authentication.getName());
             String password = (String) authentication.getCredentials();
             User user = new User();
             if(SecurityConfig.ADMIN_USERNAME.equals(username)){
