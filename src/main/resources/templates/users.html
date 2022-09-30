@@ -91,7 +91,7 @@
                                         <th><button class="table-sort" data-sort="sort-role">Roles</button></th>
                                         <th><button class="table-sort" data-sort="sort-status">Statut</button></th>
                                         <th><button class="table-sort" data-sort="sort-login">Dernière connexion</button></th>
-                                        <th></th>
+                                        <th class="fit-cell-content"></th>
                                     </tr>
                                     </thead>
                                     <tbody class="table-tbody">
@@ -114,7 +114,7 @@
                                             <span class="badge bg-danger me-1"></span> Désactivé
                                         </td>
                                         <td class="sort-login" th:text="${#calendars.format(user.lastLogin, 'dd-MM-yyyy  HH:mm')}"></td>
-                                        <td class="inline-actions">
+                                        <td class="inline-actions fit-cell-content">
                                             <div class="dropdown">
                                                 <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
                                                     <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
