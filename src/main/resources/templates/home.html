@@ -148,7 +148,7 @@
                               <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" class="sort-permission" th:text="${item.permissions}"></td>
                               <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" class="sort-owner" th:text="${item.owner}"></td>
                               <td class="inline-actions fit-cell-content" th:if="${session?.action == null && session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET')}">
-                                <div class="dropdown" th:if="${session?.user?.hasRole('ROLE_ADMIN') && !isHome}">
+                                <div class="dropdown" th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE') && !isHome}">
                                   <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
                                     <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg>
                                   </a>
@@ -170,14 +170,14 @@
                                         <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" /><line x1="13.5" y1="6.5" x2="17.5" y2="10.5" /></svg>
                                         <span class="ml-2">Renommer</span>
                                       </a>
-                                      <a class="dropdown-item mw-0 text-danger" th:data-file-path="${item.absolutePath}" th:data-file-type="${item.file.directory}" href="#" onclick="deleteFile(this.getAttribute('data-file-path'), this.getAttribute('data-file-type'))">
-                                        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
-                                        <span class="ml-2">Supprimer</span>
-                                      </a>
                                     </th:block>
+                                    <a class="dropdown-item mw-0 text-danger" th:data-file-path="${item.absolutePath}" th:data-file-type="${item.file.directory}" href="#" onclick="deleteFile(this.getAttribute('data-file-path'), this.getAttribute('data-file-type'))">
+                                      <svg class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="4" y1="7" x2="20" y2="7" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                                      <span class="ml-2">Supprimer</span>
+                                    </a>
                                   </div>
                                 </div>
-                                <a th:unless="${session?.user?.hasRole('ROLE_ADMIN') && !isHome}" class="link-secondary show" title="Télécharger" th:data-download-url="${item.file.directory ? '/download/folder': '/download/file'}" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile([this.getAttribute('data-file-path')], this.getAttribute('data-download-url'))">
+                                <a th:unless="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE') && !isHome}" class="link-secondary show" title="Télécharger" th:data-download-url="${item.file.directory ? '/download/folder': '/download/file'}" th:data-file-path="${item.absolutePath}" href="#" onclick="downloadFile([this.getAttribute('data-file-path')], this.getAttribute('data-download-url'))">
                                   <svg class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><polyline points="7 11 12 16 17 11" /><line x1="12" y1="4" x2="12" y2="16" /></svg>
                                 </a>
                               </td>

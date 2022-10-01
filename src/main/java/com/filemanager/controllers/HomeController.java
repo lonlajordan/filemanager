@@ -245,9 +245,7 @@ public class HomeController {
             directory = this.ROOT_WORKING_DIRECTORY;
             User user = (User) session.getAttribute("user");
             if(user != null){
-                if(user.hasRole(Role.ROLE_GIE.name())){
-                    directory += File.separator + "GIEGCB";
-                }else if(Institution.CBC.equals(user.getInstitution())){
+                if(Institution.CBC.equals(user.getInstitution())){
                     directory += File.separator + "CBC";
                 }else if(Institution.CBT.equals(user.getInstitution())){
                     directory += File.separator + "CBT";

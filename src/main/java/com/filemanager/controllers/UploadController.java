@@ -63,6 +63,8 @@ public class UploadController {
         Set<String> days = new HashSet<>();
         List<String> months = Arrays.asList("JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE");
         List<String> shortMonths = Arrays.asList("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC");
+        Set<Date> visaDates = new HashSet<>();
+        Set<Date> gimacDates = new HashSet<>();
         for(MultipartFile file: files){
             if(StringUtils.isEmpty(institution)) break;
             name = StringUtils.defaultString(file.getOriginalFilename()).toUpperCase();
@@ -89,9 +91,14 @@ public class UploadController {
                     year = (Calendar.getInstance().get(Calendar.YEAR) + "").substring(0, 2) + formatDate.substring(length - 2);
                     Date date = formatter.parse(day + "-" + month + "-" + year);*/
                     Date date = formatter.parse(formatDate);
+                    visaDates.add(date);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(date);
                     timer = date.toInstant().getEpochSecond();
                     lastTimer = Math.max(timer, lastTimer);
-                    //days.add(Calendar.getInstance().gt);
+                    day = calendar.get(Calendar.DAY_OF_MONTH) + "";
+                    if(day.length() < 2) day = "0" + day;
+                    days.add(day);
                 } catch (Exception e) {
                     logRepository.save(Log.error("Erreur lors de la détermination de la date des fichiers téléversés", ExceptionUtils.getStackTrace(e)));
                 }
@@ -102,6 +109,7 @@ public class UploadController {
                     month = formatDate.substring(length - 4, length - 2);
                     year = (Calendar.getInstance().get(Calendar.YEAR) + "").substring(0, 2) + formatDate.substring(length - 6, length - 4);
                     Date date = formatter.parse(day + "-" + month + "-" + year);
+                    gimacDates.add(date);
                     timer = date.toInstant().getEpochSecond();
                     lastTimer = Math.max(timer, lastTimer);
                     days.add(day);

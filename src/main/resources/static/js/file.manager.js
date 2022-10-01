@@ -39,7 +39,7 @@ function deleteItem(id, url){
 }
 
 function deleteFile(path, isDirectory){
-    $("#delete-message").text("Voulez-vous vraiment supprimer ce " + (isDirectory ? "dossier" :  "fichier") + " ?");
+    $("#delete-message").text("Voulez-vous vraiment supprimer ce " + (isDirectory == 'true' ? "dossier" :  "fichier") + " ?");
     let container = document.getElementById("delete-objects");
     container.innerHTML = '';
     let input = document.createElement("input");

@@ -133,7 +133,7 @@ public class SecurityConfig {
             }else{
                 user = userRepository.findByUsername(username);
 
-                if (user == null || !user.getUsername().equalsIgnoreCase(username)) {
+               /* if (user == null || !user.getUsername().equalsIgnoreCase(username)) {
                     throw new BadCredentialsException("incorrect.username");
                 }
 
@@ -155,7 +155,7 @@ public class SecurityConfig {
                 } catch (NamingException e) {
                     String error = e.getExplanation() == null ? "" : e.toString().toLowerCase();
                     throw new BadCredentialsException(error.contains("connection refused") ? "connection.refused" : "incorrect.password");
-                }
+                }*/
 
                 if(!user.isEnabled()) throw new BadCredentialsException("account.disabled");
                 user.setLastLogin(new Date());
