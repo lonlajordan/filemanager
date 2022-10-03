@@ -89,7 +89,7 @@ public class SecurityConfig {
                 .invalidSessionUrl("/")
                 .and()
             .exceptionHandling()
-                .accessDeniedPage("/error")
+                .accessDeniedPage("/error/403")
                 .and()
             .formLogin()
                 .loginPage("/")
@@ -106,7 +106,8 @@ public class SecurityConfig {
                 .and()
             .authorizeRequests()
                 .antMatchers("/", "/css/**", "/js/**", "/images/**", "/fonts/**").permitAll()
-                .antMatchers("/user/**", "/log/**", "/setting/**", "/create", "/rename", "/delete/**", "/move/**", "/paste/**").hasAuthority("ROLE_ADMIN")
+                .antMatchers("/user/**", "/log/**", "/setting/**", "/create", "/move/**", "/paste/**").hasAuthority("ROLE_ADMIN")
+                .antMatchers("/delete/**", "/rename").hasAnyAuthority("ROLE_ADMIN", "ROLE_GIE")
                 .antMatchers("/upload/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_GIE", "ROLE_BANK_INFO")
                 .antMatchers("/download/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_GIE", "ROLE_BANK_MONET")
                 .anyRequest().authenticated();
