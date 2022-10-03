@@ -4,8 +4,6 @@ import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.repositories.LogRepository;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +21,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,7 +32,6 @@ public class LogController {
     private EntityManager em;
 
     private final LogRepository logRepository;
-    private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     public LogController(LogRepository logRepository) {
         this.logRepository = logRepository;
@@ -60,12 +56,11 @@ public class LogController {
     }
 
     @PostMapping(value="delete")
-    public String deleteLogs(@RequestParam Long[] ids, RedirectAttributes attributes){
+    public String deleteLogs(@RequestParam ArrayList<Long> ids, RedirectAttributes attributes){
         try {
-            logRepository.deleteAllById(Arrays.asList(ids));
+            logRepository.deleteAllById(ids);
             attributes.addFlashAttribute("notification", new Notification("success", "Opération terminée avec succès."));
         }catch (Exception e){
-            logger.error("error while deleting logs", e);
             attributes.addFlashAttribute("notification", new Notification("error", "Une erreur est survenue lors de cette opération."));
         }
         return "redirect:/log/list";
