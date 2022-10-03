@@ -3,7 +3,6 @@ package com.filemanager.controllers;
 import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.models.Setting;
-import com.filemanager.models.User;
 import com.filemanager.repositories.LogRepository;
 import com.filemanager.repositories.SettingRepository;
 import com.filemanager.services.EmailHelper;
@@ -18,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.mail.MessagingException;
-import javax.servlet.http.HttpSession;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,9 +27,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,13 +53,12 @@ public class UploadController {
         String CBT_ALERT_MAIL = settings.stream().filter(setting -> "cbt.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
         String GIE_ALERT_MAIL = settings.stream().filter(setting -> "gie.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
         int length, index;
-        long timer, lastTimer = 0;
-        String name, operator = "", day = "", month, year = "";
-        Set<String> days = new HashSet<>();
+        boolean error = false, completion  = false;
+        String name, operator = "", details = "";
         List<String> months = Arrays.asList("JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE");
         List<String> shortMonths = Arrays.asList("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC");
-        Set<Date> visaDates = new HashSet<>();
-        Set<Date> gimacDates = new HashSet<>();
+        List<Date> dates = new ArrayList<>();
+        SimpleDateFormat formatter;
         for(MultipartFile file: files){
             if(StringUtils.isEmpty(institution)) break;
             name = StringUtils.defaultString(file.getOriginalFilename()).toUpperCase();
@@ -73,12 +67,16 @@ public class UploadController {
             if(index > 0 && name.substring(index).matches(".*[a-zA-Z].*")) name = name.substring(0, index);
             String[] blocks = name.split("\\.")[0].split("[-_]");
             String formatDate = blocks[blocks.length - 1];
-            length = formatDate.length();
-            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
             for(int i = 1; i <= shortMonths.size(); i++){
                 formatDate = formatDate.replaceAll(shortMonths.get(i-1), (i < 10 ? "0" : "") + i);
             }
+            length = formatDate.length();
             if(name.toLowerCase().contains("ep745") || name.toLowerCase().contains("compen") || name.toLowerCase().contains("incom") || name.toLowerCase().contains("vss") || name.toLowerCase().contains("vis")){
+                if(!operator.isEmpty() && !operator.equals("VISA")){
+                    error = true;
+                    details = "Impossible de téléverser simultanément les fichiers <b>" + operator + "</b> et <b>VISA</b>.";
+                    break;
+                }
                 if(formatDate.length() == 8){
                     formatter = new SimpleDateFormat("ddMMyyyy");
                 }else{
@@ -86,70 +84,122 @@ public class UploadController {
                     formatDate = formatDate.substring(Math.max(0, length - 6));
                 }
                 try {
-                    /*day = formatDate.substring(0, 2);
-                    month = formatDate.substring(2, 4);
-                    year = (Calendar.getInstance().get(Calendar.YEAR) + "").substring(0, 2) + formatDate.substring(length - 2);
-                    Date date = formatter.parse(day + "-" + month + "-" + year);*/
                     Date date = formatter.parse(formatDate);
-                    visaDates.add(date);
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(date);
-                    timer = date.toInstant().getEpochSecond();
-                    lastTimer = Math.max(timer, lastTimer);
-                    day = calendar.get(Calendar.DAY_OF_MONTH) + "";
-                    if(day.length() < 2) day = "0" + day;
-                    days.add(day);
+                    Calendar calendar1 = Calendar.getInstance();
+                    calendar1.setTime(date);
+                    if(!dates.isEmpty()){
+                        Calendar calendar2 = Calendar.getInstance();
+                        calendar2.setTime(dates.get(0));
+                        int year1 = calendar1.get(Calendar.YEAR);
+                        int year2 = calendar2.get(Calendar.YEAR);
+                        int month1 = calendar1.get(Calendar.MONTH);
+                        int month2 = calendar2.get(Calendar.MONTH);
+                        if(year1 != year2){
+                            error = true;
+                            details = "Impossible de téléverser simultanément les fichiers VISA de <b>" + Math.min(year1, year2) + "</b> et <b>" + Math.max(year1, year2) + "</b>.";
+                            break;
+                        }else if(month1 != month2){
+                            error = true;
+                            details = "Impossible de téléverser simultanément les fichiers VISA de <b>" + months.get(Math.min(month1, month2)) + "</b> et <b>" + months.get(Math.max(month1, month2)) + "</b>.";
+                            break;
+                        }
+                    }
+                    dates.add(date);
                 } catch (Exception e) {
                     logRepository.save(Log.error("Erreur lors de la détermination de la date des fichiers téléversés", ExceptionUtils.getStackTrace(e)));
                 }
                 operator = "VISA";
             }else if(name.matches("(CBT|CBC)?[0-9]+")){
+                if(!operator.isEmpty() && !operator.equals("GIMAC")){
+                    error = true;
+                    details = "Impossible de téléverser simultanément les fichiers <b>" + operator + "</b> et <b>GIMAC</b>.";
+                    break;
+                }
                 try {
-                    day = formatDate.substring(length - 2);
-                    month = formatDate.substring(length - 4, length - 2);
-                    year = (Calendar.getInstance().get(Calendar.YEAR) + "").substring(0, 2) + formatDate.substring(length - 6, length - 4);
-                    Date date = formatter.parse(day + "-" + month + "-" + year);
-                    gimacDates.add(date);
-                    timer = date.toInstant().getEpochSecond();
-                    lastTimer = Math.max(timer, lastTimer);
-                    days.add(day);
+                    formatter = new SimpleDateFormat("yyyyMMdd");
+                    Date date = formatter.parse((Calendar.getInstance().get(Calendar.YEAR) + "").substring(0, 2) + formatDate.substring(length - 6));
+                    Calendar calendar1 = Calendar.getInstance();
+                    calendar1.setTime(date);
+                    if(!dates.isEmpty()){
+                        Calendar calendar2 = Calendar.getInstance();
+                        calendar2.setTime(dates.get(0));
+                        int year1 = calendar1.get(Calendar.YEAR);
+                        int year2 = calendar2.get(Calendar.YEAR);
+                        int month1 = calendar1.get(Calendar.MONTH);
+                        int month2 = calendar2.get(Calendar.MONTH);
+                        if(year1 != year2){
+                            error = true;
+                            details = "Impossible de téléverser simultanément les fichiers GIMAC de <b>" + Math.min(year1, year2) + "</b> et <b>" + Math.max(year1, year2) + "</b>.";
+                            break;
+                        }else if(month1 != month2){
+                            error = true;
+                            details = "Impossible de téléverser simultanément les fichiers GIMAC de <b>" + months.get(Math.min(month1, month2)) + "</b> et <b>" + months.get(Math.max(month1, month2)) + "</b>.";
+                            break;
+                        }
+                    }
+                    dates.add(date);
                 } catch (Exception e) {
                     logRepository.save(Log.error("Erreur lors de la détermination de la date des fichiers téléversés", ExceptionUtils.getStackTrace(e)));
                 }
                 operator = "GIMAC";
             }else if(name.toLowerCase().contains("application")){
                 operator = "APPLICATION";
-                day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH) + "";
-                if(day.length() < 2) day = "0" + day;
-                days.add(day);
-                lastTimer = Instant.now().getEpochSecond();
+                dates.add(new Date());
                 break;
             }
         }
-        operator = StringUtils.defaultString(operator, "GIMAC");
-        List<String> dayList = new ArrayList<>(days);
-        Collections.sort(dayList);
+        if(StringUtils.isEmpty(operator) && StringUtils.isEmpty(destination)){
+            error = true;
+            details = "Seuls les fichiers <b>GIMAC</b>, <b>VISA</b> et <b>APPLICATION</b> sont autorisés.";
+        }
+        if(error){
+            attributes.addFlashAttribute("notification", new Notification("error", details));
+            return "redirect:/home";
+        }
+        Collections.sort(dates);
+        Set<String> days = dates.stream().map(date -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            return (calendar.get(Calendar.DAY_OF_MONTH) < 10 ? "0" : "") + calendar.get(Calendar.DAY_OF_MONTH);
+        }).collect(Collectors.toSet());
         String root = ROOT_WORKING_DIRECTORY + File.separator + "CBC";
         if("CBC".equalsIgnoreCase(institution)){
             root = ROOT_WORKING_DIRECTORY + File.separator + "CBC";
         }else if("CBT".equalsIgnoreCase(institution)){
             root = ROOT_WORKING_DIRECTORY + File.separator + "CBT";
         }
-        LocalDate date = Instant.ofEpochSecond(lastTimer).atZone(ZoneId.systemDefault()).toLocalDate();
-        Path path = Paths.get(root, operator, date.getYear() + "", months.get(date.getMonthValue() - 1), String.join("-", dayList));
-        if("APPLICATION".equalsIgnoreCase(operator)){
-            root = ROOT_WORKING_DIRECTORY + File.separator + "GIEGCB";
-            path = Paths.get(root);
-        }else if(StringUtils.isEmpty(institution)){
+        Calendar calendar = Calendar.getInstance();
+        if(!dates.isEmpty()) calendar.setTime(dates.get(0));
+        Path path = Paths.get(root, operator, calendar.get(Calendar.YEAR) + "", months.get(calendar.get(Calendar.MONTH)), String.join("-", days));
+        if(StringUtils.isEmpty(institution)){
             try {
                 path = Paths.get(URLDecoder.decode(destination, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
                 attributes.addAttribute("p", path.toAbsolutePath().toString());
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                logRepository.save(Log.error("Erreur lors de l'accès au répertoire des fichiers téléversés", ExceptionUtils.getStackTrace(e)));
             }
+        }else if("APPLICATION".equalsIgnoreCase(operator)){
+            root = ROOT_WORKING_DIRECTORY + File.separator + "GIEGCB";
+            path = Paths.get(root);
         }
         File folder = new File(path.toUri());
-        if (!folder.exists() && !folder.mkdirs()) throw new SecurityException("Erreur lors de la création du dossier de sauvegarde des fichiers.");
+        if(folder.exists()){
+            completion = true;
+        }else{
+            File parent = folder.getParentFile();
+            if(parent.exists()){
+                for(File file: parent.listFiles()){
+                    if(file.isDirectory() && file.getName().toLowerCase().contains(folder.getName())){
+                        completion = true;
+                        folder = file;
+                        break;
+                    }
+                }
+                if(!completion && !folder.mkdirs()) throw new SecurityException("Erreur lors de la création du dossier de sauvegarde des fichiers.");
+            }else{
+                if(!folder.mkdirs()) throw new SecurityException("Erreur lors de la création du dossier de sauvegarde des fichiers.");
+            }
+        }
         List<String> fileNames = new ArrayList<>();
         int count = 0;
         for(MultipartFile file: files){
@@ -185,7 +235,7 @@ public class UploadController {
             subject = "Rapports GIMAC disponibles";
             body = "-----------------------------------------------------------------------------------------<br><br>" +
                    "Bonjour,<br><br>" +
-                   "Les rapports GIMAC du " + String.join("-", dayList) + " " + months.get(date.getMonthValue() - 1) + " " + year + " sont actuellement disponibles.<br><br>" +
+                   (completion ? "Les fichiers manquants des rapports GIMAC du " : "Les rapports GIMAC du ") + String.join("-", days) + " " + months.get(calendar.get(Calendar.MONTH)) + " " + calendar.get(Calendar.YEAR) + " sont actuellement disponibles.<br><br>" +
                    "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
                    "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
                    "-----------------------------------------------------------------------------------------";
@@ -195,7 +245,7 @@ public class UploadController {
             subject = "Rapports VISA disponibles";
             body = "-----------------------------------------------------------------------------------------<br><br>" +
                    "Bonjour,<br><br>" +
-                   "Les fichiers VIS du " + String.join("-", dayList) + " " + months.get(date.getMonthValue() - 1) + " " + year + " sont actuellement disponibles.<br><br>" +
+                   (completion ? "Les fichiers manquants des rapports VISA du " : "Les fichiers VIS du ") + String.join("-", days) + " " + months.get(calendar.get(Calendar.MONTH)) + " " + calendar.get(Calendar.YEAR) + " sont actuellement disponibles.<br><br>" +
                    "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
                    "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
                    "-----------------------------------------------------------------------------------------";
