@@ -1,5 +1,6 @@
 package com.filemanager.controllers;
 
+import com.filemanager.enums.Level;
 import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.repositories.LogRepository;
@@ -77,7 +78,7 @@ public class LogController {
         Root<Log> log = cq.from(Log.class);
         List<Predicate> predicates = new ArrayList<>();
         if(StringUtils.isNotEmpty(message)) predicates.add(cb.like(log.get("message"), "%" + message + "%"));
-        if(StringUtils.isNotEmpty(level)) predicates.add(cb.equal(log.get("level"), level));
+        if(StringUtils.isNotEmpty(level)) predicates.add(cb.equal(log.get("level"), Level.valueOf(level)));
         if(start.toInstant().getEpochSecond() > 0) predicates.add(cb.greaterThanOrEqualTo(log.get("date"), start));
         if(end.toInstant().getEpochSecond() > 0) predicates.add(cb.lessThanOrEqualTo(log.get("date"), end));
         cq.where(predicates.toArray(new Predicate[0]));
