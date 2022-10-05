@@ -1,8 +1,10 @@
 package com.filemanager.controllers;
 
+import com.filemanager.enums.Institution;
 import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.models.Setting;
+import com.filemanager.models.User;
 import com.filemanager.repositories.LogRepository;
 import com.filemanager.repositories.SettingRepository;
 import com.filemanager.services.EmailHelper;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpSession;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,7 +49,7 @@ public class UploadController {
     }
 
     @PostMapping(value = "files")
-    public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam(required = false, defaultValue = "") String institution, @RequestParam(required = false, defaultValue = "") String destination, RedirectAttributes attributes, Principal principal){
+    public String uploadFiles(@RequestParam MultipartFile[] files, @RequestParam(required = false, defaultValue = "") String institution, @RequestParam(required = false, defaultValue = "") String destination, RedirectAttributes attributes, Principal principal, HttpSession session){
         List<Setting> settings = settingRepository.findAll();
         String SYS_ALERT_MAIL = settings.stream().filter(setting -> "sys.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
         String CBC_ALERT_MAIL = settings.stream().filter(setting -> "cbc.alert.mail".equals(setting.getId())).findFirst().orElse(new Setting()).getValue();
@@ -250,8 +253,9 @@ public class UploadController {
                    "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
                    "-----------------------------------------------------------------------------------------";
         }else if("APPLICATION".equalsIgnoreCase(operator)){
+            User user = (User) session.getAttribute("user");
             to = GIE_ALERT_MAIL;
-            cc = "CBC".equalsIgnoreCase(institution) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
+            cc = Institution.CBC.equals(user.getInstitution()) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
             subject = "Intégration des fichiers applications";
             body = "-----------------------------------------------------------------------------------------<br><br>" +
                    "Bonjour,<br><br>";
