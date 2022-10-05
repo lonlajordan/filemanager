@@ -239,7 +239,7 @@ public class UploadController {
             body = "-----------------------------------------------------------------------------------------<br><br>" +
                    "Bonjour,<br><br>" +
                    (completion ? "Les fichiers manquants des rapports GIMAC du " : "Les rapports GIMAC du ") + String.join("-", days) + " " + months.get(calendar.get(Calendar.MONTH)) + " " + calendar.get(Calendar.YEAR) + " sont actuellement disponibles.<br><br>" +
-                   "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
+                   "<b>Email envoyé automatiquement depuis FILE MANAGER</b><br><br>" +
                    "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
                    "-----------------------------------------------------------------------------------------";
         }else if("VISA".equalsIgnoreCase(operator)){
@@ -249,7 +249,7 @@ public class UploadController {
             body = "-----------------------------------------------------------------------------------------<br><br>" +
                    "Bonjour,<br><br>" +
                    (completion ? "Les fichiers manquants des rapports VISA du " : "Les fichiers VIS du ") + String.join("-", days) + " " + months.get(calendar.get(Calendar.MONTH)) + " " + calendar.get(Calendar.YEAR) + " sont actuellement disponibles.<br><br>" +
-                   "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
+                   "<b>Email envoyé automatiquement depuis FILE MANAGER</b><br><br>" +
                    "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
                    "-----------------------------------------------------------------------------------------";
         }else if("APPLICATION".equalsIgnoreCase(operator)){
@@ -267,7 +267,7 @@ public class UploadController {
                         fileNames.stream().map(n -> "<li><b>" + n + "</b></li>").collect(Collectors.joining("\n")) +
                         "</ul>";
             }
-            body += "<b>Email envoyé automatiquement depuis le serveur SFTP GIMAC / VISA</b><br><br>" +
+            body += "<b>Email envoyé automatiquement depuis FILE MANAGER</b><br><br>" +
                     "<i>L'Equipe Support Monétique " + institution + "</i><br><br>" +
                     "-----------------------------------------------------------------------------------------";
         }
