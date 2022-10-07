@@ -61,6 +61,7 @@ public class UploadController {
         List<String> months = Arrays.asList("JANVIER", "FEVRIER", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPTEMBRE", "OCTOBRE", "NOVEMBRE", "DECEMBRE");
         List<String> shortMonths = Arrays.asList("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC");
         List<Date> dates = new ArrayList<>();
+        User user = (User) session.getAttribute("user");
         SimpleDateFormat formatter;
         for(MultipartFile file: files){
             if(StringUtils.isEmpty(institution)) break;
@@ -183,7 +184,7 @@ public class UploadController {
             }
         }else if("APPLICATION".equalsIgnoreCase(operator)){
             root = ROOT_WORKING_DIRECTORY + File.separator + "GIEGCB";
-            path = Paths.get(root);
+            path = Paths.get(root, user.getInstitution().name());
         }
         File folder = new File(path.toUri());
         if(folder.exists()){
@@ -253,7 +254,6 @@ public class UploadController {
                    "<i>L'Equipe Support Monétique GIE GCB</i><br><br>" +
                    "-----------------------------------------------------------------------------------------";
         }else if("APPLICATION".equalsIgnoreCase(operator)){
-            User user = (User) session.getAttribute("user");
             to = GIE_ALERT_MAIL;
             cc = Institution.CBC.equals(user.getInstitution()) ? CBC_ALERT_MAIL : CBT_ALERT_MAIL;
             subject = "Intégration des fichiers applications";

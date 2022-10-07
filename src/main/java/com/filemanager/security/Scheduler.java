@@ -1,5 +1,6 @@
 package com.filemanager.security;
 
+import com.filemanager.enums.Institution;
 import com.filemanager.enums.Level;
 import com.filemanager.repositories.LogRepository;
 import org.slf4j.Logger;
@@ -32,13 +33,19 @@ public class Scheduler {
         File folder = new File(ROOT_WORKING_DIRECTORY + File.separator + "GIEGCB");
         File archive = folder.toPath().resolve("ARCHIVE").toFile();
         if(!archive.exists()) archive.mkdirs();
-        for(File file: folder.listFiles()){
-            if(!file.isHidden() && !file.isDirectory()){
-                if(logRepository.countAllByMessageContaining(file.toPath().toString()) > 0){
-                    try {
-                        Files.move(file.toPath(), archive.toPath().resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
-                    }catch (Exception e){
-                        logger.error("error while moving file", e);
+        for(Institution institution: Institution.values()){
+            if(institution.equals(Institution.GIE)) continue;
+            File repository = folder.toPath().resolve(institution.name()).toFile();
+            if(repository.exists()){
+                for(File file: repository.listFiles()){
+                    if(!file.isHidden() && !file.isDirectory()){
+                        if(logRepository.countAllByMessageContaining(file.toPath().toString()) > 0){
+                            try {
+                                Files.move(file.toPath(), archive.toPath().resolve(institution.name()).resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
+                            }catch (Exception e){
+                                logger.error("error while moving file", e);
+                            }
+                        }
                     }
                 }
             }

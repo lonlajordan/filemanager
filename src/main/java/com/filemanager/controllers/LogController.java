@@ -4,6 +4,7 @@ import com.filemanager.enums.Level;
 import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.repositories.LogRepository;
+import com.filemanager.utils.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -79,8 +80,8 @@ public class LogController {
         List<Predicate> predicates = new ArrayList<>();
         if(StringUtils.isNotEmpty(message)) predicates.add(cb.like(log.get("message"), "%" + message + "%"));
         if(StringUtils.isNotEmpty(level)) predicates.add(cb.equal(log.get("level"), Level.valueOf(level)));
-        if(start.toInstant().getEpochSecond() > 0) predicates.add(cb.greaterThanOrEqualTo(log.get("date"), start));
-        if(end.toInstant().getEpochSecond() > 0) predicates.add(cb.lessThanOrEqualTo(log.get("date"), end));
+        if(start.toInstant().getEpochSecond() > 0) predicates.add(cb.greaterThanOrEqualTo(log.get("date"), DateUtils.atStartOfDay(start)));
+        if(end.toInstant().getEpochSecond() > 0) predicates.add(cb.lessThanOrEqualTo(log.get("date"), DateUtils.atEndOfDay(end)));
         cq.where(predicates.toArray(new Predicate[0]));
         TypedQuery<Log> query = em.createQuery(cq).setMaxResults(1000);
         List<Log> logs = query.getResultList();
