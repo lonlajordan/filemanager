@@ -41,7 +41,7 @@ public class LogController {
 
     @GetMapping(value="list")
     public String getAll(@RequestParam(required = false, defaultValue = "1") int p, Model model){
-        Pageable pageable = PageRequest.of(p  - 1, 50);
+        Pageable pageable = PageRequest.of(p  - 1, 100);
         Page<Log> logs = logRepository.findAllByOrderByDateDesc(pageable);
         model.addAttribute("logs", logs.get().collect(Collectors.toList()));
         model.addAttribute("totalPages", logs.getTotalPages());

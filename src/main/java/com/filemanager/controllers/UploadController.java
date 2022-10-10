@@ -114,6 +114,10 @@ public class UploadController {
                 }
                 operator = "VISA";
             }else if(name.matches("(CBT|CBC)?[0-9]+")){
+                /*------ Rectify institution if the user makes a mistake while submitting upload form --------*/
+                if(name.startsWith("CBC")) institution = "CBC";
+                if(name.startsWith("CBT")) institution = "CBT";
+                /*--------------------------------------------------------------------------------------------*/
                 if(!operator.isEmpty() && !operator.equals("GIMAC")){
                     error = true;
                     details = "Impossible de téléverser simultanément les fichiers <b>" + operator + "</b> et <b>GIMAC</b>.";
