@@ -1,4 +1,5 @@
 let $ = jQuery;
+let table;
 let ctx = $("meta[name='ctx']").attr("content");
 let options = {
     background: 'rgba(255, 255, 255, 0.75)'
@@ -14,15 +15,40 @@ function changeInstitution(event) {
 }
 
 function selectItems(checkBox){
-    $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = checkBox.checked; })
+    $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = checkBox.checked;});
+    if(checkBox.checked){
+        table.rows().select();
+    }else{
+        table.rows().deselect();
+    }
+
 }
 
 function reverseSelection(){
     $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = !this.checked; })
+    let rows = table.rows({selected : true})[0];
+    table.rows().select();
+    table.rows(rows).deselect();
 }
 
 function selectItem(checkBox){
-    if(!checkBox.checked) $("#js-select-all-items").prop( "checked", false);
+    setTimeout(()=> {
+        let count = table.rows( { selected: true } ).count();
+        if(count === 0){
+            $("#js-select-all-items").prop( "indeterminate", false);
+            $("#js-select-all-items").prop( "checked", false);
+        }else{
+            let length = table.rows().count();
+            if(count < length){
+                $("#js-select-all-items").prop( "indeterminate", true);
+                $("#js-select-all-items").prop( "checked", false);
+            }else{
+                $("#js-select-all-items").prop( "indeterminate", false);
+                $("#js-select-all-items").prop( "checked", true);
+            }
+
+        }
+    }, 200);
 }
 
 function deleteItem(id, url){
@@ -248,7 +274,7 @@ function fetch(url){
 $(document).ready( function () {
     initPagination();
     let list = $('#main-table');
-    let table = list.DataTable({
+    table = list.DataTable({
         dom: 'Bfrtip',
         aaSorting: [],
         pageLength: 50,
@@ -261,7 +287,11 @@ $(document).ready( function () {
         columnDefs:  [
             list.hasClass("include-last-sort") ? {} : {orderable: false, targets: -1},
             list.hasClass("exclude-first-sort") ? {orderable: false, targets: 0} : {},
-        ]
+        ],
+        select: {
+            style: 'multi',
+            selector: 'td:first-child input:checkbox'
+        },
     });
     $('#search-addon').on('keyup', function () {
         table.search(this.value).draw();
