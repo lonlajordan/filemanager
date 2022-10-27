@@ -247,7 +247,22 @@ function fetch(url){
 
 $(document).ready( function () {
     initPagination();
-    let table = $('#main-table').DataTable({"paging": false, info: false});
+    let list = $('#main-table');
+    let table = list.DataTable({
+        dom: 'Bfrtip',
+        aaSorting: [],
+        pageLength: 50,
+        responsive: true,
+        paging: list.hasClass("paging"),
+        searching: list.hasClass("searching"),
+        orderCellsTop: true,
+        fixedHeader: true,
+        info: !list.hasClass("no-info"),
+        columnDefs:  [
+            list.hasClass("include-last-sort") ? {} : {orderable: false, targets: -1},
+            list.hasClass("exclude-first-sort") ? {orderable: false, targets: 0} : {},
+        ]
+    });
     $('#search-addon').on('keyup', function () {
         table.search(this.value).draw();
     });

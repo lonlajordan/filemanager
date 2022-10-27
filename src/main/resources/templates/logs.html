@@ -14,6 +14,7 @@
     <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/dropzone.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/pagination.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
     <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
 </head>
 <body>
@@ -85,14 +86,14 @@
                     <div class="col-12 mt-1">
                         <div class="card">
                             <div id="table-default">
-                                <table class="table card-table table-vcenter text-nowrap datatable" id="main-table">
+                                <table class="table card-table table-vcenter text-nowrap datatable paging exclude-first-sort" id="main-table">
                                     <thead>
                                     <tr>
                                         <th th:if="${session?.action == null}" class="w-1">
                                             <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices" id="js-select-all-items" onclick="selectItems(this)">
                                         </th>
-                                        <th><button class="table-sort" data-sort="sort-date">Date</button></th>
-                                        <th><button class="table-sort" data-sort="sort-level">Type</button></th>
+                                        <th>Date</th>
+                                        <th>Type</th>
                                         <th>Message</th>
                                         <th></th>
                                     </tr>
@@ -128,7 +129,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div th:if="${totalPages > 1}" class="card-footer d-flex align-items-center">
+                            <div th:if="${totalPages > 1}" class="card-footer py-2 d-flex align-items-center">
                                 <div id="pagination" th:title="${totalPages}" th:aria-placeholder="${currentPage}" aria-label="log/list"></div>
                             </div>
                         </div>
@@ -230,7 +231,6 @@
         </div>
     </div>
 </div>
-<script th:src="@{/js/list.min.js}"></script>
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/tabler.min.js}"></script>
 <script th:src="@{/js/demo.min.js}"></script>
@@ -250,15 +250,6 @@
         fixed: true,
         timeout: 3000,
     });
-</script>
-<script th:if="${!#lists.isEmpty(logs)}">
-    document.addEventListener("DOMContentLoaded", function() {
-        new List('table-default', {
-            sortClass: 'table-sort',
-            listClass: 'table-tbody',
-            valueNames: [ 'sort-date', 'sort-level']
-        });
-    })
 </script>
 </body>
 </html>

@@ -13,6 +13,7 @@
     <link th:href="@{/css/demo.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/dropzone.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
     <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
   </head>
   <body>
@@ -118,17 +119,17 @@
                 <div class="col-12 mt-1">
                   <div class="card">
                     <div id="table-default">
-                      <table class="table card-table table-vcenter text-nowrap datatable" id="main-table">
+                      <table class="table card-table table-vcenter text-nowrap datatable exclude-first-sort no-info" id="main-table">
                         <thead>
                           <tr>
                               <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" class="w-1">
                                 <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices" id="js-select-all-items" onclick="selectItems(this)">
                               </th>
-                              <th><button class="table-sort" data-sort="sort-name">Nom</button></th>
-                              <th><button class="table-sort" data-sort="sort-height">Taille</button></th>
-                              <th><button class="table-sort" data-sort="sort-modified">Modifié le</button></th>
-                              <th th:if="${session?.user?.hasRole('ROLE_ADMIN')}"><button class="table-sort" data-sort="sort-permission">Permissions</button></th>
-                              <th th:if="${session?.user?.hasRole('ROLE_ADMIN')}"><button class="table-sort" data-sort="sort-owner">Propriétaire</button></th>
+                              <th>Nom</th>
+                              <th>Taille</th>
+                              <th>Modifié le</th>
+                              <th th:if="${session?.user?.hasRole('ROLE_ADMIN')}">Permissions</th>
+                              <th th:if="${session?.user?.hasRole('ROLE_ADMIN')}">Propriétaire</th>
                               <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" class="fit-cell-content"></th>
                           </tr>
                         </thead>
@@ -147,10 +148,10 @@
                                   </a>
                                 </div>
                               </td>
-                              <td class="sort-height" th:text="${item.fileSize}"></td>
-                              <td class="sort-modified" th:text="${#calendars.format(item.lastModifiedDate, 'dd-MM-yyyy  HH:mm')}"></td>
-                              <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" class="sort-permission" th:text="${item.permissions}"></td>
-                              <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" class="sort-owner" th:text="${item.owner}"></td>
+                              <td th:text="${item.fileSize}"></td>
+                              <td th:text="${#calendars.format(item.lastModifiedDate, 'dd-MM-yyyy  HH:mm')}"></td>
+                              <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" th:text="${item.permissions}"></td>
+                              <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" th:text="${item.owner}"></td>
                               <td class="inline-actions fit-cell-content" th:if="${session?.action == null && session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET')}">
                                 <div class="dropdown" th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE') && !isHome}">
                                   <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
@@ -189,7 +190,7 @@
                         </tbody>
                       </table>
                     </div>
-                    <div class="card-footer d-flex align-items-center">
+                    <div class="card-footer py-2 d-flex align-items-center border-top-none">
                       <div class="row">
                         <div class="col-auto d-flex align-items-center pe-2">
                           <span class="legend me-2 bg-primary"></span>
@@ -338,12 +339,11 @@
         </div>
       </div>
     </div>
-    <script th:src="@{/js/list.min.js}"></script>
     <script th:src="@{/js/jquery.min.js}"></script>
     <script th:src="@{/js/tabler.min.js}"></script>
     <script th:src="@{/js/demo.min.js}"></script>
     <script th:src="@{/js/js-snackbar.min.js}"></script>
-    <script th:src="@{/js/jquery.dataTables1.min.js}"></script>
+    <script th:src="@{/js/jquery.dataTables.explorer.min.js}"></script>
     <script th:src="@{/js/loadingoverlay.min.js}"></script>
     <script th:src="@{/js/dropzone.min.js}"></script>
     <script th:src="@{/js/file.manager.js}"></script>
@@ -386,15 +386,6 @@
           document.uploadForm.submit();
         }
       }
-    </script>
-    <script th:if="${!#lists.isEmpty(items)}">
-      document.addEventListener("DOMContentLoaded", function() {
-        new List('table-default', {
-          sortClass: 'table-sort',
-          listClass: 'table-tbody',
-          valueNames: ['sort-name', 'sort-height', 'sort-modified', 'sort-permission', 'sort-owner']
-        });
-      })
     </script>
   </body>
 </html>

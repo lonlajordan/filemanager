@@ -13,6 +13,7 @@
     <link th:href="@{/css/demo.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/dropzone.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
     <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
 </head>
 <body>
@@ -80,17 +81,17 @@
                     <div class="col-12 mt-1">
                         <div class="card">
                             <div id="table-default">
-                                <table class="table card-table table-vcenter text-nowrap datatable" id="main-table">
+                                <table class="table card-table table-vcenter text-nowrap datatable paging exclude-first-sort" id="main-table">
                                     <thead>
                                     <tr>
                                         <th th:if="${session?.action == null}" class="w-1">
                                             <input class="form-check-input m-0 align-middle" type="checkbox" id="js-select-all-items" onclick="selectItems(this)">
                                         </th>
-                                        <th><button class="table-sort" data-sort="sort-name">Nom d'utilisateur</button></th>
-                                        <th><button class="table-sort" data-sort="sort-institution">Institution</button></th>
-                                        <th><button class="table-sort" data-sort="sort-role">Roles</button></th>
-                                        <th><button class="table-sort" data-sort="sort-status">Statut</button></th>
-                                        <th><button class="table-sort" data-sort="sort-login">Dernière connexion</button></th>
+                                        <th>Nom d'utilisateur</th>
+                                        <th>Institution</th>
+                                        <th>Roles</th>
+                                        <th>Statut</th>
+                                        <th>Dernière connexion</th>
                                         <th class="fit-cell-content"></th>
                                     </tr>
                                     </thead>
@@ -99,21 +100,21 @@
                                         <td>
                                             <input class="form-check-input m-0 align-middle" type="checkbox" th:value="${user.id}" onclick="return selectItem(this)">
                                         </td>
-                                        <td class="sort-name"th:text="${user.username}"></td>
-                                        <td class="sort-name"th:text="${user.institution}"></td>
-                                        <td class="sort-role">
+                                        <td th:text="${user.username}"></td>
+                                        <td th:text="${user.institution}"></td>
+                                        <td>
                                             <span th:each="role, iter: ${user.roleList}">
                                                 <span th:text="${role.displayValue}"></span>
                                                 <br th:if="${iter.count > 0}">
                                             </span>
                                         </td>
-                                        <td class="sort-status" th:if="${user.enabled}">
+                                        <td th:if="${user.enabled}">
                                             <span class="badge bg-success me-1"></span> Actif
                                         </td>
-                                        <td class="sort-status" th:unless="${user.enabled}">
+                                        <td th:unless="${user.enabled}">
                                             <span class="badge bg-danger me-1"></span> Désactivé
                                         </td>
-                                        <td class="sort-login" th:text="${#calendars.format(user.lastLogin, 'dd-MM-yyyy  HH:mm')}"></td>
+                                        <td th:text="${#calendars.format(user.lastLogin, 'dd-MM-yyyy  HH:mm')}"></td>
                                         <td class="inline-actions fit-cell-content">
                                             <div class="dropdown">
                                                 <a href="#" class="link-secondary show" data-bs-toggle="dropdown" aria-expanded="true">
@@ -247,7 +248,6 @@
         </div>
     </div>
 </div>
-<script th:src="@{/js/list.min.js}"></script>
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/tabler.min.js}"></script>
 <script th:src="@{/js/demo.min.js}"></script>
@@ -266,15 +266,6 @@
         fixed: true,
         timeout: 3000,
     });
-</script>
-<script th:if="${!#lists.isEmpty(users)}">
-    document.addEventListener("DOMContentLoaded", function() {
-        new List('table-default', {
-            sortClass: 'table-sort',
-            listClass: 'table-tbody',
-            valueNames: ['sort-name', 'sort-institution', 'sort-role', 'sort-login']
-        });
-    })
 </script>
 <script>
     $('#modal-create').on('hidden.bs.modal', function () {
