@@ -1,5 +1,5 @@
 let $ = jQuery;
-let table;
+let table = undefined;
 let ctx = $("meta[name='ctx']").attr("content");
 let options = {
     background: 'rgba(255, 255, 255, 0.75)'
@@ -29,25 +29,14 @@ function reverseSelection(){
     let rows = table.rows({selected : true})[0];
     table.rows().select();
     table.rows(rows).deselect();
+    selectItem();
 }
 
-function selectItem(checkBox){
-    setTimeout(()=> {
+function selectItem(checkBox = null){
+    setTimeout(() => {
         let count = table.rows( { selected: true } ).count();
-        if(count === 0){
-            $("#js-select-all-items").prop( "indeterminate", false);
-            $("#js-select-all-items").prop( "checked", false);
-        }else{
-            let length = table.rows().count();
-            if(count < length){
-                $("#js-select-all-items").prop( "indeterminate", true);
-                $("#js-select-all-items").prop( "checked", false);
-            }else{
-                $("#js-select-all-items").prop( "indeterminate", false);
-                $("#js-select-all-items").prop( "checked", true);
-            }
-
-        }
+        let length = table.rows().count();
+        $("#js-select-all-items").prop( "checked", count === length);
     }, 200);
 }
 
@@ -104,7 +93,8 @@ function changeRole(event) {
 }
 
 function invoke(action, object = 'file') {
-    let values = $.makeArray($("#main-table tbody input[type=checkbox]:checked")).map(checkbox => $(checkbox).val());
+    //let values = $.makeArray($("#main-table tbody input[type=checkbox]:checked")).map(checkbox => $(checkbox).val());
+    let values = $.makeArray(table.rows({selected : true}).data().map(line => $($.parseHTML(line[0])).val()));
     if(values === undefined || values.length === 0){
         new SnackBar({
             message: 'Aucun élément sélectionné',
