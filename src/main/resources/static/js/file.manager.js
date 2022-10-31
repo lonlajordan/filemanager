@@ -21,7 +21,6 @@ function selectItems(checkBox){
     }else{
         table.rows().deselect();
     }
-
 }
 
 function reverseSelection(){
