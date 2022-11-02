@@ -15,11 +15,20 @@ function changeInstitution(event) {
 }
 
 function selectItems(checkBox){
-    $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = checkBox.checked;});
     if(checkBox.checked){
-        table.rows().select();
+        table.rows({search: 'applied'}).select();
     }else{
         table.rows().deselect();
+    }
+    let rows = table.$("tr");
+    for(let row of rows){
+        if(checkBox.checked){
+            if($(row).hasClass('selected')){
+                $(row).find("input[type=checkbox]").prop('checked', true);
+            }
+        }else{
+            $(row).find("input[type=checkbox]").prop('checked', false);
+        }
     }
 }
 
