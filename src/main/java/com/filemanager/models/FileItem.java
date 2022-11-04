@@ -21,7 +21,6 @@ public class FileItem {
     private String owner = "";
     private String permissions = "";
     private String absolutePath = "";
-    private String icon = "";
     private long size;
 
     public FileItem(File file) throws IOException {
@@ -32,7 +31,6 @@ public class FileItem {
         this.lastModifiedDate = Date.from(attr.lastModifiedTime().toInstant());
         this.size = attr.size();
         this.fileSize = this.file.isDirectory() ? "-" : FileUtils.readableFileSize(this.size);
-        this.icon = this.file.isDirectory() ? "fa-folder-o" : FileUtils.icon(file.getName().substring(file.getName().lastIndexOf(".") + 1).toLowerCase());
         FileOwnerAttributeView view = Files.getFileAttributeView(path, FileOwnerAttributeView.class);
         UserPrincipal user = view.getOwner();
         this.owner = user.getName();
@@ -98,13 +96,5 @@ public class FileItem {
 
     public void setAbsolutePath(String absolutePath) {
         this.absolutePath = absolutePath;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
     }
 }
