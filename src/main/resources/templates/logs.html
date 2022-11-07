@@ -15,7 +15,7 @@
     <link th:href="@{/css/dropzone.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/pagination.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
-    <link th:href="@{/css/select.dataTables.min.css}" rel="stylesheet">
+    <link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
     <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
 </head>
 <body>
@@ -87,11 +87,11 @@
                     <div class="col-12 mt-1">
                         <div class="card">
                             <div id="table-default">
-                                <table class="table card-table table-vcenter text-nowrap datatable paging exclude-first-sort" id="main-table">
+                                <table class="table card-table table-vcenter text-nowrap datatable paging exclude-first-sort multiple-selection" id="main-table">
                                     <thead>
                                     <tr>
                                         <th th:if="${session?.action == null}" class="w-1">
-                                            <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices" id="js-select-all-items" onclick="selectItems(this)">
+                                            <input class="form-check-input m-0 align-middle" type="checkbox" id="js-select-all-items">
                                         </th>
                                         <th>Date</th>
                                         <th>Type</th>
@@ -100,9 +100,9 @@
                                     </tr>
                                     </thead>
                                     <tbody class="table-tbody">
-                                        <tr th:each="log,iter: ${logs}">
+                                        <tr th:each="log,iter: ${logs}"th:data-id="${log.id}">
                                             <td>
-                                                <input class="form-check-input m-0 align-middle" type="checkbox" th:id="${'item-' + iter.count}" name="ids" th:value="${log.id}" onclick="return selectItem(this)">
+                                                <input class="form-check-input m-0 align-middle" type="checkbox" th:id="${'item-' + iter.count}" name="ids" th:data-index="${iter.count}">
                                             </td>
                                             <td class="sort-date" th:text="${#calendars.format(log.date, 'dd-MM-yyyy  HH:mm')}"></td>
                                             <td class="sort-level">
@@ -236,8 +236,8 @@
 <script th:src="@{/js/tabler.min.js}"></script>
 <script th:src="@{/js/demo.min.js}"></script>
 <script th:src="@{/js/js-snackbar.min.js}"></script>
-<script th:src="@{/js/jquery.dataTables.min.js}"></script>
-<script th:src="@{/js/dataTables.select.min.js}"></script>
+<script th:src="@{/js/dataTables.min.js}"></script>
+<script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
 <script th:src="@{/js/loadingoverlay.min.js}"></script>
 <script th:src="@{/js/dropzone.min.js}"></script>
 <script th:src="@{/js/pagination.min.js}"></script>

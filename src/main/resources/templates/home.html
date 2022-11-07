@@ -14,7 +14,7 @@
     <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/dropzone.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
-    <link th:href="@{/css/select.dataTables.min.css}" rel="stylesheet">
+    <link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
     <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
   </head>
   <body>
@@ -120,11 +120,11 @@
                 <div class="col-12 mt-1">
                   <div class="card">
                     <div id="table-default">
-                      <table class="table card-table table-vcenter text-nowrap datatable exclude-first-sort no-info" id="main-table">
+                      <table class="table card-table table-vcenter text-nowrap datatable exclude-first-sort no-info multiple-selection" id="main-table">
                         <thead>
                           <tr>
                               <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" class="w-1">
-                                <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices" id="js-select-all-items" onclick="selectItems(this)">
+                                <input class="dt-checkboxes m-0 align-middle" type="checkbox" id="js-select-all-items">
                               </th>
                               <th>Nom</th>
                               <th>Taille</th>
@@ -135,9 +135,9 @@
                           </tr>
                         </thead>
                         <tbody class="table-tbody">
-                            <tr th:each="item,iter: ${items}">
+                            <tr th:each="item,iter: ${items}" th:data-id="${item.absolutePath}">
                               <td th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}">
-                                <input class="form-check-input m-0 align-middle" type="checkbox" th:id="${'item-' + iter.count}" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" name="paths" th:value="${item.absolutePath}" onclick="return selectItem(this)">
+                                <input class="form-check-input m-0 align-middle" type="checkbox" th:id="${'item-' + iter.count}" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" name="paths" th:value="${item.absolutePath}">
                               </td>
                               <td class="sort-name">
                                 <div class="filename">
@@ -344,8 +344,8 @@
     <script th:src="@{/js/tabler.min.js}"></script>
     <script th:src="@{/js/demo.min.js}"></script>
     <script th:src="@{/js/js-snackbar.min.js}"></script>
-    <script th:src="@{/js/jquery.dataTables.explorer.min.js}"></script>
-    <script th:src="@{/js/dataTables.select.min.js}"></script>
+    <script th:src="@{/js/dataTables.explorer.min.js}"></script>
+    <script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
     <script th:src="@{/js/loadingoverlay.min.js}"></script>
     <script th:src="@{/js/dropzone.min.js}"></script>
     <script th:src="@{/js/file.manager.js}"></script>

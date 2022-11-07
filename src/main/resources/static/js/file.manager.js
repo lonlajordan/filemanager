@@ -28,15 +28,6 @@ function reverseSelection(){
     let rows = table.rows({selected : true})[0];
     table.rows().select();
     table.rows(rows).deselect();
-    selectItem();
-}
-
-function selectItem(checkBox = null){
-    setTimeout(() => {
-        let count = table.rows( { selected: true } ).count();
-        let length = table.rows().count();
-        $("#js-select-all-items").prop( "checked", count === length);
-    }, 200);
 }
 
 function deleteItem(id, url){
@@ -276,6 +267,13 @@ $(document).ready( function () {
         columnDefs:  [
             list.hasClass("include-last-sort") ? {} : {orderable: false, targets: -1},
             list.hasClass("exclude-first-sort") ? {orderable: false, targets: 0} : {},
+            list.hasClass("multiple-selection") ? {
+                'targets': 0,
+                'checkboxes': {
+                    'selectRow': true,
+                    'selectAllPages': false,
+                }
+            } : {}
         ],
         select: {
             style: 'multi',
