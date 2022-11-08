@@ -14,17 +14,7 @@ function changeInstitution(event) {
     }
 }
 
-function selectItems(checkBox){
-    $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = checkBox.checked;});
-    if(checkBox.checked){
-        table.rows().select();
-    }else{
-        table.rows().deselect();
-    }
-}
-
 function reverseSelection(){
-    $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = !this.checked; })
     let rows = table.rows({selected : true})[0];
     table.rows().select();
     table.rows(rows).deselect();
@@ -83,7 +73,6 @@ function changeRole(event) {
 }
 
 function invoke(action, object = 'file') {
-    //let values = $.makeArray($("#main-table tbody input[type=checkbox]:checked")).map(checkbox => $(checkbox).val());
     let values = $.makeArray(table.rows({selected : true}).data().map(line => $($.parseHTML(line[0])).val()));
     if(values === undefined || values.length === 0){
         new SnackBar({

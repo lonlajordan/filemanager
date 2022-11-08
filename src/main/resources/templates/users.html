@@ -86,7 +86,7 @@
                                     <thead>
                                     <tr>
                                         <th th:if="${session?.action == null}" class="w-1">
-                                            <input class="form-check-input m-0 align-middle" type="checkbox" id="js-select-all-items">
+                                            <input class="form-check-input m-0 align-middle" type="checkbox">
                                         </th>
                                         <th>Nom d'utilisateur</th>
                                         <th>Institution</th>
@@ -97,9 +97,9 @@
                                     </tr>
                                     </thead>
                                     <tbody class="table-tbody">
-                                    <tr th:each="user,iter: ${users}" th:data-id="${user.id}">
+                                    <tr th:each="user: ${users}">
                                         <td>
-                                            <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:data-index="${iter.count}">
+                                            <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:value="${user.id}">
                                         </td>
                                         <td th:text="${user.username}"></td>
                                         <td th:text="${user.institution}"></td>

@@ -91,7 +91,7 @@
                                     <thead>
                                     <tr>
                                         <th th:if="${session?.action == null}" class="w-1">
-                                            <input class="form-check-input m-0 align-middle" type="checkbox" id="js-select-all-items">
+                                            <input class="form-check-input m-0 align-middle" type="checkbox">
                                         </th>
                                         <th>Date</th>
                                         <th>Type</th>
@@ -100,9 +100,9 @@
                                     </tr>
                                     </thead>
                                     <tbody class="table-tbody">
-                                        <tr th:each="log,iter: ${logs}"th:data-id="${log.id}">
+                                        <tr th:each="log: ${logs}">
                                             <td>
-                                                <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:id="${'item-' + iter.count}" name="ids" th:data-index="${iter.count}">
+                                                <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:value="${log.id}">
                                             </td>
                                             <td class="sort-date" th:text="${#calendars.format(log.date, 'dd-MM-yyyy  HH:mm')}"></td>
                                             <td class="sort-level">

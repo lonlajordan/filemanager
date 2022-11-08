@@ -124,7 +124,7 @@
                         <thead>
                           <tr>
                               <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" class="w-1">
-                                <input class="form-check-input m-0 align-middle" type="checkbox" id="js-select-all-items">
+                                <input class="form-check-input m-0 align-middle" type="checkbox">
                               </th>
                               <th>Nom</th>
                               <th>Taille</th>
@@ -135,9 +135,9 @@
                           </tr>
                         </thead>
                         <tbody class="table-tbody">
-                            <tr th:each="item,iter: ${items}" th:data-id="${item.absolutePath}">
+                            <tr th:each="item: ${items}">
                               <td th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}">
-                                <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:id="${'item-' + iter.count}" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" name="paths" th:value="${item.absolutePath}">
+                                <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" th:value="${item.absolutePath}">
                               </td>
                               <td class="sort-name">
                                 <div class="filename">
