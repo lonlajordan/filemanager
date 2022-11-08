@@ -1,13 +1,11 @@
 package com.filemanager.controllers;
 
 import com.filemanager.enums.Institution;
-import com.filemanager.enums.Role;
 import com.filemanager.models.FileItem;
 import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.models.User;
 import com.filemanager.repositories.LogRepository;
-import com.filemanager.services.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,8 +84,8 @@ public class HomeController {
         model.addAttribute("folders", folders);
         try {
             FileStore store = Files.getFileStore(Paths.get(home.toURI()));
-            model.addAttribute("freeSpace", FileUtils.readableFileSize(store.getUsableSpace()));
-            model.addAttribute("totalSpace", FileUtils.readableFileSize(store.getTotalSpace()));
+            model.addAttribute("freeSpace", FileItem.readableSize(store.getUsableSpace()));
+            model.addAttribute("totalSpace", FileItem.readableSize(store.getTotalSpace()));
         } catch (IOException e) {
             logRepository.save(Log.error("Erreur lors de la lecture des propriétés de la partition", ExceptionUtils.getStackTrace(e)));
         }

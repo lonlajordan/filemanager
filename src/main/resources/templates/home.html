@@ -120,7 +120,7 @@
                 <div class="col-12 mt-1">
                   <div class="card">
                     <div id="table-default">
-                      <table class="table card-table table-vcenter text-nowrap datatable exclude-first-sort no-info multiple-selection" id="main-table">
+                      <table class="table card-table table-vcenter text-nowrap datatable exclude-first-sort no-info searching multiple-selection" id="main-table">
                         <thead>
                           <tr>
                               <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" class="w-1">
@@ -129,7 +129,6 @@
                               <th>Nom</th>
                               <th>Taille</th>
                               <th>Modifié le</th>
-                              <th th:if="${session?.user?.hasRole('ROLE_ADMIN')}">Permissions</th>
                               <th th:if="${session?.user?.hasRole('ROLE_ADMIN')}">Propriétaire</th>
                               <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" class="fit-cell-content"></th>
                           </tr>
@@ -151,7 +150,6 @@
                               </td>
                               <td th:text="${item.fileSize}"></td>
                               <td th:text="${#calendars.format(item.lastModifiedDate, 'dd-MM-yyyy  HH:mm')}"></td>
-                              <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" th:text="${item.permissions}"></td>
                               <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" th:text="${item.owner}"></td>
                               <td class="inline-actions fit-cell-content" th:if="${session?.action == null && session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET')}">
                                 <div class="dropdown" th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE') && !isHome}">
@@ -194,14 +192,14 @@
                     <div class="card-footer py-2 d-flex align-items-center border-top-none">
                       <div class="row">
                         <div class="col-auto d-flex align-items-center pe-2">
-                          <span class="legend me-2 bg-primary"></span>
-                          <span>Fichiers</span>
-                          <span class="d-md-inline d-xxl-inline ms-2 text-muted" th:text="${files}"></span>
-                        </div>
-                        <div class="col-auto d-flex align-items-center px-2">
                           <span class="legend me-2 bg-danger"></span>
                           <span>Dossiers</span>
                           <span class="d-md-inline d-xxl-inline ms-2 text-muted" th:text="${folders}"></span>
+                        </div>
+                        <div class="col-auto d-flex align-items-center px-2">
+                          <span class="legend me-2 bg-black"></span>
+                          <span>Fichiers</span>
+                          <span class="d-md-inline d-xxl-inline ms-2 text-muted" th:text="${files}"></span>
                         </div>
                         <div class="col-auto d-flex align-items-center px-2">
                           <span class="legend me-2 bg-success"></span>

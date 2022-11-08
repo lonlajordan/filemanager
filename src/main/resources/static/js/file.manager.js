@@ -166,7 +166,6 @@ function downloadFile(paths, url) {
                 timeout: 3000,
             });
         }
-        $("#main-table input[type=checkbox]:checked").each(function () { this.checked = false; });
         $('#wrapper').LoadingOverlay('hide', options);
         $('#wrapper').scrollTop(0);
     };
