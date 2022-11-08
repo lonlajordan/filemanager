@@ -14,38 +14,10 @@ function changeInstitution(event) {
     }
 }
 
-function selectItems(checkBox){
-    if(checkBox.checked){
-        table.rows({search: 'applied'}).select();
-    }else{
-        table.rows().deselect();
-    }
-    let rows = table.$("tr");
-    for(let row of rows){
-        if(checkBox.checked){
-            if($(row).hasClass('selected')){
-                $(row).find("input[type=checkbox]").prop('checked', true);
-            }
-        }else{
-            $(row).find("input[type=checkbox]").prop('checked', false);
-        }
-    }
-}
-
 function reverseSelection(){
-    $("#main-table tbody tr input[type=checkbox]").each(function () { this.checked = !this.checked; })
     let rows = table.rows({selected : true})[0];
     table.rows().select();
     table.rows(rows).deselect();
-    selectItem();
-}
-
-function selectItem(checkBox = null){
-    setTimeout(() => {
-        let count = table.rows( { selected: true } ).count();
-        let length = table.rows().count();
-        $("#js-select-all-items").prop( "checked", count === length);
-    }, 200);
 }
 
 function deleteItem(id, url){
@@ -101,7 +73,6 @@ function changeRole(event) {
 }
 
 function invoke(action, object = 'file') {
-    //let values = $.makeArray($("#main-table tbody input[type=checkbox]:checked")).map(checkbox => $(checkbox).val());
     let values = $.makeArray(table.rows({selected : true}).data().map(line => $($.parseHTML(line[0])).val()));
     if(values === undefined || values.length === 0){
         new SnackBar({
@@ -195,7 +166,6 @@ function downloadFile(paths, url) {
                 timeout: 3000,
             });
         }
-        $("#main-table input[type=checkbox]:checked").each(function () { this.checked = false; });
         $('#wrapper').LoadingOverlay('hide', options);
         $('#wrapper').scrollTop(0);
     };
@@ -285,6 +255,17 @@ $(document).ready( function () {
         columnDefs:  [
             list.hasClass("include-last-sort") ? {} : {orderable: false, targets: -1},
             list.hasClass("exclude-first-sort") ? {orderable: false, targets: 0} : {},
+            list.hasClass("multiple-selection") ? {
+                'targets': 0,
+                'checkboxes': {
+                    'selectRow': true,
+                    'selectAllPages': false,
+                    'selectAllRender': '<input type="checkbox" class="form-check-input">',
+                },
+                'render': function (data){
+                    return data;
+                }
+            } : {}
         ],
         select: {
             style: 'multi',

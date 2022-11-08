@@ -1,7 +1,5 @@
 package com.filemanager.models;
 
-import com.filemanager.services.FileUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -12,6 +10,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileOwnerAttributeView;
 import java.nio.file.attribute.UserPrincipal;
+import java.text.DecimalFormat;
 import java.util.Date;
 
 public class FileItem {
@@ -19,9 +18,7 @@ public class FileItem {
     private Date lastModifiedDate;
     private String fileSize = "";
     private String owner = "";
-    private String permissions = "";
     private String absolutePath = "";
-    private String icon = "";
     private long size;
 
     public FileItem(File file) throws IOException {
@@ -31,14 +28,10 @@ public class FileItem {
         BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
         this.lastModifiedDate = Date.from(attr.lastModifiedTime().toInstant());
         this.size = attr.size();
-        this.fileSize = this.file.isDirectory() ? "-" : FileUtils.readableFileSize(this.size);
-        this.icon = this.file.isDirectory() ? "fa-folder-o" : FileUtils.icon(file.getName().substring(file.getName().lastIndexOf(".") + 1).toLowerCase());
+        this.fileSize = this.file.isDirectory() ? "-" : readableSize(this.size);
         FileOwnerAttributeView view = Files.getFileAttributeView(path, FileOwnerAttributeView.class);
         UserPrincipal user = view.getOwner();
         this.owner = user.getName();
-        try {
-            this.permissions = FileUtils.toOctalFileMode(Files.getPosixFilePermissions(file.toPath())) + "";
-        }catch (Exception ignored){}
     }
 
     public FileItem() {
@@ -84,14 +77,6 @@ public class FileItem {
         this.owner = owner;
     }
 
-    public String getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(String permissions) {
-        this.permissions = permissions;
-    }
-
     public String getAbsolutePath() {
         return absolutePath;
     }
@@ -100,11 +85,10 @@ public class FileItem {
         this.absolutePath = absolutePath;
     }
 
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
+    public static String readableSize(long size) {
+        if(size <= 0) return "0";
+        final String[] units = new String[] { "o", "Ko", "Mo", "Go", "To" };
+        int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
+        return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 }

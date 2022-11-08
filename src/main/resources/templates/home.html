@@ -14,7 +14,7 @@
     <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/dropzone.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
-    <link th:href="@{/css/select.dataTables.min.css}" rel="stylesheet">
+    <link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
     <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
   </head>
   <body>
@@ -120,24 +120,23 @@
                 <div class="col-12 mt-1">
                   <div class="card">
                     <div id="table-default">
-                      <table class="table card-table table-vcenter text-nowrap datatable exclude-first-sort no-info" id="main-table">
+                      <table class="table card-table table-vcenter text-nowrap datatable exclude-first-sort no-info searching multiple-selection" id="main-table">
                         <thead>
                           <tr>
                               <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" class="w-1">
-                                <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices" id="js-select-all-items" onclick="selectItems(this)">
+                                <input class="form-check-input m-0 align-middle" type="checkbox">
                               </th>
                               <th>Nom</th>
                               <th>Taille</th>
                               <th>Modifié le</th>
-                              <th th:if="${session?.user?.hasRole('ROLE_ADMIN')}">Permissions</th>
                               <th th:if="${session?.user?.hasRole('ROLE_ADMIN')}">Propriétaire</th>
                               <th th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}" class="fit-cell-content"></th>
                           </tr>
                         </thead>
                         <tbody class="table-tbody">
-                            <tr th:each="item,iter: ${items}">
+                            <tr th:each="item: ${items}">
                               <td th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET') && session?.action == null}">
-                                <input class="form-check-input m-0 align-middle" type="checkbox" th:id="${'item-' + iter.count}" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" name="paths" th:value="${item.absolutePath}" onclick="return selectItem(this)">
+                                <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:data-item-type="${item.file?.directory ? 'folder' : 'file'}" th:value="${item.absolutePath}">
                               </td>
                               <td class="sort-name">
                                 <div class="filename">
@@ -151,7 +150,6 @@
                               </td>
                               <td th:text="${item.fileSize}"></td>
                               <td th:text="${#calendars.format(item.lastModifiedDate, 'dd-MM-yyyy  HH:mm')}"></td>
-                              <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" th:text="${item.permissions}"></td>
                               <td th:if="${session?.user?.hasRole('ROLE_ADMIN')}" th:text="${item.owner}"></td>
                               <td class="inline-actions fit-cell-content" th:if="${session?.action == null && session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE', 'ROLE_BANK_MONET')}">
                                 <div class="dropdown" th:if="${session?.user?.hasAnyRole('ROLE_ADMIN', 'ROLE_GIE') && !isHome}">
@@ -194,14 +192,14 @@
                     <div class="card-footer py-2 d-flex align-items-center border-top-none">
                       <div class="row">
                         <div class="col-auto d-flex align-items-center pe-2">
-                          <span class="legend me-2 bg-primary"></span>
-                          <span>Fichiers</span>
-                          <span class="d-md-inline d-xxl-inline ms-2 text-muted" th:text="${files}"></span>
-                        </div>
-                        <div class="col-auto d-flex align-items-center px-2">
                           <span class="legend me-2 bg-danger"></span>
                           <span>Dossiers</span>
                           <span class="d-md-inline d-xxl-inline ms-2 text-muted" th:text="${folders}"></span>
+                        </div>
+                        <div class="col-auto d-flex align-items-center px-2">
+                          <span class="legend me-2 bg-black"></span>
+                          <span>Fichiers</span>
+                          <span class="d-md-inline d-xxl-inline ms-2 text-muted" th:text="${files}"></span>
                         </div>
                         <div class="col-auto d-flex align-items-center px-2">
                           <span class="legend me-2 bg-success"></span>
@@ -344,8 +342,8 @@
     <script th:src="@{/js/tabler.min.js}"></script>
     <script th:src="@{/js/demo.min.js}"></script>
     <script th:src="@{/js/js-snackbar.min.js}"></script>
-    <script th:src="@{/js/jquery.dataTables.explorer.min.js}"></script>
-    <script th:src="@{/js/dataTables.select.min.js}"></script>
+    <script th:src="@{/js/dataTables.explorer.min.js}"></script>
+    <script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
     <script th:src="@{/js/loadingoverlay.min.js}"></script>
     <script th:src="@{/js/dropzone.min.js}"></script>
     <script th:src="@{/js/file.manager.js}"></script>

@@ -74,4 +74,13 @@ input[type=checkbox] {
     border-top: none !important;
 }
 
+/*
+table.card-table input[type=checkbox]{
+    display: flow-root !important;
+    width: 1rem !important;
+    height: 1rem !important;
+    vertical-align: top;
+    border-radius: var(--tblr-border-radius);
+}
+*/
 

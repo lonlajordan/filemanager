@@ -14,7 +14,7 @@
     <link th:href="@{/css/js-snackbar.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/dropzone.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/jquery.dataTables.min.css}" rel="stylesheet">
-    <link th:href="@{/css/select.dataTables.min.css}" rel="stylesheet">
+    <link th:href="@{/css/dataTables.checkboxes.css}" rel="stylesheet">
     <link th:href="@{/css/filemanager.css}" rel="stylesheet"/>
 </head>
 <body>
@@ -82,11 +82,11 @@
                     <div class="col-12 mt-1">
                         <div class="card">
                             <div id="table-default">
-                                <table class="table card-table table-vcenter text-nowrap datatable paging exclude-first-sort" id="main-table">
+                                <table class="table card-table table-vcenter text-nowrap datatable paging exclude-first-sort searching multiple-selection" id="main-table">
                                     <thead>
                                     <tr>
                                         <th th:if="${session?.action == null}" class="w-1">
-                                            <input class="form-check-input m-0 align-middle" type="checkbox" id="js-select-all-items" onclick="selectItems(this)">
+                                            <input class="form-check-input m-0 align-middle" type="checkbox">
                                         </th>
                                         <th>Nom d'utilisateur</th>
                                         <th>Institution</th>
@@ -99,7 +99,7 @@
                                     <tbody class="table-tbody">
                                     <tr th:each="user: ${users}">
                                         <td>
-                                            <input class="form-check-input m-0 align-middle" type="checkbox" th:value="${user.id}" onclick="return selectItem(this)">
+                                            <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:value="${user.id}">
                                         </td>
                                         <td th:text="${user.username}"></td>
                                         <td th:text="${user.institution}"></td>
@@ -253,8 +253,8 @@
 <script th:src="@{/js/tabler.min.js}"></script>
 <script th:src="@{/js/demo.min.js}"></script>
 <script th:src="@{/js/js-snackbar.min.js}"></script>
-<script th:src="@{/js/jquery.dataTables.min.js}"></script>
-<script th:src="@{/js/dataTables.select.min.js}"></script>
+<script th:src="@{/js/dataTables.min.js}"></script>
+<script th:src="@{/js/dataTables.checkboxes.min.js}"></script>
 <script th:src="@{/js/loadingoverlay.min.js}"></script>
 <script th:src="@{/js/dropzone.min.js}"></script>
 <script th:src="@{/js/file.manager.js}"></script>
