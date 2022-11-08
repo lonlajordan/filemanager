@@ -99,7 +99,7 @@
                                     <tbody class="table-tbody">
                                     <tr th:each="user,iter: ${users}" th:data-id="${user.id}">
                                         <td>
-                                            <input class="form-check-input m-0 align-middle" type="checkbox" th:data-index="${iter.count}">
+                                            <input class="form-check-input dt-checkboxes m-0 align-middle" type="checkbox" th:data-index="${iter.count}">
                                         </td>
                                         <td th:text="${user.username}"></td>
                                         <td th:text="${user.institution}"></td>

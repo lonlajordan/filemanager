@@ -272,6 +272,10 @@ $(document).ready( function () {
                 'checkboxes': {
                     'selectRow': true,
                     'selectAllPages': false,
+                    'selectAllRender': '<input type="checkbox" class="form-check-input">',
+                },
+                'render': function (data){
+                    return data;
                 }
             } : {}
         ],
