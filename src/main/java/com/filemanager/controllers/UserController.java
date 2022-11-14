@@ -8,6 +8,7 @@ import com.filemanager.models.User;
 import com.filemanager.repositories.LogRepository;
 import com.filemanager.repositories.UserRepository;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,7 +19,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -73,7 +77,7 @@ public class UserController {
     }
 
     @PostMapping(value = "save")
-    public String saveUser(User user, @RequestParam(required = false, defaultValue = "ROLE_BANK_MONET") List<String> authorities, RedirectAttributes attributes, HttpSession session){
+    public String saveUser(@NonNull User user, @RequestParam(required = false, defaultValue = "ROLE_BANK_MONET") List<String> authorities, RedirectAttributes attributes, HttpSession session){
         User user$ = user;
         boolean creation = true;
         if(user.getId() != null){
@@ -113,7 +117,11 @@ public class UserController {
             user$ = new User();
         } catch (Exception e){
             notification.setType("error");
-            notification.setMessage("Erreur lors de la " + (creation ? "création" : "modification") + " de l'utilisateur <b>[ " + user$.getUsername() + " ]</b>.");
+            if(ExceptionUtils.getStackTrace(e).toLowerCase().contains("duplicate entry")){
+                notification.setMessage("L'utilisateur <b>[ " + user$.getUsername() + " ]</b> existe déjà.");
+            }else{
+                notification.setMessage("Erreur lors de la " + (creation ? "création" : "modification") + " de l'utilisateur <b>[ " + user$.getUsername() + " ]</b>.");
+            }
             logRepository.save(Log.error(notification.getMessage(), ExceptionUtils.getStackTrace(e)));
         }
 

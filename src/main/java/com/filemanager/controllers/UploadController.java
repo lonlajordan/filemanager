@@ -190,7 +190,7 @@ public class UploadController {
             root = ROOT_WORKING_DIRECTORY + File.separator + "GIEGCB";
             path = Paths.get(root, user.getInstitution().name());
         }
-        File folder = new File(path.toUri());
+        File folder = path.toFile();
         if(folder.exists()){
             completion = true;
         }else{
@@ -215,10 +215,8 @@ public class UploadController {
             fileNames.add(name);
             if (name.length() > 0) {
                 try {
-                    File serverFile = new File(folder.getAbsolutePath() + File.separator + name);
-                    BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
-                    stream.write(file.getBytes());
-                    stream.close();
+                    File serverFile = folder.toPath().resolve(name).toFile();
+                    file.transferTo(serverFile);
                     count++;
                 } catch (Exception e) {
                     logRepository.save(Log.error("Erreur lors de l'enregistrement des fichiers téléversés sur le serveur", ExceptionUtils.getStackTrace(e)));
@@ -283,6 +281,7 @@ public class UploadController {
             }
             logRepository.save(Log.info("Des fichiers <b>" + operator + "</b> ont été déposés par <b>" + principal.getName() + "</b>"));
         }
+        attributes.addAttribute("p", path.toString());
         return "redirect:/home";
     }
 }

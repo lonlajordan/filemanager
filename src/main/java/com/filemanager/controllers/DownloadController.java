@@ -7,10 +7,8 @@ import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.MimeType;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +33,18 @@ public class DownloadController {
 
     public DownloadController(LogRepository logRepository) {
         this.logRepository = logRepository;
+    }
+
+    @GetMapping(value = "preview")
+    @ResponseBody
+    public ResponseEntity<byte[]> previewFile(@RequestParam String path) {
+        try {
+            Path filePath = Paths.get(URLDecoder.decode(path, String.valueOf(StandardCharsets.UTF_8))).toAbsolutePath().normalize();
+            MediaType contentType = MediaType.asMediaType(MimeType.valueOf(Files.probeContentType(filePath)));
+            return ResponseEntity.ok().contentType(contentType).body(Files.readAllBytes(filePath));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @GetMapping("file")
