@@ -8,6 +8,7 @@ import com.filemanager.models.User;
 import com.filemanager.repositories.LogRepository;
 import com.filemanager.repositories.SettingRepository;
 import com.filemanager.services.EmailHelper;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,9 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpSession;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -196,7 +195,7 @@ public class UploadController {
         }else{
             File parent = folder.getParentFile();
             if(parent.exists()){
-                for(File file: parent.listFiles()){
+                for(File file: ObjectUtils.defaultIfNull(parent.listFiles(), new File[]{})){
                     if(file.isDirectory() && file.getName().toLowerCase().contains(folder.getName())){
                         completion = true;
                         folder = file;

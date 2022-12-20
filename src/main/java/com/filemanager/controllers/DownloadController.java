@@ -105,9 +105,7 @@ public class DownloadController {
                 return null;
             }).filter(Objects::nonNull).collect(Collectors.toList());
             zipFiles(pathList, zipOutputStream);
-            new Thread(() -> pathList.forEach(path -> {
-                logRepository.save(Log.info("Téléchargement de <b>" + path + "</b> par <b>" + principal.getName() + "</b>"));
-            })).start();
+            new Thread(() -> pathList.forEach(path -> logRepository.save(Log.info("Téléchargement de <b>" + path + "</b> par <b>" + principal.getName() + "</b>")))).start();
         };
 
         response.setHeader("Content-Transfer-Encoding", "binary");

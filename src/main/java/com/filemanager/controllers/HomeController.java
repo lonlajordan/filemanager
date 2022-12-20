@@ -6,6 +6,7 @@ import com.filemanager.models.Log;
 import com.filemanager.models.Notification;
 import com.filemanager.models.User;
 import com.filemanager.repositories.LogRepository;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,7 +59,7 @@ public class HomeController {
         ArrayList<FileItem> items = new ArrayList<>();
         int files = 0;
         int folders = 0;
-        for(File file: folder.listFiles()){
+        for(File file: ObjectUtils.defaultIfNull(folder.listFiles(), new File[]{})){
             if(file.isHidden()) continue;
             try {
                 if(action == null){
